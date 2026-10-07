@@ -1,4 +1,5 @@
-import { createGoogleAccount, findGoogleAccount } from './accounts';
+import { createGoogleAccount } from './account-commands';
+import { findGoogleAccount } from './account-queries';
 import type { verifiedGoogleProfile } from './auth-security';
 
 type Dependencies = { find: typeof findGoogleAccount; create: typeof createGoogleAccount };

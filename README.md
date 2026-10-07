@@ -41,3 +41,7 @@ Google is the only sign-in option. Marketplace bookings, reviews, messages, chec
 - `scripts` — local validation utilities
 
 The app uses Next.js 14, React 18, TypeScript, Leaflet, and Lucide icons.
+
+## User messaging
+
+Authenticated Google accounts can start conversations by recipient account ID and exchange persisted messages from the inbox. Message writes live in `src/lib/backend/message-commands.ts`; conversation reads live in `src/lib/backend/message-queries.ts`. Both use the same Prisma/PostgreSQL database, with participant authorization enforced in handlers and API routes. The messaging schema is in `prisma/documents/schema.prisma`; apply its migration with `pnpm db:documents:deploy`. This is an in-process CQRS boundary without separate databases or asynchronous projections. The local demo account inbox remains browser-only.

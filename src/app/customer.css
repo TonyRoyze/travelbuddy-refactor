@@ -2086,6 +2086,44 @@
   white-space:normal
 }
 
+.message-start-form {
+  display:flex;
+  align-items:flex-end;
+  gap:var(--space-3);
+  margin:0 0 var(--space-5);
+  max-width:760px
+}
+.message-account-id {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:var(--space-2) var(--space-3);
+  margin-bottom:var(--space-3);
+  color:var(--muted);
+  font-size:var(--type-caption)
+}
+.message-account-id code {
+  color:var(--ink);
+  font-size:var(--type-caption);
+  overflow-wrap:anywhere
+}
+.message-start-form .field {
+  flex:1;
+  min-width:0
+}
+.message-start-form input {
+  font-family:inherit
+}
+@media(max-width:600px) {
+  .message-start-form {
+    align-items:stretch;
+    flex-direction:column
+  }
+  .message-start-form .button {
+    width:100%
+  }
+}
+
 @media(pointer:coarse) {
   .save-button {
   min-width:44px;
