@@ -28,6 +28,8 @@
     "google-auth-library": "11.1.0"
   },
   "devDependencies": {
+    "@neon/config": "1.8.4",
+    "@neon/env": "1.5.1",
     "@types/leaflet": "1.9.22",
     "@types/node": "22.20.4",
     "@types/react": "18.3.31",
