@@ -22,3 +22,6 @@ coverage/
 Thumbs.db
 .idea/
 .vscode/
+
+# JSONB backend generated client
+src/generated/documents/
