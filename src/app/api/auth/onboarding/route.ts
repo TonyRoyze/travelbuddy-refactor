@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sameOrigin, SESSION_COOKIE } from '@/lib/backend/auth-security';
 import { sessionAccount, publicAccount } from '@/lib/backend/sessions';
-import { DocumentConflictError, updateAccount } from '@/lib/backend/accounts';
+import { DocumentConflictError, updateAccount } from '@/lib/backend/account-commands';
 
 const schema = z.object({ displayName: z.string().trim().min(1).max(120), acceptAccountCreation: z.literal(true) }).strict();
 export async function POST(request: NextRequest) {
