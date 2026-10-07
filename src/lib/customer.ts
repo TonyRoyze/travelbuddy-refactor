@@ -10,7 +10,6 @@ export type CustomerState = { version: 1; accounts: Account[]; saved: Record<str
 export const DATA_KEY = 'travelbuddy-v1.1-customer-data';
 export const SESSION_KEY = 'travelbuddy-v1.1-customer-session';
 export const DEMO_EMAIL = 'traveler@travelbuddy.demo';
-export const DEMO_PASSWORD = 'demo123';
 export const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 export function today(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);

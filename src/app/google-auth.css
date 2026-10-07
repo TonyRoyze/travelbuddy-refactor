@@ -1,6 +1,6 @@
 .google-sign-in { margin-block: 24px; }
 .google-sign-in p { font-size: 0.875rem; line-height: 1.5; }
-.google-button { min-height: 44px; width: 100%; max-width: 360px; }
+.google-button { min-height: 52px; width: 100%; max-width: 430px; }
 .google-button-busy { pointer-events: none; opacity: 0.65; }
 .google-auth-note { margin-block: 12px 0; color: var(--muted, #526661); }
 .google-account-page { padding-block: 48px; max-width: 760px; }

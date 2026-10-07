@@ -5,7 +5,7 @@ import { useCustomer } from './CustomerProvider';
 
 type GoogleId = {
   initialize: (config: { client_id: string; nonce: string; auto_select: boolean; callback: (response: { credential: string }) => void }) => void;
-  renderButton: (element: HTMLElement, config: { theme: string; size: string; text: string; width: number }) => void;
+  renderButton: (element: HTMLElement, config: { theme: string; size: string; text: string; shape: string; logo_alignment: string; width: number; locale: string }) => void;
   disableAutoSelect: () => void;
 };
 declare global { interface Window { google?: { accounts: { id: GoogleId } } } }
@@ -51,11 +51,11 @@ export function GoogleSignIn({ registration = false }: { registration?: boolean 
       }
     } });
     container.current.replaceChildren();
-    google.renderButton(container.current, { theme: 'outline', size: 'large', text: registration ? 'signup_with' : 'signin_with', width: Math.min(360, container.current.clientWidth || 280) });
+    google.renderButton(container.current, { theme: 'outline', size: 'large', text: registration ? 'signup_with' : 'signin_with', shape: 'pill', logo_alignment: 'left', width: Math.min(430, container.current.clientWidth || 280), locale: 'en' });
   }, [scriptReady, config, registration]);
 
   return <section className="google-sign-in" aria-label={registration ? 'Register with Google' : 'Sign in with Google'} aria-busy={busy}>
-    {config && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onReady={() => setScriptReady(true)} onError={() => setError('Google could not load. Check your connection and try again.')} />}
+    {config && <Script src="https://accounts.google.com/gsi/client?hl=en" strategy="afterInteractive" onReady={() => setScriptReady(true)} onError={() => setError('Google could not load. Check your connection and try again.')} />}
     <div ref={container} hidden={!config || Boolean(error)} className={busy ? 'google-button google-button-busy' : 'google-button'} />
     {!error && (!config || !scriptReady || busy) && <p role="status">{busy ? 'Signing in securely…' : 'Loading Google sign-in…'}</p>}
     {error && <><p className="error-message" role="alert">{error}</p><button type="button" className="text-link" onClick={() => { if (config && !window.google) { window.location.reload(); return; } setScriptReady(Boolean(window.google)); setRetry(value => value + 1); }}>Try again</button></>}
