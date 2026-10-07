@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, CalendarDays, Check, ChevronLeft, ChevronRight, Clock, Heart, MapPin, MessageCircle, Minus, Plus, Share2, ShieldCheck, ShoppingBag, Star, Users, X } from 'lucide-react';
 import { getExperience } from '@/lib/catalog';
 import { addDays, availableSlots, formatDate, money, nextAvailable, sampleReviews, today } from '@/lib/customer';
+import { useServerAuth } from './ServerAuthProvider';
 import { useCustomer } from './CustomerProvider';
 import { Back, Empty, ExperienceCard, Photo, Sheet } from './UI';
 export function ExperiencePage({ id }: { id: string }) {
-  const experience = getExperience(id); const params = useSearchParams(); const router = useRouter(); const { user, data, addCart, toggleSaved, startChat } = useCustomer();
+  const experience = getExperience(id); const params = useSearchParams(); const router = useRouter(); const { account: serverAccount, error: authError } = useServerAuth(); const { user, ready, data, addCart, toggleSaved, startChat } = useCustomer();
   const [option, setOption] = useState(() => experience?.options[Number(params.get('option'))] ? Number(params.get('option')) : 0);
   const [travelers, setTravelers] = useState(() => Math.min(12, Math.max(1, Number(params.get('travelers')) || 1)));
   const [date, setDate] = useState(() => params.get('date') || nextAvailable(id)?.date || today());
@@ -22,7 +23,7 @@ export function ExperiencePage({ id }: { id: string }) {
   const saved = Boolean(user && (data.saved[user.id] ?? []).includes(id));
   const optionData = experience.options[option]; const total = optionData.price * travelers;
   const detailLink = `/experience/${id}?${new URLSearchParams({ option: String(option), date, time, travelers: String(travelers) })}`;
-  const requireSignIn = () => router.push(`/login?next=${encodeURIComponent(detailLink)}`);
+  const requireSignIn = () => { if (!ready || authError) { setError(authError || 'Checking your session. Please try again in a moment.'); return; } router.push(serverAccount?.onboarding === 'pending' ? '/register/google' : `/login?next=${encodeURIComponent(detailLink)}`); };
   const book = () => { setError(''); if (!user) { requireSignIn(); return; } const message = addCart({ id: crypto.randomUUID(), experienceId: id, option, date, time, travelers }); if (message) { setError(message); return; } setAdded(true); setBookingOpen(false); };
   const contact = () => { if (!user) { requireSignIn(); return; } const conversation = startChat(id); if (conversation) router.push(`/inbox?conversation=${conversation}&return=${encodeURIComponent(detailLink)}`); };
   const copy = async () => { const link = `${window.location.origin}/experience/${id}`; try { await navigator.clipboard.writeText(link); setShareNotice('Experience link copied.'); } catch { setShareNotice(`Copy this link: ${link}`); } };

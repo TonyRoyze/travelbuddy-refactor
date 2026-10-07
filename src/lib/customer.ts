@@ -1,6 +1,13 @@
 import { experiences, getExperience } from './catalog';
 
 export type Account = { id: string; name: string; email: string };
+/** Browser marketplace data uses the verified server identity, never a stored demo session. */
+export function customerAccountFromSession(account: { id: string; displayName: string; onboarding: 'pending' | 'completed' } | null, accounts: Account[]): Account | undefined {
+  if (!account || account.onboarding !== 'completed') return undefined;
+  const local = accounts.find(value => value.id === account.id);
+  return { id: account.id, name: local?.name ?? account.displayName, email: local?.email ?? '' };
+}
+
 export type CartItem = { id: string; experienceId: string; option: number; date: string; time: string; travelers: number };
 export type Booking = CartItem & { owner: string; status: 'Upcoming' | 'Completed' | 'Cancelled'; reference: string; total: number; created: string; travelerName: string; travelerEmail: string };
 export type Review = { id: string; owner: string; bookingId: string; experienceId: string; rating: number; text: string; date: string };
