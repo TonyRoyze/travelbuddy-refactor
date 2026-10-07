@@ -30,7 +30,7 @@ pnpm start
 
 The V1.1 customer frontend includes PostgreSQL JSONB account storage, server-verified Google sign-in, traveler onboarding, and revocable server sessions. Set Google and database environment variables and apply the document migrations to activate authentication; see [Google authentication setup](docs/google-authentication.md), [database foundation](docs/backend-database-foundation.md), and the [Kubernetes database migration guide](docs/kubernetes-database-migration.md).
 
-The existing email/password forms remain local demos using `demo123`. Marketplace bookings, reviews, messages, checkout, and provider replies remain browser-based simulations. Google identities are kept separate from demo profiles. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
+Google is the only sign-in option. Marketplace bookings, reviews, messages, checkout, and provider replies remain browser-based demonstrations. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
 
 ## Project structure
 

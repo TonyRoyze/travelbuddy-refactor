@@ -521,7 +521,6 @@ p { max-width: 65ch; overflow-wrap: break-word; }
 .detail-page { padding-bottom: var(--space-10); }
 .auth-form-section { padding: var(--space-7) var(--page-margin); }
 .auth-form-inner { max-width: 26.25rem; }
-.auth-form { gap: var(--space-4); }
 .auth-story h2 { font-size: var(--type-h1); }
 .auth-story p { font-size: var(--type-body); }
 .account-page, .settings-page, .support-page { max-width: 42.5rem; }
@@ -561,7 +560,7 @@ p { max-width: 65ch; overflow-wrap: break-word; }
 .map-price-marker { min-height: 2.75rem; min-width: 2.75rem; font: 600 var(--type-small)/1.45 var(--font-sans); }
 .leaflet-control-zoom a { width: 2.75rem; height: 2.75rem; line-height: 2.75rem; }
 .auth-form-inner > p:not(.eyebrow), .auth-form-inner .auth-switch,
-.auth-demo-note p, .demo-payment p, .support-content details p { font-size: var(--type-body); line-height: 1.5; }
+.demo-payment p, .support-content details p { font-size: var(--type-body); line-height: 1.5; }
 .account-links > a > div, .provider-summary > div, .review-experience > div { overflow-wrap: anywhere; }
 .inclusions li { font-size: var(--type-body); }
 @media (min-width: 480px) {
@@ -751,7 +750,6 @@ p { max-width: 65ch; overflow-wrap: break-word; }
 .app-shell[data-auth="true"] .auth-form-section::-webkit-scrollbar { display: none; }
 .app-shell[data-auth="true"] .auth-form-inner { margin-inline: auto; }
 @media (max-height: 740px) {
-  .app-shell[data-auth="true"] .auth-form { gap: .75rem; }
   .app-shell[data-auth="true"] .auth-form-inner h1 { font-size: clamp(1.75rem, 4dvh, 2.5rem); }
   .app-shell[data-auth="true"] .auth-form-inner > p:not(.eyebrow) { margin-block: .5rem 1rem; }
   .app-shell[data-auth="true"] .auth-switch { margin-top: 1rem; }
