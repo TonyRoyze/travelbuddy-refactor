@@ -30,7 +30,7 @@ pnpm start
 
 The V1.1 customer frontend includes PostgreSQL JSONB account storage, server-verified Google sign-in, traveler onboarding, and revocable server sessions. Set Google and database environment variables and apply the document migrations to activate authentication; see [Google authentication setup](docs/google-authentication.md), [database foundation](docs/backend-database-foundation.md), and the [Kubernetes database migration guide](docs/kubernetes-database-migration.md).
 
-Google is the only sign-in option. Marketplace bookings, reviews, messages, checkout, and provider replies remain browser-based demonstrations. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
+Google is the only sign-in option, and English is the default application and Google button language. Legacy browser demo sessions are cleared on startup. Marketplace bookings, reviews, messages, checkout, and provider replies remain browser-based demonstrations. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
 
 ## Project structure
 
@@ -44,4 +44,4 @@ The app uses Next.js 14, React 18, TypeScript, Leaflet, and Lucide icons.
 
 ## User messaging
 
-Authenticated Google accounts can start conversations by recipient account ID and exchange persisted messages from the inbox. Message writes live in `src/lib/backend/message-commands.ts`; conversation reads live in `src/lib/backend/message-queries.ts`. Both use the same Prisma/PostgreSQL database, with participant authorization enforced in handlers and API routes. The messaging schema is in `prisma/documents/schema.prisma`; apply its migration with `pnpm db:documents:deploy`. This is an in-process CQRS boundary without separate databases or asynchronous projections. The local demo account inbox remains browser-only.
+Authenticated Google accounts can start conversations by recipient account ID and exchange persisted messages from the inbox. Message writes live in `src/lib/backend/message-commands.ts`; conversation reads live in `src/lib/backend/message-queries.ts`. Both use the same Prisma/PostgreSQL database, with participant authorization enforced in handlers and API routes. The messaging schema is in `prisma/documents/schema.prisma`; apply its migration with `pnpm db:documents:deploy`. This is an in-process CQRS boundary without separate databases or asynchronous projections.
