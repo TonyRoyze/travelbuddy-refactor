@@ -1,1 +1,1 @@
-export { InboxPage as default } from '@/components/CustomerBookings';
+export { InboxPage as default } from '@/components/Inbox';
