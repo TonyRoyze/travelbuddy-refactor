@@ -4,7 +4,7 @@ A responsive travel discovery app with experiences, local guides, travel buddies
 
 ## Run
 
-Requires Node.js 20 or later and pnpm 11.
+Requires Node.js 22 or later and pnpm 11.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -28,7 +28,9 @@ pnpm start
 
 ## Current integrations
 
-This repository is the customer frontend. Account state, bookings, reviews, and messages are stored in the browser. Checkout and provider replies are simulated. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. A live release needs server authentication, booking and payment services, provider data, and durable storage.
+The V1.1 customer frontend includes PostgreSQL JSONB account storage, server-verified Google sign-in, traveler onboarding, and revocable server sessions. Set Google and database environment variables and apply the document migrations to activate authentication; see [Google authentication setup](docs/google-authentication.md) and [database foundation](docs/backend-database-foundation.md).
+
+The existing email/password forms remain local demos using `demo123`. Marketplace bookings, reviews, messages, checkout, and provider replies remain browser-based simulations. Google identities are kept separate from demo profiles. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
 
 ## Project structure
 

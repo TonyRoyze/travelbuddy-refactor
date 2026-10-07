@@ -1,0 +1,10 @@
+.google-sign-in { margin-block: 24px; }
+.google-sign-in p { font-size: 0.875rem; line-height: 1.5; }
+.google-button { min-height: 44px; width: 100%; max-width: 360px; }
+.google-button-busy { pointer-events: none; opacity: 0.65; }
+.google-auth-note { margin-block: 12px 0; color: var(--muted, #526661); }
+.google-account-page { padding-block: 48px; max-width: 760px; }
+.google-account-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 24px; }
+.google-account-page .settings-panel { margin-top: 32px; }
+.google-account-consent { display: flex; align-items: flex-start; gap: 12px; margin-block: 24px; }
+.google-account-consent input { margin-top: 4px; flex-shrink: 0; }

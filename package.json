@@ -14,7 +14,8 @@
     "db:documents:validate": "tsx scripts/document-db.ts validate",
     "db:documents:deploy": "tsx scripts/document-db.ts deploy",
     "test:documents": "tsx scripts/check-documents.ts",
-    "test:documents:integration": "tsx scripts/check-documents-integration.ts"
+    "test:documents:integration": "tsx scripts/check-documents-integration.ts",
+    "test:google-auth": "tsx scripts/check-google-auth.ts"
   },
   "dependencies": {
     "leaflet": "1.9.4",
@@ -23,7 +24,8 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@prisma/client": "5.22.0",
-    "zod": "3.25.76"
+    "zod": "3.25.76",
+    "google-auth-library": "11.1.0"
   },
   "devDependencies": {
     "@types/leaflet": "1.9.22",
@@ -33,5 +35,8 @@
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "prisma": "5.22.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

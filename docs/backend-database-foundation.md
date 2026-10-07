@@ -63,4 +63,4 @@ Identity JSON references an account ID; the diagram represents logical associati
 
 ## Verification in this workspace
 
-Client generation, Prisma schema validation, TypeScript checking, document validation/namespace checks, and the existing 21 phase workflow checks passed. No PostgreSQL server was available on localhost:5432; the migration has not been applied and the database integration test has not been executed. SQL constraints, identity uniqueness, and transaction concurrency still require the integration verification above.
+Client generation, Prisma schema validation, TypeScript checking, document validation/namespace checks, and the 17 integrated V1.1 customer checks passed. No PostgreSQL server was available on localhost:5432; the migration has not been applied and the database integration test has not been executed. SQL constraints, identity uniqueness, and transaction concurrency still require the integration verification above.
