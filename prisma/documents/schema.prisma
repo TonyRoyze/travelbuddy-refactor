@@ -16,8 +16,45 @@ model AccountDocument {
   revision      Int      @default(1)
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  conversationsAsFirstUser Conversation[] @relation("ConversationFirstUser")
+  conversationsAsSecondUser Conversation[] @relation("ConversationSecondUser")
+  sentMessages Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageRecipient")
 
   @@map("accounts")
+}
+
+model Conversation {
+  id                String   @id @default(uuid()) @db.Uuid
+  participantOneId  String   @map("participant_one_id") @db.Uuid
+  participantTwoId  String   @map("participant_two_id") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  participantOne    AccountDocument @relation("ConversationFirstUser", fields: [participantOneId], references: [id], onDelete: Cascade)
+  participantTwo    AccountDocument @relation("ConversationSecondUser", fields: [participantTwoId], references: [id], onDelete: Cascade)
+  messages          Message[]
+
+  @@unique([participantOneId, participantTwoId])
+  @@index([participantOneId, updatedAt])
+  @@index([participantTwoId, updatedAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  senderId       String       @map("sender_id") @db.Uuid
+  recipientId    String       @map("recipient_id") @db.Uuid
+  body           String       @db.VarChar(1000)
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         AccountDocument @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient      AccountDocument @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt, id])
+  @@index([senderId, createdAt])
+  @@index([recipientId, createdAt])
+  @@map("messages")
 }
 
 model AuthIdentityDocument {

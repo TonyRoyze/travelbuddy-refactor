@@ -3,6 +3,7 @@ node_modules/
 .next*/
 .turbo/
 .vercel/
+docs/
 *.tsbuildinfo
 
 # Local configuration and logs
@@ -26,3 +27,4 @@ Thumbs.db
 # JSONB backend generated client
 src/generated/documents/
 .next-google-auth-*/
+*secret*

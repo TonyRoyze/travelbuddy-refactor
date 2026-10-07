@@ -1,5 +1,5 @@
 import { documentDatabase } from './database';
-import { findAccount } from './accounts';
+import { findAccount } from './account-queries';
 import { hashSessionToken, randomToken, sessionDataSchema, SESSION_SECONDS } from './auth-security';
 
 export async function createSession(accountId: string) {
