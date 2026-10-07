@@ -12,7 +12,9 @@ Each update uses the expected revision, increments it atomically, and rejects st
 
 ## Setup
 
-Use PostgreSQL 16 or later. Set `DOCUMENT_DATABASE_URL` in `.env.local` or the process environment, using `schema=travelbuddy_backend`. The namespace is required so the legacy relational demo remains separate. Keep credentials out of source control.
+Use PostgreSQL 16 or later. The app connects through the single `DOCUMENT_DATABASE_URL` setting in `.env.local` or the process environment. It must use `schema=travelbuddy_backend`, which keeps this backend separate from the legacy relational demo. The URL can point to local PostgreSQL, Neon, or a PostgreSQL service in Kubernetes; switching providers does not require an application code change. Keep credentials out of source control.
+
+For a Neon-to-Kubernetes move, see [Moving the database to Kubernetes](kubernetes-database-migration.md). The current local `.env.local` is configured for the Neon production branch; use an isolated database or Neon branch for development writes.
 
 From the repository root:
 
@@ -63,4 +65,4 @@ Identity JSON references an account ID; the diagram represents logical associati
 
 ## Verification in this workspace
 
-Client generation, Prisma schema validation, TypeScript checking, document validation/namespace checks, and the 17 integrated V1.1 customer checks passed. No PostgreSQL server was available on localhost:5432; the migration has not been applied and the database integration test has not been executed. SQL constraints, identity uniqueness, and transaction concurrency still require the integration verification above.
+The two document migrations have been applied to the linked Neon production branch, and a subsequent `db:documents:deploy` reported no pending migrations. The database integration test has not been run against a separate disposable database; concurrency and SQL constraint behavior should be checked there before relying on those guarantees.
