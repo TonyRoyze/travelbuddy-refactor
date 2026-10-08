@@ -1,16 +1,23 @@
 import { experiences, getExperience } from './catalog';
 
 export type Account = { id: string; name: string; email: string };
+/** Browser marketplace data uses the verified server identity, never a stored demo session. */
+export function customerAccountFromSession(account: { id: string; displayName: string; onboarding: 'pending' | 'completed' } | null, accounts: Account[]): Account | undefined {
+  if (!account || account.onboarding !== 'completed') return undefined;
+  const local = accounts.find(value => value.id === account.id);
+  return { id: account.id, name: local?.name ?? account.displayName, email: local?.email ?? '' };
+}
+
 export type CartItem = { id: string; experienceId: string; option: number; date: string; time: string; travelers: number };
 export type Booking = CartItem & { owner: string; status: 'Upcoming' | 'Completed' | 'Cancelled'; reference: string; total: number; created: string; travelerName: string; travelerEmail: string };
 export type Review = { id: string; owner: string; bookingId: string; experienceId: string; rating: number; text: string; date: string };
-export type Message = { id: string; author: 'customer' | 'sample'; text: string; at: string };
+export type SharedPackage = { experienceId: string; title: string; image: string; price: number };
+export type Message = { id: string; author: 'customer' | 'sample'; text: string; at: string; package?: SharedPackage };
 export type Conversation = { id: string; owner: string; experienceId: string; messages: Message[] };
 export type CustomerState = { version: 1; accounts: Account[]; saved: Record<string, string[]>; carts: Record<string, CartItem[]>; bookings: Booking[]; reviews: Review[]; conversations: Conversation[] };
 export const DATA_KEY = 'travelbuddy-v1.1-customer-data';
 export const SESSION_KEY = 'travelbuddy-v1.1-customer-session';
 export const DEMO_EMAIL = 'traveler@travelbuddy.demo';
-export const DEMO_PASSWORD = 'demo123';
 export const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 export function today(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);

@@ -4,7 +4,7 @@ The `backend/google-auth` feature and its database foundation are merged into th
 
 ## Behavior
 
-The V1.1 login and registration screens provide Google's official Sign in with Google button. A verified first-time Google identity creates a traveler account with pending onboarding. The traveler confirms their name and account creation at `/register/google`, then opens `/account/security`. Returning identities open their existing account. The Google account shortcut in the V1.1 header opens the protected server account page. Google accounts are identified by `sub`, never by email; no automatic email linking or administrator/provider/guide role assignment occurs. Password-based production authentication is not introduced; the existing password forms remain explicitly labeled local demos.
+The V1.1 login and registration screens use Google's official Sign in with Google button, rendered in English, as their only sign-in option. A verified first-time Google identity creates a traveler account with pending onboarding. The traveler confirms their name and account creation at `/register/google`, then opens `/account/security`. Returning identities open their existing account. The Google account shortcut in the V1.1 header opens the protected server account page. Google accounts are identified by `sub`, never by email; no automatic email linking or administrator/provider/guide role assignment occurs. Password-based production authentication is not implemented.
 
 Google Identity Services supplies an ID token to the browser callback. The server uses Google's official authentication library to verify the signature, audience, issuer, and token lifetime. A signed, short-lived HttpOnly challenge cookie binds the token nonce and CSRF value to the initiating browser. Mutating requests require the configured origin. Unverified Google email claims are rejected. Credentials are not logged, stored in local storage, or persisted in the database.
 
@@ -23,6 +23,44 @@ This feature uses `google-auth-library` 11 and requires Node.js 22 or later.
 5. Generate `AUTH_SECRET` with `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`. Keep it server-side in environment configuration; never commit it.
 6. Configure PostgreSQL `DOCUMENT_DATABASE_URL` with `schema=travelbuddy_backend` and run `npm run db:documents:deploy`. This applies the foundation and session migrations.
 7. Run `npm run db:documents:generate`, then start the application.
+
+## Local sign-in and role test accounts
+
+The Google button is already rendered on `/login` and `/register`. With the configuration above, use `/login` for returning accounts and `/register` for first-time accounts. The Google popup is provided by Google's Identity Services; it is hidden and a retry message is shown if the client ID or connection is unavailable.
+
+To test with several Google identities:
+
+1. In Google Auth Platform, add each tester's Google account under **Audience → Test users** while the consent app is in Testing mode.
+2. Sign in once with each separate Google account. Each first sign-in creates a separate `traveler` account. Complete the onboarding screen.
+3. Use a **disposable local/test database**. First look up the account by the tester's Google email and confirm the result is exactly one account:
+
+   ```sql
+   SELECT a.id, i.data->>'email' AS email, a.data->'roles' AS roles
+   FROM travelbuddy_backend.accounts AS a
+   JOIN travelbuddy_backend.auth_identities AS i
+     ON i.data->>'accountId' = a.id::text
+   WHERE i.data->>'provider' = 'google'
+     AND lower(i.data->>'email') = lower('provider.test@example.com');
+   ```
+
+   Then change the role using that account UUID. Choose an allowed role (`traveler`, `provider`, `guide`, or `admin`):
+
+   ```sql
+   BEGIN;
+
+   UPDATE travelbuddy_backend.accounts AS a
+   SET data = jsonb_set(a.data, '{roles}', '["provider"]'::jsonb),
+       revision = a.revision + 1,
+       updated_at = now()
+   WHERE a.id = 'PASTE-ACCOUNT-UUID-HERE'::uuid
+   RETURNING a.id, a.data->'roles' AS roles, a.revision;
+
+   COMMIT;
+   ```
+
+   Change `'["provider"]'` to `'["guide"]'`, `'["admin"]'`, or `'["traveler"]'` as needed. For combined roles, use e.g. `'["traveler","provider"]'`. Check that the `RETURNING` clause returns exactly one row. Run the SQL against the same PostgreSQL schema configured by `DOCUMENT_DATABASE_URL` (`travelbuddy_backend`).
+
+Role values are account metadata today. Role-specific authorization and provider/guide/admin functionality are not implemented by this V1.1 customer app. Do not grant elevated roles in a shared or production database using this testing procedure. Production role changes should go through a future authenticated, audited admin operation.
 
 When Google configuration is missing, the screens show a clear unavailable state. Database outages do not issue a session or report successful sign-in. UI login errors are generic and contain no database credentials or Google token details.
 

@@ -27,4 +27,5 @@ Thumbs.db
 # JSONB backend generated client
 src/generated/documents/
 .next-google-auth-*/
+.neon
 *secret*
