@@ -30,6 +30,8 @@ pnpm start
 
 The V1.1 customer frontend includes PostgreSQL JSONB account storage, server-verified Google sign-in, traveler onboarding, and revocable server sessions. Set Google and database environment variables and apply the document migrations to activate authentication; see [Google authentication setup](docs/google-authentication.md), [database foundation](docs/backend-database-foundation.md), and the [Kubernetes database migration guide](docs/kubernetes-database-migration.md).
 
+Package browse and search use the Prisma package catalog. Apply the migrations and seed a development database with `pnpm db:documents:deploy` and `pnpm db:packages:seed`; see [package catalog search](docs/package-catalog-search.md).
+
 Google is the only sign-in option, and English is the default application and Google button language. Legacy browser demo sessions are cleared on startup. Marketplace bookings, reviews, and checkout remain browser-based demonstrations. Traveller requests and private replies are stored on the server. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
 
 ## Project structure

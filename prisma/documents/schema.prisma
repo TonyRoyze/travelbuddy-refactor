@@ -8,7 +8,7 @@ datasource db {
   url      = env("DOCUMENT_DATABASE_URL")
 }
 
-// JSON references are validated by the backend; there are no ORM relations.
+// Account and auth state use versioned JSON documents; marketplace features use relational models.
 model AccountDocument {
   id            String   @id @default(uuid()) @db.Uuid
   data          Json     @db.JsonB
@@ -102,4 +102,31 @@ model SessionDocument {
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("sessions")
+}
+
+model ExperiencePackage {
+  id               String   @id @db.VarChar(80)
+  title            String   @db.VarChar(200)
+  destination      String   @db.VarChar(120)
+  country          String   @db.VarChar(120)
+  category         String   @db.VarChar(80)
+  price            Float
+  rating           Float
+  sortOrder        Int      @default(0) @map("sort_order")
+  durationMinutes  Int      @map("duration_minutes")
+  duration         String   @db.VarChar(80)
+  freeCancellation Boolean  @default(false) @map("free_cancellation")
+  published        Boolean  @default(true)
+  data             Json     @db.JsonB
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([published, destination])
+  @@index([published, category])
+  @@index([published, price])
+  @@index([published, rating])
+  @@index([published, sortOrder])
+  @@index([published, durationMinutes])
+  @@index([published, freeCancellation])
+  @@map("packages")
 }

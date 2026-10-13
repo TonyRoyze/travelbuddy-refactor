@@ -4,7 +4,7 @@ The `backend/database-foundation` feature is integrated into the repository root
 
 ## Scope
 
-Accounts and Google authentication identities are JSONB documents with UUID IDs, versioned envelopes, revision counters, and timestamps. There are no foreign keys or Prisma relations. The backend creates an account and its Google identity in one transaction. Google identity uniqueness is enforced by an expression index over `provider` and `providerSubject`, not by email. Different identities can share an email; account linking is a separate authenticated workflow.
+Accounts and Google authentication identities are JSONB documents with UUID IDs, versioned envelopes, revision counters, and timestamps. Their identity-to-account reference is validated in backend code. The backend creates an account and its Google identity in one transaction. Google identity uniqueness is enforced by an expression index over `provider` and `providerSubject`, not by email. Different identities can share an email; account linking is a separate authenticated workflow. Messaging and travel requests use relational Prisma models and foreign keys. The package catalog stores indexed browse fields alongside a JSONB package payload; see [package catalog search](package-catalog-search.md).
 
 New accounts default to traveler, active, onboarding pending. Role assignment and account status changes are trusted server operations. These modules expose no public API and do not implement token verification, sign-in, sessions, passwords, or automatic account linking. The future Google login feature must verify Google claims before calling account operations and must enforce account status before granting a session. Google identities contain no access tokens, refresh tokens, or passwords.
 
