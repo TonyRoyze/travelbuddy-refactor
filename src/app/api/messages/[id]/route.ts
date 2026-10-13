@@ -5,10 +5,12 @@ import { sessionAccount } from '@/lib/backend/sessions';
 import { sendMessage } from '@/lib/backend/message-commands';
 import { ConversationAccessError } from '@/lib/backend/message-errors';
 import { getConversation } from '@/lib/backend/message-queries';
+import { customPackageSchema } from '@/lib/inbox';
+import { RequestAccessError } from '@/lib/backend/request-commands';
 
 export const dynamic = 'force-dynamic';
 const headers = { 'Cache-Control': 'no-store' };
-const messageSchema = z.object({ body: z.string().trim().min(1).max(1000) }).strict();
+const messageSchema = z.object({ body: z.string().trim().min(1).max(1000), package: customPackageSchema.optional() }).strict();
 const idSchema = z.string().uuid();
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -31,13 +33,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const id = idSchema.parse(params.id);
     if (!request.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'Enter a message up to 1,000 characters.' }, { status: 400, headers });
     const text = await request.text();
-    if (text.length > 3000) return NextResponse.json({ error: 'Enter a message up to 1,000 characters.' }, { status: 400, headers });
-    const { body } = messageSchema.parse(JSON.parse(text));
-    const message = await sendMessage(account.id, id, body);
+    if (text.length > 16000) return NextResponse.json({ error: 'Enter a message up to 1,000 characters.' }, { status: 400, headers });
+    const { body, package: offer } = messageSchema.parse(JSON.parse(text));
+    const message = await sendMessage(account.id, id, body, offer);
     return NextResponse.json({ message }, { status: 201, headers });
   } catch (error) {
-    if (error instanceof ConversationAccessError || error instanceof z.ZodError) return NextResponse.json({ error: 'That conversation is unavailable.' }, { status: 404, headers });
-    if (error instanceof SyntaxError) return NextResponse.json({ error: 'Enter a message up to 1,000 characters.' }, { status: 400, headers });
+    if (error instanceof RequestAccessError) return NextResponse.json({ error: error.message }, { status: error.status, headers });
+    if (error instanceof ConversationAccessError) return NextResponse.json({ error: 'That conversation is unavailable.' }, { status: 404, headers });
+    if (error instanceof z.ZodError || error instanceof SyntaxError) return NextResponse.json({ error: 'Check your message or package details and try again.' }, { status: 400, headers });
     return NextResponse.json({ error: 'Your message could not be sent.' }, { status: 503, headers });
   }
 }
