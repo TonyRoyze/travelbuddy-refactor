@@ -15,7 +15,8 @@
     "db:documents:deploy": "tsx scripts/document-db.ts deploy",
     "test:documents": "tsx scripts/check-documents.ts",
     "test:documents:integration": "tsx scripts/check-documents-integration.ts",
-    "test:google-auth": "tsx scripts/check-google-auth.ts"
+    "test:google-auth": "tsx scripts/check-google-auth.ts",
+    "test:inbox:integration": "tsx scripts/check-inbox-integration.ts"
   },
   "dependencies": {
     "leaflet": "1.9.4",

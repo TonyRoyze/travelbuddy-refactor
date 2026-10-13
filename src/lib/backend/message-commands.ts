@@ -3,6 +3,8 @@ import type { Prisma } from '../../generated/documents';
 import { documentDatabase } from './database';
 import { accountDataSchema } from './documents';
 import { ConversationAccessError, MessageRecipientError } from './message-errors';
+import { customPackageSchema, type CustomPackage } from '../inbox';
+import { RequestAccessError } from './request-commands';
 
 const accountIdSchema = z.string().uuid();
 const messageBodySchema = z.string().trim().min(1).max(1000);
@@ -12,6 +14,7 @@ async function requireActiveAccount(tx: Prisma.TransactionClient, id: string) {
   if (!account || account.schemaVersion !== 1 || accountDataSchema.parse(account.data).status !== 'active') {
     throw new MessageRecipientError();
   }
+  return accountDataSchema.parse(account.data);
 }
 
 /** Start or return the unique conversation shared by two active accounts. */
@@ -25,7 +28,7 @@ export async function startConversation(currentAccountId: string, recipientAccou
     await requireActiveAccount(tx, current);
     await requireActiveAccount(tx, recipient);
     return tx.conversation.upsert({
-      where: { participantOneId_participantTwoId: { participantOneId, participantTwoId } },
+      where: { participantOneId_participantTwoId_contextKey: { participantOneId, participantTwoId, contextKey: 'direct' } },
       create: { participantOneId, participantTwoId },
       update: {},
       select: { id: true },
@@ -34,10 +37,11 @@ export async function startConversation(currentAccountId: string, recipientAccou
 }
 
 /** Persist one user-authored message after verifying conversation membership. */
-export async function sendMessage(currentAccountId: string, conversationId: string, input: string) {
+export async function sendMessage(currentAccountId: string, conversationId: string, input: string, packageInput?: CustomPackage) {
   const senderId = accountIdSchema.parse(currentAccountId);
   const id = accountIdSchema.parse(conversationId);
   const body = messageBodySchema.parse(input);
+  const offer = packageInput ? customPackageSchema.parse(packageInput) : undefined;
 
   return documentDatabase().$transaction(async tx => {
     const conversation = await tx.conversation.findUnique({ where: { id } });
@@ -45,9 +49,17 @@ export async function sendMessage(currentAccountId: string, conversationId: stri
       throw new ConversationAccessError();
     }
     const recipientId = conversation.participantOneId === senderId ? conversation.participantTwoId : conversation.participantOneId;
-    await requireActiveAccount(tx, senderId);
+    const sender = await requireActiveAccount(tx, senderId);
+    if (offer && (!sender.roles.some(role => role === 'provider' || role === 'guide') || sender.onboarding !== 'completed')) {
+      throw new RequestAccessError(403, 'Only buddies and guides can send custom packages.');
+    }
+    if (offer && !conversation.requestId) throw new RequestAccessError(403, 'Send a custom package in a request conversation.');
+    if (offer) {
+      const request = await tx.travelRequest.findUniqueOrThrow({ where: { id: conversation.requestId! } });
+      if (request.travelerId === senderId) throw new RequestAccessError(403, 'Only the responding buddy or guide can offer a package.');
+    }
     await requireActiveAccount(tx, recipientId);
-    const message = await tx.message.create({ data: { conversationId: id, senderId, recipientId, body } });
+    const message = await tx.message.create({ data: { conversationId: id, senderId, recipientId, body, ...(offer ? { package: offer } : {}) } });
     await tx.conversation.update({ where: { id }, data: { updatedAt: message.createdAt } });
     return message;
   });
