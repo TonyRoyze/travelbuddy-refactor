@@ -1,27 +1,19 @@
-import { documentDatabase } from './database';
-import { findAccount } from './account-queries';
-import { hashSessionToken, randomToken, sessionDataSchema, SESSION_SECONDS } from './auth-security';
+import type { NextRequest } from 'next/server';
+import { requestAuthClient } from '../supabase/request';
+import { serverAuthClient } from '../supabase/server';
+import { resolveSupabaseAccount } from './supabase-account';
 
-export async function createSession(accountId: string) {
-  const token = randomToken();
-  const data = sessionDataSchema.parse({ accountId, tokenHash: hashSessionToken(token), expiresAt: new Date(Date.now() + SESSION_SECONDS * 1000).toISOString() });
-  await documentDatabase().sessionDocument.create({ data: { data } });
-  return token;
-}
-
-export async function sessionAccount(token?: string) {
-  if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
-  const record = await documentDatabase().sessionDocument.findFirst({ where: { data: { path: ['tokenHash'], equals: hashSessionToken(token) } } });
-  if (!record || record.schemaVersion !== 1) return null;
-  const data = sessionDataSchema.parse(record.data);
-  if (Date.parse(data.expiresAt) <= Date.now()) return null;
-  const account = await findAccount(data.accountId);
-  return account?.data.status === 'active' ? account : null;
-}
-
-export async function revokeSession(token?: string) {
-  if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) return;
-  await documentDatabase().sessionDocument.deleteMany({ where: { data: { path: ['tokenHash'], equals: hashSessionToken(token) } } });
+export async function sessionAccount(request?: NextRequest) {
+  if (request && !request.cookies.getAll().some(cookie => cookie.name.startsWith('tb_supabase'))) return null;
+  const client = request ? requestAuthClient(request) : serverAuthClient();
+  const { data, error } = await client.auth.getUser();
+  if (error) {
+    if (error.name === 'AuthSessionMissingError' || error.status === 401 || error.status === 403 || error.code === 'refresh_token_not_found' || error.code === 'refresh_token_already_used') return null;
+    throw error;
+  }
+  if (!data.user) return null;
+  const account = await resolveSupabaseAccount(data.user);
+  return account.data.status === 'active' ? account : null;
 }
 
 export function publicAccount(account: NonNullable<Awaited<ReturnType<typeof sessionAccount>>>) {

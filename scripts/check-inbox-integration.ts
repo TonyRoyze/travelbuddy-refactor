@@ -6,7 +6,7 @@ import { listTravelRequests } from '../src/lib/backend/request-queries';
 import { getConversation, listConversations } from '../src/lib/backend/message-queries';
 import { sendMessage, startConversation } from '../src/lib/backend/message-commands';
 import { ConversationAccessError } from '../src/lib/backend/message-errors';
-import { createSession } from '../src/lib/backend/sessions';
+import { createAuthTestUser } from './auth-test-user';
 import { NextRequest } from 'next/server';
 import { GET as requestsGET, POST as requestsPOST } from '../src/app/api/requests/route';
 import { POST as replyPOST } from '../src/app/api/requests/[id]/reply/route';
@@ -23,6 +23,7 @@ async function main() {
   if (!testUrl || testUrl === process.env.DOCUMENT_DATABASE_URL) throw new Error('Set DOCUMENT_TEST_DATABASE_URL to a separate migrated test database.');
   process.env.DOCUMENT_DATABASE_URL = testUrl;
   const db = documentDatabase(); const ids: string[] = [];
+  const authUsers: Awaited<ReturnType<typeof createAuthTestUser>>[] = [];
   async function account(name: string, roles: string[], status = 'active', onboarding = 'completed') {
     const record = await db.accountDocument.create({ data: { data: { displayName: name, roles, status, onboarding } } });
     ids.push(record.id); return record.id;
@@ -51,10 +52,15 @@ async function main() {
     await assert.rejects(createTravelRequest(traveler, { ...input, details: 'short' }));
     await assert.rejects(createTravelRequest(traveler, { ...input, travelerId: outsider }));
     const post = await createTravelRequest(traveler, input);
-    const tokens = { traveler: await createSession(traveler), buddy: await createSession(buddy), outsider: await createSession(outsider) };
+    async function session(id: string) {
+      const auth = await createAuthTestUser('Inbox integration'); authUsers.push(auth);
+      await db.accountDocument.update({ where: { id }, data: { supabaseUserId: auth.user.id } });
+      return auth.cookie;
+    }
+    const tokens = { traveler: await session(traveler), buddy: await session(buddy), outsider: await session(outsider) };
     const origin = new URL(process.env.AUTH_APP_URL!).origin;
     function http(path: string, method = 'GET', token?: string, body?: unknown, requestOrigin = origin) {
-      return new NextRequest(`${origin}${path}`, { method, headers: { ...(token ? { Cookie: `tb_session=${token}` } : {}), Origin: requestOrigin, 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+      return new NextRequest(`${origin}${path}`, { method, headers: { ...(token ? { Cookie: token } : {}), Origin: requestOrigin, 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     }
     assert.equal((await requestsGET(http('/api/requests'))).status, 401);
     assert.equal((await testSessionPOST(http('/api/dev/test-session', 'POST', undefined, { role: 'buddy' }))).status, 404, 'Test sign-in stays disabled outside development');
@@ -123,7 +129,7 @@ async function main() {
     assert.equal((await startConversation(buddy, traveler)).id, direct.id);
     console.log('Inbox integration passed: roles, pickup coordinates, nearby filtering, package prices/vehicles, private reads/writes, board privacy, request closing, direct chats, and disabled test sign-in.');
   } finally {
-    await db.sessionDocument.deleteMany({ where: { OR: ids.map(id => ({ data: { path: ['accountId'], equals: id } })) } });
+    for (const auth of authUsers) await auth.remove();
     await db.accountDocument.deleteMany({ where: { id: { in: ids } } });
     await db.$disconnect();
   }

@@ -23,7 +23,7 @@ export function ExperiencePage({ id }: { id: string }) {
   const saved = Boolean(user && (data.saved[user.id] ?? []).includes(id));
   const optionData = experience.options[option]; const total = optionData.price * travelers;
   const detailLink = `/experience/${id}?${new URLSearchParams({ option: String(option), date, time, travelers: String(travelers) })}`;
-  const requireSignIn = () => { if (!ready || authError) { setError(authError || 'Checking your session. Please try again in a moment.'); return; } router.push(serverAccount?.onboarding === 'pending' ? '/register/google' : `/login?next=${encodeURIComponent(detailLink)}`); };
+  const requireSignIn = () => { if (!ready || authError) { setError(authError || 'Checking your session. Please try again in a moment.'); return; } router.push(serverAccount?.onboarding === 'pending' ? '/register/complete' : `/login?next=${encodeURIComponent(detailLink)}`); };
   const book = () => { setError(''); if (!user) { requireSignIn(); return; } const message = addCart({ id: crypto.randomUUID(), experienceId: id, option, date, time, travelers }); if (message) { setError(message); return; } setAdded(true); setBookingOpen(false); };
   const contact = () => { if (!user) { requireSignIn(); return; } router.push(`/inbox?compose=1&title=${encodeURIComponent(experience.title)}&destination=${encodeURIComponent(experience.destination)}`); };
   const copy = async () => { const link = `${window.location.origin}/experience/${id}`; try { await navigator.clipboard.writeText(link); setShareNotice('Experience link copied.'); } catch { setShareNotice(`Copy this link: ${link}`); } };

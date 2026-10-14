@@ -6,7 +6,7 @@ export function documentDatabaseUrl(value = process.env.DOCUMENT_DATABASE_URL): 
     throw new Error('DOCUMENT_DATABASE_URL must name a PostgreSQL host and database.');
   }
   if (url.searchParams.getAll('schema').length !== 1 || url.searchParams.get('schema') !== 'travelbuddy_backend') {
-    throw new Error('DOCUMENT_DATABASE_URL must use schema=travelbuddy_backend to isolate the legacy database.');
+    throw new Error('DOCUMENT_DATABASE_URL must use schema=travelbuddy_backend to keep application data private.');
   }
   return value;
 }

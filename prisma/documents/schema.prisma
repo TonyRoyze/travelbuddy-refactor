@@ -11,6 +11,7 @@ datasource db {
 // JSON references are validated by the backend; there are no ORM relations.
 model AccountDocument {
   id            String   @id @default(uuid()) @db.Uuid
+  supabaseUserId String? @unique @map("supabase_user_id") @db.Uuid
   data          Json     @db.JsonB
   schemaVersion Int      @default(1) @map("schema_version")
   revision      Int      @default(1)
@@ -80,26 +81,4 @@ model Message {
   @@index([senderId, createdAt])
   @@index([recipientId, createdAt])
   @@map("messages")
-}
-
-model AuthIdentityDocument {
-  id            String   @id @default(uuid()) @db.Uuid
-  data          Json     @db.JsonB
-  schemaVersion Int      @default(1) @map("schema_version")
-  revision      Int      @default(1)
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-  @@map("auth_identities")
-}
-
-model SessionDocument {
-  id            String   @id @default(uuid()) @db.Uuid
-  data          Json     @db.JsonB
-  schemaVersion Int      @default(1) @map("schema_version")
-  revision      Int      @default(1)
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
-
-  @@map("sessions")
 }
