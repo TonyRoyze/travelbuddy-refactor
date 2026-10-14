@@ -108,6 +108,8 @@ Use the session pooler for migrations and Prisma. Do not use the transaction poo
 ```sh
 pnpm install --frozen-lockfile
 pnpm db:documents:deploy
+# Populate the development package catalog:
+pnpm db:packages:seed
 pnpm dev
 ```
 

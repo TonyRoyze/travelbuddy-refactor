@@ -2,9 +2,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { ArrowRight, CalendarDays, Check, ChevronLeft, Compass, Heart, Home, ImageOff, MapPin, MessageCircle, Search, ShoppingBag, Star, UserRound, X } from 'lucide-react';
 import type { Experience } from '@/lib/catalog';
+import { localSearchSuggestions, type SearchSuggestion } from '@/lib/search-suggestions';
 import { money } from '@/lib/customer';
 import { useServerAuth } from './ServerAuthProvider';
 import { useCustomer } from './CustomerProvider';
@@ -47,7 +48,84 @@ export function ExperienceCard({ experience, compact = false, live = false }: { 
   const href = `/experience/${experience.id}${live ? '?live=1' : ''}`;
   return <article className={`experience-card ${compact ? 'compact-card' : ''}`}><div className="card-photo"><Link href={href}><Photo src={experience.image} alt={experience.title}/></Link><button className={`save-button ${saved ? 'saved' : ''}`} aria-label={`${saved ? 'Unsave' : 'Save'} ${experience.title}`} aria-pressed={Boolean(saved)} disabled={!ready || Boolean(authError)} onClick={() => user ? toggleSaved(experience.id) : router.push(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)}><Heart size={19} fill={saved ? 'currentColor' : 'none'}/></button>{live && <span className="photo-label">Live availability</span>}</div><div className="card-copy"><p className="card-location"><MapPin size={12}/>{experience.destination}<span>· {experience.category}</span></p><h3><Link href={href}>{experience.title}</Link></h3><div className="card-rating"><Star size={13} fill="currentColor"/><strong>{experience.rating.toFixed(1)}</strong><span>({experience.reviews} reviews)</span></div><p className="card-duration">{experience.duration}</p><div className="card-price">From <strong>{money(experience.price)}</strong> <span>/ person</span></div>{experience.freeCancellation && <p className="free-cancel"><Check size={12}/>Free cancellation</p>}</div></article>;
 }
-export function SearchBar({ initial = '', compact = false }: { initial?: string; compact?: boolean }) { return <form className={`search-form ${compact ? 'compact-search' : ''}`} action="/nearby"><Search size={20} aria-hidden="true"/><label className="sr-only" htmlFor={compact ? 'search-page' : 'search-home'}>Destination or experience</label><input id={compact ? 'search-page' : 'search-home'} name="q" defaultValue={initial} placeholder="Where would you like to go?" autoComplete="off"/><button className="search-submit" aria-label="Search experiences"><ArrowRight size={20}/><span>Explore</span></button></form>; }
+export function SearchBar({ initial = '', compact = false }: { initial?: string; compact?: boolean }) {
+  const router = useRouter();
+  const listId = useId();
+  const [value, setValue] = useState(initial);
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [open, setOpen] = useState(false);
+  const inputId = compact ? 'search-page' : 'search-home';
+
+  useEffect(() => setValue(initial), [initial]);
+  useEffect(() => {
+    const query = value.trim();
+    if (query.length < 2) {
+      setSuggestions([]);
+      setOpen(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      void fetch(`/api/packages/suggestions?q=${encodeURIComponent(query)}`, { signal: controller.signal })
+        .then(async response => {
+          if (!response.ok) throw new Error('Suggestion service unavailable.');
+          const payload = await response.json() as { suggestions?: SearchSuggestion[] };
+          if (!Array.isArray(payload.suggestions)) throw new Error('Invalid suggestion response.');
+          const next = payload.suggestions.length ? payload.suggestions : localSearchSuggestions(query);
+          setSuggestions(next);
+          setActiveIndex(-1);
+          setOpen(next.length > 0);
+        })
+        .catch(error => {
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+          const next = localSearchSuggestions(query);
+          setSuggestions(next);
+          setActiveIndex(-1);
+          setOpen(next.length > 0);
+        });
+    }, 180);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [value]);
+
+  const choose = (item: SearchSuggestion) => {
+    setValue(item.value);
+    setOpen(false);
+    const destination = item.kind === 'category'
+      ? `/nearby?category=${encodeURIComponent(item.value)}`
+      : `/nearby?q=${encodeURIComponent(item.value)}`;
+    router.push(destination);
+  };
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown' && suggestions.length) {
+      event.preventDefault(); setOpen(true);
+      setActiveIndex(index => (index + 1) % suggestions.length);
+    } else if (event.key === 'ArrowUp' && suggestions.length) {
+      event.preventDefault(); setOpen(true);
+      setActiveIndex(index => (index <= 0 ? suggestions.length - 1 : index - 1));
+    } else if (event.key === 'Escape') {
+      setOpen(false); setActiveIndex(-1);
+    } else if (event.key === 'Enter' && open && activeIndex >= 0) {
+      event.preventDefault(); choose(suggestions[activeIndex]);
+    }
+  };
+
+  return <div className="search-autocomplete"><form className={`search-form ${compact ? 'compact-search' : ''}`} action="/nearby" autoComplete="off">
+    <Search size={20} aria-hidden="true"/>
+    <label className="sr-only" htmlFor={inputId}>Destination or experience</label>
+    <input id={inputId} name="q" value={value} onChange={event => { setValue(event.target.value); setSuggestions([]); setActiveIndex(-1); setOpen(false); }} onKeyDown={onKeyDown}
+      onFocus={() => setOpen(suggestions.length > 0)} onBlur={() => window.setTimeout(() => setOpen(false), 120)} placeholder="Where would you like to go?" autoComplete="off"
+      role="combobox" aria-autocomplete="list" aria-expanded={open && suggestions.length > 0} aria-controls={listId}
+      aria-activedescendant={activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}/>
+    <button className="search-submit" type="submit" aria-label="Search experiences"><ArrowRight size={20}/><span>Explore</span></button>
+  </form>{open && suggestions.length > 0 && <div className="search-suggestions" id={listId} role="listbox" aria-label="Search suggestions">
+    {suggestions.map((item, index) => <button key={`${item.kind}:${item.value}`} id={`${listId}-${index}`} className={`search-suggestion ${index === activeIndex ? 'active' : ''}`}
+      type="button" role="option" aria-selected={index === activeIndex} onMouseDown={event => event.preventDefault()} onClick={() => choose(item)}>
+      <span className="search-suggestion-icon" aria-hidden="true">{item.kind === 'destination' || item.kind === 'country' ? <MapPin size={17}/> : item.kind === 'category' ? <Compass size={17}/> : <Search size={17}/>}</span>
+      <span className="search-suggestion-value">{item.value}</span><span className="search-suggestion-kind">{item.kind}</span>
+    </button>)}
+  </div>}</div>;
+}
 export function Empty({ icon = <Compass size={34}/>, title, text, href, action }: { icon?: ReactNode; title: string; text: string; href?: string; action?: string }) { return <div className="empty-state">{icon}<h2>{title}</h2><p>{text}</p>{href && <Link href={href} className="button button-primary">{action ?? 'Explore experiences'}<ArrowRight size={17}/></Link>}</div>; }
 export function PageHeading({ eyebrow, title, text, action }: { eyebrow?: string; title: string; text?: string; action?: ReactNode }) { return <div className="page-heading"><div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h1>{title}</h1>{text && <p>{text}</p>}</div>{action}</div>; }
 export function Back({ href = '/', label = 'Back to home' }: { href?: string; label?: string }) { return <Link className="back-link" href={href}><ChevronLeft size={17}/>{label}</Link>; }

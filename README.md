@@ -32,6 +32,8 @@ TravelBuddy uses self-hosted Supabase Postgres for account and inbox data, and S
 
 First sign-in creates an account with pending onboarding. Registration offers Traveller or Buddy; buddies can reply to traveller requests and send custom packages. Roles and suspension status remain server-managed; social profile metadata cannot grant roles. Marketplace bookings, reviews, and checkout remain browser-based demonstrations. Traveller requests and private replies are stored on the server. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
 
+Package browse and search use the Prisma package catalog. Apply the migrations and seed a development database with `pnpm db:documents:deploy` and `pnpm db:packages:seed`; see [package catalog search](docs/package-catalog-search.md).
+
 ## Project structure
 
 - `src/app` — routes and styles
