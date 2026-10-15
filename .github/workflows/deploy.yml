@@ -57,11 +57,6 @@ jobs:
       - name: Apply namespace, Service, and Ingress
         run: kubectl apply -f k8s/base.yaml
 
-      - name: Apply PostgreSQL StatefulSet
-        run: |
-          kubectl apply -f k8s/postgres.yaml
-          kubectl rollout status statefulset/postgres --namespace travelbuddy --timeout=10m
-
       - name: Run database migrations
         run: |
           kubectl delete job travelbuddy-migrate --namespace travelbuddy --ignore-not-found

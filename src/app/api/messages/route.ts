@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { sameOrigin, SESSION_COOKIE } from '@/lib/backend/auth-security';
+import { sameOrigin } from '@/lib/backend/auth-security';
 import { sessionAccount } from '@/lib/backend/sessions';
 import { startConversation } from '@/lib/backend/message-commands';
 import { MessageRecipientError } from '@/lib/backend/message-errors';
@@ -12,7 +12,7 @@ const startSchema = z.object({ recipientId: z.string().uuid() }).strict();
 
 export async function GET(request: NextRequest) {
   try {
-    const account = await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
+    const account = await sessionAccount(request);
     if (!account) return NextResponse.json({ error: 'Sign in to open your messages.' }, { status: 401, headers });
     return NextResponse.json({ conversations: await listConversations(account.id) }, { headers });
   } catch {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     if (!sameOrigin(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers });
-    const account = await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
+    const account = await sessionAccount(request);
     if (!account) return NextResponse.json({ error: 'Sign in to start a conversation.' }, { status: 401, headers });
     if (!request.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'Invalid conversation details.' }, { status: 400, headers });
     const text = await request.text();

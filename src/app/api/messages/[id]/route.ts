@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { sameOrigin, SESSION_COOKIE } from '@/lib/backend/auth-security';
+import { sameOrigin } from '@/lib/backend/auth-security';
 import { sessionAccount } from '@/lib/backend/sessions';
 import { sendMessage } from '@/lib/backend/message-commands';
 import { ConversationAccessError } from '@/lib/backend/message-errors';
@@ -15,7 +15,7 @@ const idSchema = z.string().uuid();
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const account = await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
+    const account = await sessionAccount(request);
     if (!account) return NextResponse.json({ error: 'Sign in to open your messages.' }, { status: 401, headers });
     const id = idSchema.parse(params.id);
     return NextResponse.json({ conversation: await getConversation(account.id, id) }, { headers });
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     if (!sameOrigin(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403, headers });
-    const account = await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
+    const account = await sessionAccount(request);
     if (!account) return NextResponse.json({ error: 'Sign in to send a message.' }, { status: 401, headers });
     const id = idSchema.parse(params.id);
     if (!request.headers.get('content-type')?.startsWith('application/json')) return NextResponse.json({ error: 'Enter a message up to 1,000 characters.' }, { status: 400, headers });

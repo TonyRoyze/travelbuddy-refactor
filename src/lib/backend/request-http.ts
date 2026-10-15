@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { sameOrigin, SESSION_COOKIE } from './auth-security';
+import { sameOrigin } from './auth-security';
 import { sessionAccount } from './sessions';
 import { RequestAccessError } from './request-commands';
 
 export const requestHeaders = { 'Cache-Control': 'no-store' };
 export async function requestAccount(request: NextRequest, write = false) {
   if (write && !sameOrigin(request)) throw new RequestAccessError(403, 'Invalid request origin.');
-  const account = await sessionAccount(request.cookies.get(SESSION_COOKIE)?.value);
+  const account = await sessionAccount(request);
   if (!account) return null;
   if (account.data.onboarding !== 'completed') throw new RequestAccessError(403, 'Complete your account to use the inbox.');
   return account;

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { ServerAuthProvider } from '@/components/ServerAuthProvider';
-import './google-auth.css';
+import './account-auth.css';
 import { CustomerProvider } from '@/components/CustomerProvider';
 import { Shell } from '@/components/UI';
 import 'leaflet/dist/leaflet.css';

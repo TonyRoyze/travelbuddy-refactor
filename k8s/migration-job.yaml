@@ -16,6 +16,9 @@ spec:
           image: ghcr.io/shalinda/travelbuddy:latest
           imagePullPolicy: Always
           command: ["pnpm", "db:documents:deploy"]
-          envFrom:
-            - secretRef:
-                name: travelbuddy-secrets
+          env:
+            - name: DOCUMENT_MIGRATION_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-secrets
+                  key: DOCUMENT_MIGRATION_DATABASE_URL

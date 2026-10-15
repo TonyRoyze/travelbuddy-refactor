@@ -10,6 +10,8 @@ if (!['generate', 'validate', 'deploy'].includes(action)) {
   throw new Error('Expected generate, validate, or deploy.');
 }
 if (action === 'deploy') {
+  if (!process.env.DOCUMENT_MIGRATION_DATABASE_URL) throw new Error('DOCUMENT_MIGRATION_DATABASE_URL is required; migrations must use the dedicated migration connection.');
+  process.env.DOCUMENT_DATABASE_URL = process.env.DOCUMENT_MIGRATION_DATABASE_URL;
   documentDatabaseUrl();
 } else {
   // Client generation and schema validation require no live database.

@@ -40,7 +40,6 @@ export function ServerAuthProvider({ children }: { children: React.ReactNode }) 
     try {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
       if (!response.ok) throw new Error('Sign-out failed. Please try again.');
-      window.google?.accounts.id.disableAutoSelect();
       setAccount(null);
       setError('');
       setReady(true);

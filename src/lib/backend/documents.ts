@@ -9,16 +9,7 @@ export const accountDataSchema = z.object({
   avatarUrl: z.string().url().max(2048).optional(),
 }).strict();
 
-export const googleIdentityDataSchema = z.object({
-  accountId: z.string().uuid(),
-  provider: z.literal('google'),
-  providerSubject: z.string().trim().min(1).max(255),
-  email: z.string().trim().email().max(320),
-  emailVerified: z.boolean(),
-}).strict();
-
 export type AccountData = z.infer<typeof accountDataSchema>;
-export type GoogleIdentityData = z.infer<typeof googleIdentityDataSchema>;
 
 export function newTravelerData(displayName: string): AccountData {
   return accountDataSchema.parse({ displayName, roles: ['traveler'], status: 'active', onboarding: 'pending' });
