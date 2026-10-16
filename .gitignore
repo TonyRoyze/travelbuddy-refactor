@@ -1,29 +1,8 @@
-# Dependencies and generated builds
 node_modules/
-.next*/
-.turbo/
-.vercel/
-*.tsbuildinfo
-
-# Local configuration and logs
+dist/
 .env*
 !.env.example
-*.log
-npm-debug.log*
-pnpm-debug.log*
-
-# Local working files and visual QA exports
-tmp/
-output/
-coverage/
-
-# Editor and operating system files
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-
-# JSONB backend generated client
-src/generated/documents/
-.next-google-auth-*/
-*secret*
+*.tsbuildinfo
+playwright-report/
+test-results/
+.supabase/
