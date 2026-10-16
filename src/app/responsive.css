@@ -983,3 +983,16 @@ html { scrollbar-gutter: stable; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+@media (max-width: 760px) {
+  .profile-edit-page { max-width: 42.5rem; }
+  .profile-edit-layout { grid-template-columns: 1fr; gap: var(--space-3); }
+  .profile-edit-aside { position:static; padding:0 0 var(--space-3); }
+  .profile-edit-aside>p { max-width:55ch; }
+  .profile-edit-aside-note { margin-top:var(--space-3); }
+}
+@media (max-width: 520px) {
+  .profile-form-section { padding:var(--space-4); }
+  .profile-form-actions { align-items:stretch; flex-direction:column; padding:var(--space-4); }
+  .profile-form-actions .button { width:100%; }
+  .profile-display-panel { align-items:flex-start; flex-direction:column; padding:var(--space-4); }
+}

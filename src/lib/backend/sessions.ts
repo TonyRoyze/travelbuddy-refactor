@@ -13,9 +13,9 @@ export async function sessionAccount(request?: NextRequest) {
   }
   if (!data.user) return null;
   const account = await resolveSupabaseAccount(data.user);
-  return account.data.status === 'active' ? account : null;
+  return account.data.status === 'active' ? { ...account, email: data.user.email ?? '' } : null;
 }
 
-export function publicAccount(account: NonNullable<Awaited<ReturnType<typeof sessionAccount>>>) {
-  return { id: account.id, displayName: account.data.displayName, roles: account.data.roles, onboarding: account.data.onboarding, revision: account.revision };
+export function publicAccount(account: Pick<NonNullable<Awaited<ReturnType<typeof sessionAccount>>>, 'id' | 'data' | 'revision'> & { email?: string }) {
+  return { id: account.id, email: account.email ?? '', displayName: account.data.displayName, roles: account.data.roles, onboarding: account.data.onboarding, revision: account.revision, profileDetails: account.data.profileDetails, avatarMediaId: account.data.avatarMediaId, profileVideoIds: account.data.profileVideoIds };
 }

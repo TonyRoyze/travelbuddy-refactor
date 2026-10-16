@@ -108,6 +108,8 @@ export function SearchPage() {
   useEffect(() => {
     const search = new URLSearchParams({ page: '1', pageSize: '50', sort });
     if (query) search.set('q', query);
+    if (date) search.set('date', date);
+    if (live) search.set('live', 'true');
     if (category) search.set('category', category);
     if (minPrice > 0) search.set('minPrice', String(minPrice));
     if (price < 500) search.set('maxPrice', String(price));
@@ -126,12 +128,10 @@ export function SearchPage() {
       setPackageSearchUnavailable(true);
     });
     return () => controller.abort();
-  }, [query, category, minPrice, price, duration, cancellation, sort]);
+  }, [query, category, minPrice, price, duration, cancellation, sort, date, live]);
   const results = useMemo(() => {
     if (!serverPackages) return filteredExperiences({ query, category, minPrice, maxPrice: price, duration, cancellation, live, date, sort }, data.bookings);
-    if (!live && !date) return serverPackages;
-    const availableIds = new Set(filteredExperiences({ live, date }, data.bookings).map(item => item.id));
-    return serverPackages.filter(item => availableIds.has(item.id));
+    return serverPackages;
   }, [serverPackages, query, category, minPrice, price, duration, cancellation, live, date, sort, data.bookings]);
   const communityResults = useMemo(() => communityItems.filter(item => item.type === discoveryType && communityMatches(item, query) && (item.type !== 'buddies' || ((item.age ?? 0) >= buddyMinAge && (item.age ?? 0) <= buddyMaxAge && (!buddyGender || item.gender === buddyGender) && (!buddyInterest || item.interests?.includes(buddyInterest)) && (!buddyPace || item.pace === buddyPace))) && (item.type !== 'guides' || ((!guideArea || item.destination === guideArea) && (!guideFocus || item.guideFocus === guideFocus) && (!guideLanguage || item.languages?.includes(guideLanguage)) && (!guideStyle || item.guideStyle === guideStyle)))), [discoveryType, query, buddyMinAge, buddyMaxAge, buddyGender, buddyInterest, buddyPace, guideArea, guideFocus, guideLanguage, guideStyle]);
   const discoveryCount = discoveryType === 'experiences' ? results.length : communityResults.length;
