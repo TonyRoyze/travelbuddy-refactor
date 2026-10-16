@@ -36,7 +36,7 @@ Never use `supabase db reset` or remove Docker volumes on this shared instance.
 
 - `src/routes`: file routes, validated URL search parameters, and protected layouts. TanStack's Vite plugin generates `routeTree.gen.ts` and splits route components into lazy chunks.
 - `src/features`: auth, account, catalog, booking, and messaging components and types.
-- `src/components/ui`: shadcn components using Base UI. `src/app/styles.css` defines shared tokens and responsive layouts.
+- `src/components/ui`: shadcn components using Base UI. `src/app/styles.css` contains theme tokens and base defaults; all page layouts and responsive styling use Tailwind utilities. The original TravelBuddy palette, system typography, branding, full-width home hero, card grids, and mobile navigation are retained.
 - `src/lib`: typed Supabase RPC client, query options, input validation, and small shared utilities.
 - `supabase`: additive SQL migrations, authorization/inventory tests, and the media signing function.
 - `prisma/documents/migrations`: historical migrations retained for compatibility. The new runtime does not use Prisma or Next.js.

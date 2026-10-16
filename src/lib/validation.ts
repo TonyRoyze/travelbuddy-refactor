@@ -49,6 +49,7 @@ export const money = (amount: number) =>
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
   }).format(amount);
 
 export type SearchFilters = z.infer<typeof searchSchema>;
