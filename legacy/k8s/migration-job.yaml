@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: travelbuddy-migrate
+  namespace: travelbuddy
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 86400
+  template:
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: ghcr.io/shalinda/travelbuddy:latest
+          imagePullPolicy: Always
+          command: ["pnpm", "db:documents:deploy"]
+          env:
+            - name: DOCUMENT_MIGRATION_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-secrets
+                  key: DOCUMENT_MIGRATION_DATABASE_URL

@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/documents"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DOCUMENT_DATABASE_URL")
+}
+
+// Account and auth state use versioned JSON documents; marketplace features use relational models.
+model AccountDocument {
+  id            String   @id @default(uuid()) @db.Uuid
+  supabaseUserId String? @unique @map("supabase_user_id") @db.Uuid
+  data          Json     @db.JsonB
+  schemaVersion Int      @default(1) @map("schema_version")
+  revision      Int      @default(1)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  conversationsAsFirstUser Conversation[] @relation("ConversationFirstUser")
+  conversationsAsSecondUser Conversation[] @relation("ConversationSecondUser")
+  sentMessages Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageRecipient")
+  travelRequests TravelRequest[]
+  packages ExperiencePackage[]
+  media MediaAsset[]
+  bookingOrders BookingOrder[]
+
+  @@map("accounts")
+}
+
+model Conversation {
+  id                String   @id @default(uuid()) @db.Uuid
+  participantOneId  String   @map("participant_one_id") @db.Uuid
+  participantTwoId  String   @map("participant_two_id") @db.Uuid
+  contextKey        String   @default("direct") @map("context_key") @db.VarChar(88)
+  packageId         String? @map("package_id") @db.VarChar(80)
+  package           ExperiencePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  requestId         String?  @map("request_id") @db.Uuid
+  request           TravelRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  participantOne    AccountDocument @relation("ConversationFirstUser", fields: [participantOneId], references: [id], onDelete: Cascade)
+  participantTwo    AccountDocument @relation("ConversationSecondUser", fields: [participantTwoId], references: [id], onDelete: Cascade)
+  messages          Message[]
+
+  @@unique([participantOneId, participantTwoId, contextKey])
+  @@index([requestId])
+  @@index([packageId])
+  @@index([participantOneId, updatedAt])
+  @@index([participantTwoId, updatedAt])
+  @@map("conversations")
+}
+
+model TravelRequest {
+  id          String @id @default(uuid()) @db.Uuid
+  travelerId  String @map("traveler_id") @db.Uuid
+  title       String @db.VarChar(120)
+  destination String @db.VarChar(120)
+  details     String @db.VarChar(2000)
+  pickupLocation String? @map("pickup_location") @db.VarChar(200)
+  latitude    Float?
+  longitude   Float?
+  closed      Boolean @default(false)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  traveler    AccountDocument @relation(fields: [travelerId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+
+  @@index([travelerId, createdAt, id])
+  @@index([closed, createdAt, id])
+  @@map("travel_requests")
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  senderId       String       @map("sender_id") @db.Uuid
+  recipientId    String       @map("recipient_id") @db.Uuid
+  body           String       @db.VarChar(1000)
+  package        Json?        @db.JsonB
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         AccountDocument @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient      AccountDocument @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt, id])
+  @@index([senderId, createdAt])
+  @@index([recipientId, createdAt])
+  @@map("messages")
+}
+
+model ExperiencePackage {
+  id               String   @id @db.VarChar(80)
+  ownerId          String?  @map("owner_id") @db.Uuid
+  owner            AccountDocument? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  revision         Int      @default(1)
+  schedule         Json     @default("{}") @db.JsonB
+  title            String   @db.VarChar(200)
+  destination      String   @db.VarChar(120)
+  country          String   @db.VarChar(120)
+  category         String   @db.VarChar(80)
+  price            Float
+  rating           Float
+  sortOrder        Int      @default(0) @map("sort_order")
+  durationMinutes  Int      @map("duration_minutes")
+  duration         String   @db.VarChar(80)
+  freeCancellation Boolean  @default(false) @map("free_cancellation")
+  published        Boolean  @default(true)
+  data             Json     @db.JsonB
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  bookings         ScheduledBooking[]
+  conversations    Conversation[]
+
+  @@index([published, destination])
+  @@index([ownerId, updatedAt])
+  @@index([published, category])
+  @@index([published, price])
+  @@index([published, rating])
+  @@index([published, sortOrder])
+  @@index([published, durationMinutes])
+  @@index([published, freeCancellation])
+  @@map("packages")
+}
+
+model BookingOrder {
+  id             String @id @default(uuid()) @db.Uuid
+  travelerId     String @map("traveler_id") @db.Uuid
+  traveler       AccountDocument @relation(fields: [travelerId], references: [id], onDelete: Cascade)
+  idempotencyKey String @map("idempotency_key") @db.Uuid
+  fingerprint    String @db.VarChar(64)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  bookings       ScheduledBooking[]
+  @@unique([travelerId, idempotencyKey])
+  @@index([travelerId, createdAt])
+  @@map("booking_orders")
+}
+
+model ScheduledBooking {
+  id            String @id @default(uuid()) @db.Uuid
+  orderId       String @map("order_id") @db.Uuid
+  order         BookingOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  packageId     String @map("package_id") @db.VarChar(80)
+  package       ExperiencePackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  optionIndex   Int @map("option_index")
+  date          DateTime @db.Date
+  time          String @db.VarChar(5)
+  travelers     Int
+  status        String @default("confirmed") @db.VarChar(12)
+  total         Decimal @db.Decimal(12,2)
+  travelerName  String @map("traveler_name") @db.VarChar(120)
+  travelerEmail String @map("traveler_email") @db.VarChar(320)
+  snapshot      Json @db.JsonB
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  @@index([packageId, date, optionIndex, time, status])
+  @@index([orderId])
+  @@map("scheduled_bookings")
+}
+
+model MediaAsset {
+  id              String @id @default(uuid()) @db.Uuid
+  ownerId         String @map("owner_id") @db.Uuid
+  owner           AccountDocument @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  storagePath     String @unique @map("storage_path") @db.VarChar(200)
+  mimeType        String @map("mime_type") @db.VarChar(80)
+  bytes           Int
+  durationSeconds Float? @map("duration_seconds")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([ownerId, createdAt])
+  @@map("media_assets")
+}
