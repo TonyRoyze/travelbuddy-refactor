@@ -113,23 +113,32 @@ export function AuthPage({
     }
   }
   const title = {
-    login: "Welcome back",
-    register: "Your next story starts here",
+    login: "Good to see you again.",
+    register: "Let’s start somewhere.",
     recover: "Forgot your password?",
     reset: "Choose a new password",
   }[mode];
   return (
-    <div className="auth-layout">
-      <div className="auth-photo">
-        <h1>
-          A local connection.
-          <br />A different kind of journey.
-        </h1>
-        <p>Find experiences worth leaving home for.</p>
+    <div className="mx-auto grid max-w-5xl overflow-hidden rounded-xl border bg-card md:min-h-[600px] md:grid-cols-2">
+      <div className="relative isolate hidden flex-col justify-end gap-5 overflow-hidden bg-hero px-10 py-12 text-hero-foreground md:flex">
+        <img
+          src="https://images.unsplash.com/photo-1711100358840-ce6fd71c31b3?auto=format&fit=crop&w=1000&q=85"
+          alt="Sigiriya, Sri Lanka"
+          className="absolute inset-0 -z-20 size-full object-cover"
+        />
+        <div className="absolute inset-0 -z-10 bg-linear-to-t from-hero/95 to-hero/25" />
+        <h2 className="text-3xl leading-tight font-bold">
+          Good company.
+          <br />
+          Great discoveries.
+        </h2>
+        <p>Your next story starts with a local connection.</p>
       </div>
-      <Card className="auth-card">
+      <Card className="justify-center gap-6 rounded-none py-8 shadow-none ring-0 [--card-spacing:--spacing(6)] md:[--card-spacing:--spacing(10)]">
         <CardHeader>
-          <CardTitle className="text-3xl">{title}</CardTitle>
+          <CardTitle>
+            <h1 className="text-3xl">{title}</h1>
+          </CardTitle>
           <CardDescription>
             {mode === "login"
               ? "Sign in to book experiences and talk with your host."

@@ -82,7 +82,7 @@ export function CheckoutPage({
       />
     );
   return (
-    <div className="checkout-layout">
+    <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12 [&>section]:flex [&>section]:flex-col [&>section]:gap-5 [&>section]:rounded-xl [&>section]:border [&>section]:bg-card [&>section]:p-6 md:[&>section]:p-8">
       <section>
         <Link
           to="/experience/$id"
@@ -131,7 +131,7 @@ export function CheckoutPage({
           </Button>
         </form>
       </section>
-      <aside className="checkout-summary">
+      <aside className="flex flex-col gap-4 rounded-xl border bg-card p-6 lg:sticky lg:top-24 lg:self-start [&>img]:aspect-video [&>img]:w-full [&>img]:rounded-lg [&>img]:object-cover [&>p]:text-muted-foreground">
         <Media src={p.image} alt={p.title} />
         <h2>{p.title}</h2>
         <p>{p.options[selection.option]?.name}</p>
@@ -141,7 +141,7 @@ export function CheckoutPage({
         <p>
           {selection.travelers} traveler{selection.travelers === 1 ? "" : "s"}
         </p>
-        <p className="total">
+        <p className="flex items-center justify-between border-t pt-5 text-xl [&_strong]:text-foreground">
           Total{" "}
           <strong>
             {money(

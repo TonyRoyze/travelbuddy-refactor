@@ -1,3 +1,10 @@
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -81,24 +88,28 @@ export function ExperiencePage({
   }
   return (
     <article>
-      <Link to="/search" search={{}} className="back-link">
+      <Link
+        to="/search"
+        search={{}}
+        className="mb-6 inline-flex min-h-11 items-center text-sm font-semibold text-primary"
+      >
         Explore experiences
       </Link>
-      <div className="detail-heading">
+      <div className="mb-6 [&_h1]:my-4 [&_h1]:max-w-4xl">
         <div>
-          <p className="location">
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground [&_svg]:size-4">
             <MapPin />
             {p.destination}, {p.country}
           </p>
           <h1>{p.title}</h1>
-          <p className="rating">
+          <p className="flex flex-wrap items-center gap-2 text-sm [&_svg]:size-4 [&_svg]:fill-primary [&_svg]:text-primary [&_span]:text-muted-foreground">
             <Star />
             {p.rating} <span>({p.reviews} reviews)</span>
             <span>Hosted by {p.supplier}</span>
           </p>
         </div>
       </div>
-      <div className="detail-gallery">
+      <div className="my-6 flex h-64 gap-3 overflow-hidden rounded-xl sm:h-[400px] [&>img]:object-cover [&>img:first-child]:min-w-0 [&>img:first-child]:flex-1 [&>img:not(:first-child)]:hidden [&>img:not(:first-child)]:w-1/4 sm:[&>img:not(:first-child)]:block">
         <Media src={p.image} alt={p.title} />
         {p.gallery
           .filter((g) => g !== p.image)
@@ -111,9 +122,9 @@ export function ExperiencePage({
             />
           ))}
       </div>
-      <div className="detail-layout">
-        <div className="detail-copy">
-          <div className="detail-facts">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
+        <div className="flex flex-col gap-8 [&_section]:flex [&_section]:flex-col [&_section]:gap-4 [&_section>p]:leading-relaxed [&_section>p]:text-muted-foreground">
+          <div className="flex flex-wrap gap-4 rounded-lg border bg-card p-5 text-sm [&_span]:flex [&_span]:items-center [&_span]:gap-2 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
             <span>
               <Clock />
               {p.duration}
@@ -132,7 +143,7 @@ export function ExperiencePage({
           </section>
           <section>
             <h2>What makes it special</h2>
-            <ul className="check-list">
+            <ul className="flex flex-col gap-3 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_svg]:mt-0.5 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
               {p.highlights.map((h) => (
                 <li key={h}>
                   <Check />
@@ -143,7 +154,7 @@ export function ExperiencePage({
           </section>
           <section>
             <h2>Included in your experience</h2>
-            <ul className="check-list">
+            <ul className="flex flex-col gap-3 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_svg]:mt-0.5 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
               {p.included.map((h) => (
                 <li key={h}>
                   <Check />
@@ -159,7 +170,7 @@ export function ExperiencePage({
           </section>
           <section>
             <h2>Your journey</h2>
-            <ol className="itinerary">
+            <ol className="flex flex-col gap-6 border-l-2 pl-5 [&_li]:flex [&_li]:gap-5 [&_li>span]:w-20 [&_li>span]:shrink-0 [&_li>span]:text-sm [&_li>span]:text-primary [&_h3]:mb-2 [&_p]:text-muted-foreground">
               {p.itinerary.map((s, i) => (
                 <li key={i}>
                   <span>{s.time}</span>
@@ -176,145 +187,153 @@ export function ExperiencePage({
             <p>{p.meetingPoint}</p>
           </section>
         </div>
-        <aside className="booking-panel">
-          <p>
-            From{" "}
-            <strong>
-              {money(p.options[selection.option]?.price ?? p.price)}
-            </strong>{" "}
-            / person
-          </p>
-          <h2>Make it a plan</h2>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="option">Experience option</FieldLabel>
-              <NativeSelect
-                id="option"
-                value={selection.option}
-                onChange={(e) =>
-                  setSelection({
-                    ...selection,
-                    option: Number(e.target.value),
-                    time: undefined,
-                  })
-                }
-              >
-                {p.options.map((o, i) => (
-                  <NativeSelectOption key={i} value={i}>
-                    {o.name}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
+        <Card className="row-start-1 self-start lg:sticky lg:top-24 lg:row-auto">
+          <CardHeader>
+            <p>
+              From{" "}
+              <strong>
+                {money(p.options[selection.option]?.price ?? p.price)}
+              </strong>{" "}
+              / person
+            </p>
+            <CardTitle>Choose your date and travelers</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-5">
+            <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="date">Date</FieldLabel>
-                <Input
-                  id="date"
-                  type="date"
-                  min={today()}
-                  value={date}
+                <FieldLabel htmlFor="option">Experience option</FieldLabel>
+                <NativeSelect
+                  id="option"
+                  value={selection.option}
                   onChange={(e) =>
                     setSelection({
                       ...selection,
-                      date: e.target.value,
+                      option: Number(e.target.value),
                       time: undefined,
-                    })
-                  }
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="travelers">Travelers</FieldLabel>
-                <Input
-                  id="travelers"
-                  type="number"
-                  min="1"
-                  max="12"
-                  value={selection.travelers}
-                  onChange={(e) =>
-                    setSelection({
-                      ...selection,
-                      travelers: Math.max(
-                        1,
-                        Math.min(12, Number(e.target.value)),
-                      ),
-                      time: undefined,
-                    })
-                  }
-                />
-              </Field>
-            </div>
-            <Field>
-              <FieldLabel htmlFor="time">
-                Start time · Sri Lanka time
-              </FieldLabel>
-              <NativeSelect
-                id="time"
-                value={time ?? ""}
-                onChange={(e) =>
-                  setSelection({ ...selection, time: e.target.value })
-                }
-              >
-                <NativeSelectOption value="" disabled>
-                  {availability.isPending ? "Checking times…" : "Choose a time"}
-                </NativeSelectOption>
-                {slots.map((s) => (
-                  <NativeSelectOption key={s.time} value={s.time}>
-                    {s.time} · {s.remaining} places left
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </Field>
-          </FieldGroup>
-          {availability.error && <Problem error={availability.error} />}
-          <Button
-            size="lg"
-            disabled={!time || availability.isPending || !!availability.error}
-            onClick={book}
-          >
-            Book Now
-            <ArrowRight data-icon="inline-end" />
-          </Button>
-          {!availability.isPending && !slots.length && (
-            <p role="status">
-              {a?.next ? (
-                <Button
-                  variant="link"
-                  onClick={() =>
-                    setSelection({
-                      ...selection,
-                      date: a.next!.date,
-                      time: a.next!.time,
                     })
                   }
                 >
-                  Next available: {a.next.date} at {a.next.time}
-                </Button>
-              ) : (
-                "No available dates for this selection."
-              )}
+                  {p.options.map((o, i) => (
+                    <NativeSelectOption key={i} value={i}>
+                      {o.name}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field>
+                  <FieldLabel htmlFor="date">Date</FieldLabel>
+                  <Input
+                    id="date"
+                    type="date"
+                    min={today()}
+                    value={date}
+                    onChange={(e) =>
+                      setSelection({
+                        ...selection,
+                        date: e.target.value,
+                        time: undefined,
+                      })
+                    }
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="travelers">Travelers</FieldLabel>
+                  <Input
+                    id="travelers"
+                    type="number"
+                    min="1"
+                    max="12"
+                    value={selection.travelers}
+                    onChange={(e) =>
+                      setSelection({
+                        ...selection,
+                        travelers: Math.max(
+                          1,
+                          Math.min(12, Number(e.target.value)),
+                        ),
+                        time: undefined,
+                      })
+                    }
+                  />
+                </Field>
+              </div>
+              <Field>
+                <FieldLabel htmlFor="time">
+                  Start time · Sri Lanka time
+                </FieldLabel>
+                <NativeSelect
+                  id="time"
+                  value={time ?? ""}
+                  onChange={(e) =>
+                    setSelection({ ...selection, time: e.target.value })
+                  }
+                >
+                  <NativeSelectOption value="" disabled>
+                    {availability.isPending
+                      ? "Checking times…"
+                      : "Choose a time"}
+                  </NativeSelectOption>
+                  {slots.map((s) => (
+                    <NativeSelectOption key={s.time} value={s.time}>
+                      {s.time} · {s.remaining} places left
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </Field>
+            </FieldGroup>
+            {availability.error && <Problem error={availability.error} />}
+          </CardContent>
+          <CardFooter className="flex-col items-stretch gap-3">
+            <Button
+              size="lg"
+              disabled={!time || availability.isPending || !!availability.error}
+              onClick={book}
+            >
+              Book Now
+              <ArrowRight data-icon="inline-end" />
+            </Button>
+            {!availability.isPending && !slots.length && (
+              <p role="status">
+                {a?.next ? (
+                  <Button
+                    variant="link"
+                    onClick={() =>
+                      setSelection({
+                        ...selection,
+                        date: a.next!.date,
+                        time: a.next!.time,
+                      })
+                    }
+                  >
+                    Next available: {a.next.date} at {a.next.time}
+                  </Button>
+                ) : (
+                  "No available dates for this selection."
+                )}
+              </p>
+            )}
+            <Button
+              variant="outline"
+              disabled={!p.canChat}
+              onClick={() =>
+                session
+                  ? navigate({
+                      to: "/inbox",
+                      search: { packageId: id, returnTo: back },
+                    })
+                  : navigate({ to: "/login", search: { returnTo: back } })
+              }
+            >
+              <MessageCircle data-icon="inline-start" />
+              {p.canChat ? "Chat with provider" : "Provider chat unavailable"}
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              Ask your host a question before confirming. Your selection stays
+              with you.
             </p>
-          )}
-          <Button
-            variant="outline"
-            disabled={!p.canChat}
-            onClick={() =>
-              session
-                ? navigate({
-                    to: "/inbox",
-                    search: { packageId: id, returnTo: back },
-                  })
-                : navigate({ to: "/login", search: { returnTo: back } })
-            }
-          >
-            <MessageCircle data-icon="inline-start" />
-            {p.canChat ? "Chat with provider" : "Provider chat unavailable"}
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            Ask your host a question before confirming. Your selection stays
-            with you.
-          </p>
-        </aside>
+          </CardFooter>
+        </Card>
       </div>
     </article>
   );

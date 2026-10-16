@@ -1,3 +1,4 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, Link } from "@tanstack/react-router";
@@ -47,7 +48,7 @@ export function AccountPage({
   if (query.error) return <Problem error={query.error} />;
   const a = query.data;
   return (
-    <section className="narrow flex flex-col gap-6">
+    <section className="mx-auto flex max-w-2xl flex-col gap-6 rounded-xl border bg-card p-6 md:p-10">
       <h1>
         {onboarding && a.onboarding === "pending"
           ? "Make yourself at home"
@@ -79,7 +80,7 @@ export function AccountPage({
               </NativeSelect>
             </Field>
             <Field orientation="horizontal">
-              <input id="accept" type="checkbox" required />
+              <Checkbox id="accept" required />
               <FieldLabel htmlFor="accept">
                 I agree to create my TravelBuddy account.
               </FieldLabel>

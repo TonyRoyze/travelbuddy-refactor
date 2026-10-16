@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -31,7 +32,7 @@ export function BookingsPage({
   const rows = id ? query.data.filter((b) => b.id === id) : query.data;
   return (
     <section>
-      <div className="section-heading">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-5 [&_h1]:mb-3 [&_p]:text-muted-foreground">
         <div>
           {confirmation && (
             <CheckCircle2 className="mb-4 size-10 text-primary" />
@@ -59,12 +60,18 @@ export function BookingsPage({
           />
         ) : (
           rows.map((b) => (
-            <article className="booking-row" key={b.id}>
+            <article
+              className="grid gap-5 rounded-xl border bg-card p-5 sm:grid-cols-[180px_1fr] md:gap-8 md:p-6 [&>img]:aspect-[4/3] [&>img]:w-full [&>img]:rounded-lg [&>img]:object-cover [&_h2]:text-xl [&_h2]:leading-snug"
+              key={b.id}
+            >
               <Media src={b.experience.image} alt={b.experience.title} />
               <div className="flex flex-col gap-2">
-                <p className="text-primary">
-                  {b.status} · {b.reference}
-                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge variant="secondary">{b.status}</Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {b.reference}
+                  </span>
+                </div>
                 <Link to="/booking/$id" params={{ id: b.id }}>
                   <h2>{b.experience.title}</h2>
                 </Link>
