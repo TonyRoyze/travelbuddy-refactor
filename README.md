@@ -1,6 +1,6 @@
 # TravelBuddy
 
-A React + Vite application backed by the existing self-hosted Supabase instance. This branch establishes a new foundation; the original Next.js implementation remains in the sibling checkout and Git history.
+A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is also preserved under [`legacy/`](legacy/) so both apps can be run from this branch.
 
 ## Run locally
 
@@ -13,7 +13,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open http://localhost:5173. This worktree already has a private `.env.local` pointing to the same instance as the original app. The original app can run independently on port 3000. Browser sessions and the original app's HttpOnly cookies are separate; both map to the same Auth identities and application accounts.
+Open http://localhost:5173. The legacy Next.js app can run independently on port 3000; see [`docs/development-guide.md`](docs/development-guide.md). Browser sessions and the original app's HttpOnly cookies are separate; both map to the same Auth identities and application accounts.
 
 ## Database and API setup
 
@@ -64,3 +64,4 @@ pnpm test:compat   # migration boundary checks using the original sibling checko
 `test:compat` requires the original app's dependencies and private `.env.local`, and imports its server code solely for compatibility testing. Set `LEGACY_CHECKOUT` if it is not at `../travelbuddy`. It tests shared locking, fingerprints/retries, cancellation, thread reuse and message interoperability on the disposable database. It removes only its own fixtures. Do not run integration suites against production.
 
 See [deployment and validation notes](docs/deployment.md) for hosting and the checks performed during this implementation.
+See the [development guide](docs/development-guide.md) for the stack, file layout, component placement, and route conventions.
