@@ -10,6 +10,7 @@ import type { ServerAccount } from "./ServerAuthProvider";
 export function AccountOnboarding({ account }: { account: ServerAccount }) {
   const params = useSearchParams();
   const [name, setName] = useState(account.displayName);
+  const [profile, setProfile] = useState({ bio: '', homeBase: '', languages: '', interests: '', travelStyle: '', specialties: '', yearsExperience: '' });
   const [accountType, setAccountType] = useState<'traveler' | 'buddy'>(account.roles.includes('provider') ? 'buddy' : 'traveler');
   const [accepted, setAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -26,13 +27,14 @@ export function AccountOnboarding({ account }: { account: ServerAccount }) {
           displayName: name,
           acceptAccountCreation: accepted,
           accountType,
+          profileDetails: { ...profile, yearsExperience: profile.yearsExperience ? Number(profile.yearsExperience) : null },
         }),
       });
       const body = await response.json();
       if (!response.ok)
         throw new Error(body.error || "Your account could not be completed.");
       const next = params.get('next');
-      window.location.assign(next && next.startsWith('/') && !next.startsWith('//') && !/[\\\u0000-\u0020]/.test(next) ? next : '/account/security');
+      window.location.assign(next && next.startsWith('/') && !next.startsWith('//') && !/[\\\u0000-\u0020]/.test(next) ? next : '/account');
     } catch (err) {
       setError(
         err instanceof Error
@@ -76,6 +78,10 @@ export function AccountOnboarding({ account }: { account: ServerAccount }) {
             />
           </label>
           <p id="onboarding-name-help" className="onboarding-help">This is how you’ll appear on TravelBuddy.</p>
+          <label className="field">A little about you<textarea maxLength={500} rows={3} disabled={busy} value={profile.bio} onChange={event => setProfile({ ...profile, bio: event.target.value })} placeholder="What would you like others to know?" /></label>
+          <label className="field">{accountType === 'buddy' ? 'Your local area' : 'Where are you based?'}<input maxLength={120} disabled={busy} value={profile.homeBase} onChange={event => setProfile({ ...profile, homeBase: event.target.value })} placeholder="City or region" /></label>
+          <label className="field">Languages<input maxLength={160} disabled={busy} value={profile.languages} onChange={event => setProfile({ ...profile, languages: event.target.value })} placeholder="For example, English, Sinhala" /></label>
+          {accountType === 'buddy' ? <><label className="field">What do you specialize in?<input maxLength={240} disabled={busy} value={profile.specialties} onChange={event => setProfile({ ...profile, specialties: event.target.value })} placeholder="Food, hiking, culture…" /></label><label className="field">Years of experience<input type="number" min="0" max="80" disabled={busy} value={profile.yearsExperience} onChange={event => setProfile({ ...profile, yearsExperience: event.target.value })} /></label></> : <><label className="field">Interests<input maxLength={240} disabled={busy} value={profile.interests} onChange={event => setProfile({ ...profile, interests: event.target.value })} placeholder="Nature, food, history…" /></label><label className="field">Travel style<input maxLength={120} disabled={busy} value={profile.travelStyle} onChange={event => setProfile({ ...profile, travelStyle: event.target.value })} placeholder="Slow travel, adventure…" /></label></>}
           <fieldset className="onboarding-account-types" disabled={busy}>
             <legend>Choose your account type</legend>
             <div className="onboarding-type-options">

@@ -10,7 +10,7 @@ const providers: { id: Provider; name: string; mark: string }[] = [
   { id: 'apple', name: 'Apple', mark: '●' },
 ];
 
-export function SocialSignIn({ registration = false, next = '/account/security' }: { registration?: boolean; next?: string }) {
+export function SocialSignIn({ registration = false, next = '/account' }: { registration?: boolean; next?: string }) {
   const params = useSearchParams();
   const { logout: logoutDemo } = useCustomer();
   const [enabled, setEnabled] = useState<Partial<Record<Provider, boolean>> | null>(null);

@@ -11,7 +11,7 @@ import type { Coordinates, CustomPackage } from '@/lib/inbox';
 
 type RequestPost = { id: string; title: string; destination: string; details: string; pickupLocation: string | null; latitude: number | null; longitude: number | null; distanceKm: number | null; closed: boolean; createdAt: string; traveler: { id: string; displayName: string }; conversations: { id: string }[] };
 type RequestContext = Pick<RequestPost, 'id' | 'title' | 'destination' | 'closed' | 'pickupLocation' | 'latitude' | 'longitude'> & { details?: string };
-type Conversation = { id: string; participant: { id: string; displayName: string }; request: RequestContext | null; latestMessage: { body: string; createdAt: string } | null };
+type Conversation = { package: { id: string; title: string; destination: string; published: boolean } | null; id: string; participant: { id: string; displayName: string }; request: RequestContext | null; latestMessage: { body: string; createdAt: string } | null };
 type ConversationDetail = Omit<Conversation, 'latestMessage'> & { messages: { id: string; senderId: string; body: string; package: CustomPackage | null; createdAt: string }[] };
 type Tab = 'requests' | 'replies';
 
@@ -34,7 +34,11 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
   const router = useRouter(); const params = useSearchParams();
   const selectedId = params.get('conversation');
   const requestFilter = params.get('request');
-  const tab: Tab = selectedId || ['replies', 'mine', 'messages'].includes(params.get('tab') ?? '') ? 'replies' : 'requests';
+  const packageId = params.get('package');
+  const bookingQuery = params.get('booking') ?? '';
+  const [openingError, setOpeningError] = useState('');
+  const [openingAttempt, setOpeningAttempt] = useState(0);
+  const tab: Tab = packageId || selectedId || ['replies', 'mine', 'messages'].includes(params.get('tab') ?? '') ? 'replies' : 'requests';
   const canPost = account!.roles.includes('traveler');
   const canReply = account!.roles.some(role => role === 'guide' || role === 'provider');
   const [requests, setRequests] = useState<RequestPost[]>([]);
@@ -54,6 +58,20 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
   const [busy, setBusy] = useState(false); const [formError, setFormError] = useState(''); const [notice, setNotice] = useState('');
   const end = useRef<HTMLDivElement>(null);
   const visibleConversation = conversation?.id === selectedId ? conversation : null;
+
+  useEffect(() => {
+    if (!packageId || selectedId) return;
+    let cancelled = false;
+    setOpeningError('');
+    api<{ conversation: { id: string } }>('/api/messages', json('POST', { packageId }))
+      .then(result => {
+        if (cancelled) return;
+        const query = new URLSearchParams({ conversation: result.conversation.id });
+        if (bookingQuery) query.set('booking', bookingQuery);
+        router.replace(`/inbox?${query}`);
+      }).catch(failure => { if (!cancelled) setOpeningError(errorText(failure)); });
+    return () => { cancelled = true; };
+  }, [packageId, selectedId, bookingQuery, openingAttempt, router]);
 
   useEffect(() => {
     const controller = new AbortController(); let running = false;
@@ -150,6 +168,7 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
       <button className={tab === 'requests' ? 'active' : ''} aria-current={tab === 'requests' ? 'page' : undefined} onClick={() => switchTab('requests')}>Traveller requests</button>
       <button className={tab === 'replies' ? 'active' : ''} aria-current={tab === 'replies' ? 'page' : undefined} onClick={() => switchTab('replies')}><LockKeyhole size={16}/>Replies</button>
     </nav>
+    {packageId && !selectedId && <div className="request-notice" role={openingError ? 'alert' : 'status'}>{openingError || 'Opening your private provider chat…'}{openingError && <button className="text-link" onClick={() => setOpeningAttempt(value => value + 1)}>Try again</button>}<Link className="text-link" href={`/experience/${encodeURIComponent(packageId)}?${new URLSearchParams(bookingQuery)}`}>Return to package</Link></div>}
     {notice && <p className="request-notice" role="status">{notice}</p>}
     {error && <div className="request-error" role="alert"><p>{error}</p><button className="text-link" onClick={() => setRevision(value => value + 1)}>Try again</button></div>}
     {(tab === 'requests') ? <>
@@ -178,7 +197,7 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
     {tab === 'replies' && selectedId && <div className="inbox-layout">
       {visibleConversation ? <section className="conversation-panel" aria-label="Private conversation">
         <div className="chat-header"><Link href="/inbox?tab=replies" className="icon-button" aria-label="Back to private replies"><ArrowLeft size={20}/></Link><h1>{visibleConversation.participant.displayName.trim().split(/\s+/)[0]}<LockKeyhole size={16} aria-label="Private conversation" role="img"/></h1></div>
-        <div className="chat-messages" aria-label="Conversation messages" role="log" aria-live="polite">{visibleConversation.request && <article className="message request-message" aria-label="Original traveller request"><details className="chat-request"><summary><MapPin size={16}/><strong>{visibleConversation.request.title}</strong><span>{visibleConversation.request.destination}{visibleConversation.request.closed && ' · Closed request'}</span></summary><p>{visibleConversation.request.details}</p>{visibleConversation.request.pickupLocation && <p>Pickup / current location: {visibleConversation.request.pickupLocation}</p>}</details></article>}{visibleConversation.messages.map(value => <article key={value.id} className={`message message-${value.senderId === account!.id ? 'customer' : 'sample'}`}><span>{value.senderId === account!.id ? 'You' : visibleConversation.participant.displayName}</span>{value.package ? <CustomPackageCard offer={value.package}/> : <p>{value.body}</p>}<time dateTime={value.createdAt}>{dateLabel(value.createdAt)} · {new Date(value.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</time></article>)}<div ref={end}/></div>
+        <div className="chat-messages" aria-label="Conversation messages" role="log" aria-live="polite">{visibleConversation.request && <article className="message request-message" aria-label="Original traveller request"><details className="chat-request"><summary><MapPin size={16}/><strong>{visibleConversation.request.title}</strong><span>{visibleConversation.request.destination}{visibleConversation.request.closed && ' · Closed request'}</span></summary><p>{visibleConversation.request.details}</p>{visibleConversation.request.pickupLocation && <p>Pickup / current location: {visibleConversation.request.pickupLocation}</p>}</details></article>}{visibleConversation.package && <article className="message request-message" aria-label="Package being discussed"><strong>{visibleConversation.package.title}</strong><p>{visibleConversation.package.destination}</p><Link className="text-link" href={`/experience/${encodeURIComponent(visibleConversation.package.id)}?${new URLSearchParams(bookingQuery)}`}>{visibleConversation.package.published ? 'Return to booking' : 'View package'}</Link><p className="field-help">Chatting does not confirm a booking or reserve places.</p></article>}{visibleConversation.messages.map(value => <article key={value.id} className={`message message-${value.senderId === account!.id ? 'customer' : 'sample'}`}><span>{value.senderId === account!.id ? 'You' : visibleConversation.participant.displayName}</span>{value.package ? <CustomPackageCard offer={value.package}/> : <p>{value.body}</p>}<time dateTime={value.createdAt}>{dateLabel(value.createdAt)} · {new Date(value.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</time></article>)}<div ref={end}/></div>
         {formError && <p className="error-message chat-error" role="alert">{formError}</p>}
         <form className="chat-composer" onSubmit={send}>{canReply && visibleConversation.request && <button type="button" className="button button-secondary custom-package-trigger" disabled={busy} onClick={() => { setOffering('conversation'); setFormError(''); }} aria-label="Send custom package"><Package size={18}/><span>Custom package</span></button>}<label className="sr-only" htmlFor="private-message">Your message</label><input id="private-message" value={message} disabled={busy} maxLength={1000} onChange={event => setMessage(event.target.value)} placeholder="Write a private message…" autoComplete="off"/><button className="button button-primary" disabled={busy || !message.trim()} aria-label="Send message"><Send size={19}/></button></form>
       </section> : <div className="conversation-placeholder"><MessageCircle size={34}/><h2>{selectedId ? formError ? 'Conversation unavailable.' : 'Opening your conversation…' : 'A local connection starts with a reply.'}</h2><p>{selectedId ? formError || 'Loading private messages.' : 'Choose a conversation to read messages and make a plan.'}</p>{formError && <button className="button button-secondary" onClick={() => setRevision(value => value + 1)}>Try again</button>}</div>}
@@ -200,5 +219,5 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
 }
 
 function ThreadList({ conversations }: { conversations: Conversation[] }) {
-  return <div className="request-thread-list">{conversations.length ? conversations.map(chat => <Link key={chat.id} href={`/inbox?conversation=${chat.id}`} className="request-thread"><span className="provider-avatar" aria-hidden="true">{chat.participant.displayName[0]}</span><span><strong>{chat.participant.displayName.trim().split(/\s+/)[0]}</strong><small>{chat.latestMessage?.body ?? 'No messages yet'}</small></span><ChevronRight size={18}/></Link>) : <p className="field-help">No replies yet. Threads will appear here when a buddy or guide responds.</p>}</div>;
+  return <div className="request-thread-list">{conversations.length ? conversations.map(chat => <Link key={chat.id} href={`/inbox?conversation=${chat.id}`} className="request-thread"><span className="provider-avatar" aria-hidden="true">{chat.participant.displayName[0]}</span><span><strong>{chat.participant.displayName.trim().split(/\s+/)[0]}</strong><small>{chat.package ? `${chat.package.title} · ` : ''}{chat.latestMessage?.body ?? 'No messages yet'}</small></span><ChevronRight size={18}/></Link>) : <p className="field-help">No replies yet. Threads will appear here when a buddy or guide responds.</p>}</div>;
 }

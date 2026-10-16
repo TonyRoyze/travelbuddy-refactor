@@ -17,8 +17,8 @@ export const socialProviders = ['google', 'facebook', 'apple'] as const;
 export type SocialProvider = typeof socialProviders[number];
 
 export function safeAuthReturn(value: string | null | undefined) {
-  if (!value || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u0020]/.test(value)) return '/account/security';
+  if (!value || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u0020]/.test(value)) return '/account';
   const origin = authConfig().origin;
   const url = new URL(value, origin);
-  return url.origin === origin ? `${url.pathname}${url.search}${url.hash}` : '/account/security';
+  return url.origin === origin ? `${url.pathname}${url.search}${url.hash}` : '/account';
 }
