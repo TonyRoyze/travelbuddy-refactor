@@ -17,7 +17,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
+import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
+import { useLiveNowUpdates } from "@/lib/live-now";
 import { today, money, type Selection } from "@/lib/validation";
 import type { Availability } from "./types";
 import { useSession } from "@/features/auth/session";
@@ -37,6 +39,7 @@ export function ExperiencePage({
   id: string;
   initial: Selection;
 }) {
+  useLiveNowUpdates();
   const detail = useQuery(packageQuery(id));
   const [selection, setSelection] = useState(initial);
   const navigate = useNavigate();
@@ -106,6 +109,7 @@ export function ExperiencePage({
             <Star />
             {p.rating} <span>({p.reviews} reviews)</span>
             <span>Hosted by {p.supplier}</span>
+            {p.liveNow && <Badge variant="secondary">Live now</Badge>}
           </p>
         </div>
       </div>

@@ -5,4 +5,5 @@ export interface Account {
   roles: ("traveler" | "provider" | "guide" | "admin")[];
   onboarding: "pending" | "completed";
   revision: number;
+  liveNow: boolean;
 }
