@@ -19,6 +19,7 @@ export interface Experience {
   notIncluded: string[];
   meetingPoint: string;
   canChat?: boolean;
+  liveNow?: boolean;
   options: {
     name: string;
     price: number;

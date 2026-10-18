@@ -5,6 +5,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { accountQuery } from "@/lib/queries";
 import { rpc, supabase } from "@/lib/supabase";
 import { safeReturn } from "@/lib/validation";
+import { broadcastLiveNowChange, useLiveNowUpdates } from "@/lib/live-now";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,6 +22,7 @@ export function AccountPage({
   returnTo?: string;
 }) {
   const query = useQuery(accountQuery());
+  useLiveNowUpdates();
   const client = useQueryClient();
   const navigate = useNavigate();
   const [error, setError] = useState<unknown>();
@@ -38,6 +40,21 @@ export function AccountPage({
       });
       await client.invalidateQueries({ queryKey: ["account"] });
       window.location.assign(safeReturn(returnTo));
+    } catch (e) {
+      setError(e);
+    } finally {
+      setPending(false);
+    }
+  }
+  async function toggleLiveNow() {
+    setPending(true);
+    setError(undefined);
+    try {
+      await rpc("set_live_now", { live_now: !query.data!.liveNow });
+      await client.invalidateQueries({ queryKey: ["account"] });
+      await client.invalidateQueries({ queryKey: ["catalog"] });
+      await client.invalidateQueries({ queryKey: ["package"] });
+      broadcastLiveNowChange();
     } catch (e) {
       setError(e);
     } finally {
@@ -98,6 +115,29 @@ export function AccountPage({
           <p>
             {a.roles.map((r) => (r === "provider" ? "Buddy" : r)).join(", ")}
           </p>
+          {a.roles.some((role) => role === "provider" || role === "guide") && (
+            <div className="flex flex-col gap-3 rounded-lg border p-4">
+              <div>
+                <h2 className="text-lg">Live Now availability</h2>
+                <p className="text-sm text-muted-foreground">
+                  Let travellers know when you can host an experience right now.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant={a.liveNow ? "default" : "outline"}
+                aria-pressed={a.liveNow}
+                disabled={pending}
+                onClick={toggleLiveNow}
+              >
+                {pending
+                  ? "Updating…"
+                  : a.liveNow
+                    ? "Live now · Turn off"
+                    : "Go live now"}
+              </Button>
+            </div>
+          )}
           <Link to="/bookings">View your bookings</Link>
           <Link to="/inbox" search={{}}>
             Open your inbox

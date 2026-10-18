@@ -13,6 +13,7 @@ import {
   Waves,
 } from "lucide-react";
 import { catalogQuery } from "@/lib/queries";
+import { useLiveNowUpdates } from "@/lib/live-now";
 import { searchSchema, money } from "@/lib/validation";
 import { Media } from "./media";
 import { destinations } from "./destinations";
@@ -59,6 +60,7 @@ export function CatalogPage({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const parsed = searchSchema.parse(filters);
   const query = useQuery(catalogQuery(parsed));
+  useLiveNowUpdates();
   const navigate = useNavigate();
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

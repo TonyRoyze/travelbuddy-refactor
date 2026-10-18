@@ -45,6 +45,7 @@ export type Database = {
         Args: { body: string; conversation_id: string };
         Returns: string;
       };
+      set_live_now: { Args: { live_now: boolean }; Returns: Json };
       start_chat: { Args: { package_id: string }; Returns: string };
     };
     Enums: {
