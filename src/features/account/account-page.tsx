@@ -91,8 +91,11 @@ export function AccountPage({
                 <NativeSelectOption value="traveler">
                   Traveller — explore and book
                 </NativeSelectOption>
-                <NativeSelectOption value="buddy">
-                  Buddy — host local experiences
+                <NativeSelectOption value="provider">
+                  Provider — offer accommodation or facilities
+                </NativeSelectOption>
+                <NativeSelectOption value="guide">
+                  Guide — host local experiences
                 </NativeSelectOption>
               </NativeSelect>
             </Field>
