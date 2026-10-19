@@ -113,14 +113,24 @@ export function AccountPage({
           <p className="text-xl">{a.displayName}</p>
           <p>{a.email}</p>
           <p>
-            {a.roles.map((r) => (r === "provider" ? "Buddy" : r)).join(", ")}
+            {a.roles
+              .map((role) =>
+                role === "traveler"
+                  ? "Traveller"
+                  : role === "provider"
+                    ? "Provider"
+                    : role === "guide"
+                      ? "Guide"
+                      : "Admin",
+              )
+              .join(", ")}
           </p>
-          {a.roles.includes("provider") && (
+          {a.roles.some((role) => role === "provider" || role === "guide") && (
             <div className="flex flex-col gap-3 rounded-lg border p-4">
               <div>
-                <h2 className="text-lg">Provider availability</h2>
+                <h2 className="text-lg">Availability</h2>
                 <p className="text-sm text-muted-foreground">
-                  Let travellers know when you can host an experience right now.
+                  Let travellers know when you’re available right now.
                 </p>
                 <p className="mt-2 text-sm font-medium" role="status">
                   Currently {a.liveNow ? "live" : "offline"}
