@@ -118,9 +118,12 @@ export function AccountPage({
           {a.roles.some((role) => role === "provider" || role === "guide") && (
             <div className="flex flex-col gap-3 rounded-lg border p-4">
               <div>
-                <h2 className="text-lg">Live Now availability</h2>
+                <h2 className="text-lg">Provider availability</h2>
                 <p className="text-sm text-muted-foreground">
                   Let travellers know when you can host an experience right now.
+                </p>
+                <p className="mt-2 text-sm font-medium" role="status">
+                  Currently {a.liveNow ? "live" : "offline"}
                 </p>
               </div>
               <Button
@@ -133,8 +136,8 @@ export function AccountPage({
                 {pending
                   ? "Updating…"
                   : a.liveNow
-                    ? "Live now · Turn off"
-                    : "Go live now"}
+                    ? "Go Offline"
+                    : "Go Live"}
               </Button>
             </div>
           )}
