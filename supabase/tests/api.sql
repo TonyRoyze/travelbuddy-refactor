@@ -66,7 +66,7 @@ SET LOCAL ROLE authenticated;
 DO $$ DECLARE a jsonb; BEGIN
  a:=travelbuddy_api.account(); ASSERT a->>'onboarding'='pending','new user';
  BEGIN PERFORM travelbuddy_api.onboard('Attacker','admin',1); RAISE EXCEPTION 'admin signup'; EXCEPTION WHEN raise_exception THEN IF SQLERRM='admin signup' THEN RAISE; END IF; END;
- a:=travelbuddy_api.onboard('New Buddy','buddy',1); ASSERT a->'roles'='["provider"]' AND (a->>'revision')::int=2,'onboarding';
+ a:=travelbuddy_api.onboard('New Guide','guide',1); ASSERT a->'roles'='["guide"]' AND (a->>'revision')::int=2,'onboarding';
 END $$;
 RESET ROLE;
 -- Explicit closed exception overrides weekdays and fallback skips it.
