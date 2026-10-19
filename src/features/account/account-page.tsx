@@ -115,7 +115,7 @@ export function AccountPage({
           <p>
             {a.roles.map((r) => (r === "provider" ? "Buddy" : r)).join(", ")}
           </p>
-          {a.roles.some((role) => role === "provider" || role === "guide") && (
+          {a.roles.includes("provider") && (
             <div className="flex flex-col gap-3 rounded-lg border p-4">
               <div>
                 <h2 className="text-lg">Provider availability</h2>

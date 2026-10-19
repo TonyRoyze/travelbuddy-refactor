@@ -47,7 +47,7 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE a jsonb:=travelbuddy_private.account();
 BEGIN
  IF live_now IS NULL THEN RAISE EXCEPTION 'Choose whether you are live now.'; END IF;
- IF NOT (a->'roles' ?| ARRAY['provider','guide']) OR a->>'onboarding'<>'completed' THEN
+ IF NOT (a->'roles' ? 'provider') OR a->>'onboarding'<>'completed' THEN
   RAISE EXCEPTION 'Only active providers can change live availability.' USING ERRCODE='42501';
  END IF;
  UPDATE travelbuddy_backend.accounts
