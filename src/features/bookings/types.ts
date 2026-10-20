@@ -14,23 +14,3 @@ export interface Booking {
   status: "Upcoming" | "Completed" | "Cancelled";
   experience: Experience;
 }
-
-export interface CartItem {
-  id: string;
-  experienceId: string;
-  option: number;
-  date: string;
-  time: string;
-  travelers: number;
-  unitPrice: number;
-  lineTotal: number;
-  optionName: string | null;
-  available: boolean;
-  experience: Experience;
-}
-
-export interface Cart {
-  items: CartItem[];
-  total: number;
-  itemCount: number;
-}
