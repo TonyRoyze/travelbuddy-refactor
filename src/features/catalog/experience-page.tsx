@@ -6,7 +6,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   MapPin,
@@ -38,7 +38,10 @@ export function ExperiencePage({
   initial: Selection;
 }) {
   const detail = useQuery(packageQuery(id));
+  const client = useQueryClient();
   const [selection, setSelection] = useState(initial);
+  const [cartPending, setCartPending] = useState(false);
+  const [cartError, setCartError] = useState<unknown>();
   const navigate = useNavigate();
   const { session } = useSession();
   const availability = useQuery({
@@ -85,6 +88,30 @@ export function ExperiencePage({
   function book() {
     if (!time) return;
     navigate({ to: "/checkout", search: { packageId: id, ...chosen, time } });
+  }
+  async function addToCart() {
+    if (!time) return;
+    if (!session) {
+      await navigate({ to: "/login", search: { returnTo: back } });
+      return;
+    }
+    setCartPending(true);
+    setCartError(undefined);
+    try {
+      await rpc("cart_add", {
+        package_id: id,
+        booking_date: date,
+        start_time: time,
+        option_index: chosen.option,
+        travelers: chosen.travelers,
+      });
+      await client.invalidateQueries({ queryKey: ["cart"] });
+      await navigate({ to: "/cart" });
+    } catch (e) {
+      setCartError(e);
+    } finally {
+      setCartPending(false);
+    }
   }
   return (
     <article>
@@ -285,6 +312,7 @@ export function ExperiencePage({
             {availability.error && <Problem error={availability.error} />}
           </CardContent>
           <CardFooter className="flex-col items-stretch gap-3">
+            {cartError !== undefined && <Problem error={cartError} />}
             <Button
               size="lg"
               disabled={!time || availability.isPending || !!availability.error}
@@ -292,6 +320,14 @@ export function ExperiencePage({
             >
               Book Now
               <ArrowRight data-icon="inline-end" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              disabled={!time || availability.isPending || !!availability.error || cartPending}
+              onClick={() => void addToCart()}
+            >
+              {cartPending ? "Adding…" : "Add to cart"}
             </Button>
             {!availability.isPending && !slots.length && (
               <p role="status">
