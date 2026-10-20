@@ -26,26 +26,9 @@ export type Database = {
         Returns: Json;
       };
       bookings: { Args: never; Returns: Json };
-      cart: { Args: never; Returns: Json };
-      cart_add: {
-        Args: {
-          booking_date: string;
-          option_index?: number;
-          package_id: string;
-          start_time: string;
-          travelers?: number;
-        };
-        Returns: Json;
-      };
-      cart_remove: { Args: { cart_item_id: string }; Returns: boolean };
-      cart_update: {
-        Args: { cart_item_id: string; travelers: number };
-        Returns: Json;
-      };
       cancel_booking: { Args: { booking_id: string }; Returns: Json };
       catalog: { Args: { filters?: Json }; Returns: Json };
       checkout: { Args: { input: Json }; Returns: Json };
-      checkout_cart: { Args: { input: Json }; Returns: Json };
       conversations: { Args: never; Returns: Json };
       media_path: { Args: { media_id: string }; Returns: string };
       messages: { Args: { conversation_id: string }; Returns: Json };
