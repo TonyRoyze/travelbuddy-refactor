@@ -18,6 +18,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated.account'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated.bookings'
+import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated.cart'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated.inbox'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -70,6 +71,11 @@ const AuthenticatedBookingsRoute = AuthenticatedBookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/account': typeof AuthenticatedAccountRoute
   '/bookings': typeof AuthenticatedBookingsRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/account': typeof AuthenticatedAccountRoute
   '/bookings': typeof AuthenticatedBookingsRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
+  '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/account'
     | '/bookings'
+    | '/cart'
     | '/checkout'
     | '/inbox'
     | '/auth/callback'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/account'
     | '/bookings'
+    | '/cart'
     | '/checkout'
     | '/inbox'
     | '/auth/callback'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/_authenticated/account'
     | '/_authenticated/bookings'
+    | '/_authenticated/cart'
     | '/_authenticated/checkout'
     | '/_authenticated/inbox'
     | '/auth/callback'
@@ -293,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBookingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/cart': {
+      id: '/_authenticated/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof AuthenticatedCartRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/checkout': {
       id: '/_authenticated/checkout'
       path: '/checkout'
@@ -348,6 +367,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
+  AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedBookingIdRoute: typeof AuthenticatedBookingIdRoute
@@ -358,6 +378,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
+  AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedBookingIdRoute: AuthenticatedBookingIdRoute,
