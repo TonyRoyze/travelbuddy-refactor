@@ -5,6 +5,7 @@ import {
   CalendarDays,
   MessageCircle,
   UserRound,
+  ShoppingBag,
   ArrowRight,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
 const items = [
   { to: "/", label: "Home", icon: Home },
   { to: "/search", label: "Explore", icon: Compass },
+  { to: "/cart", label: "Cart", icon: ShoppingBag },
   { to: "/bookings", label: "Bookings", icon: CalendarDays },
   { to: "/inbox", label: "Inbox", icon: MessageCircle },
 ] as const;
@@ -147,7 +149,7 @@ export function Shell() {
       {!focused && (
         <nav
           aria-label="Mobile navigation"
-          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
         >
           {items.map(({ icon: Icon, ...item }) => (
             <Link
