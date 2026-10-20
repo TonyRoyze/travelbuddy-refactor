@@ -6,18 +6,17 @@ import {
   MessageCircle,
   UserRound,
   ShoppingBag,
+  ArrowRight,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session";
 import { accountQuery } from "@/lib/queries";
 import { buttonVariants } from "@/components/ui/button";
-import { useCart } from "@/features/bookings/cart-provider";
-import { ProviderHeartbeat } from "@/features/nearby/provider-heartbeat";
-import { ProfileAvatar } from "@/features/account/profile-avatar";
 import { cn } from "@/lib/utils";
 const items = [
   { to: "/", label: "Home", icon: Home },
   { to: "/search", label: "Explore", icon: Compass },
+  { to: "/cart", label: "Cart", icon: ShoppingBag },
   { to: "/bookings", label: "Bookings", icon: CalendarDays },
   { to: "/inbox", label: "Inbox", icon: MessageCircle },
 ] as const;
@@ -35,7 +34,6 @@ export function Brand() {
 }
 export function Shell() {
   const { session } = useSession();
-  const { items: cart } = useCart();
   const { pathname } = useLocation();
   const { data: account } = useQuery({ ...accountQuery(), enabled: !!session });
   const auth = [
@@ -51,9 +49,7 @@ export function Shell() {
     to === "/"
       ? pathname === "/"
       : to === "/search"
-        ? pathname === "/search" ||
-          pathname === "/nearby" ||
-          pathname.startsWith("/experience/")
+        ? pathname === "/search" || pathname.startsWith("/experience/")
         : pathname.startsWith(to);
   return (
     <div
@@ -100,33 +96,21 @@ export function Shell() {
               className="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"
             >
               Back to home
+              <ArrowRight className="size-4" />
             </Link>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                to="/cart"
-                aria-label={`Cart, ${cart.length} experiences`}
-                className={buttonVariants({ variant: "ghost" })}
-              >
-                <ShoppingBag data-icon="inline-start" />
-                <span>{cart.length || "Cart"}</span>
-              </Link>
-              <Link
-                to={session ? "/account" : "/login"}
-                search={{}}
-                aria-label={account?.displayName ?? "Sign in"}
-                className={cn(
-                  buttonVariants({ variant: "secondary" }),
-                  "gap-2",
-                )}
-              >
-                {account ? <ProfileAvatar name={account.displayName} mediaId={account.avatarMediaId} className="size-8 text-xs"/> : <UserRound data-icon="inline-start" />}
-                <span className="hidden sm:inline">
-                  {account?.displayName.split(" ")[0] ??
-                    (session ? "Account" : "Sign in")}
-                </span>
-              </Link>
-            </div>
+            <Link
+              to={session ? "/account" : "/login"}
+              search={{}}
+              aria-label={account?.displayName ?? "Sign in"}
+              className={cn(buttonVariants({ variant: "secondary" }), "gap-2")}
+            >
+              <UserRound data-icon="inline-start" />
+              <span className="hidden sm:inline">
+                {account?.displayName.split(" ")[0] ??
+                  (session ? "Account" : "Sign in")}
+              </span>
+            </Link>
           )}
         </div>
       </header>
@@ -134,13 +118,10 @@ export function Shell() {
         id="main"
         className={cn(
           "min-h-[65vh]",
-          pathname === "/login"
-            ? "mx-auto max-w-[1440px] px-4 py-4 md:px-6 md:py-6"
-            : pathname !== "/" &&
-                "mx-auto max-w-[1280px] px-4 py-8 md:px-8 md:py-10 xl:px-10",
+          pathname !== "/" &&
+            "mx-auto max-w-[1280px] px-4 py-8 md:px-8 md:py-10 xl:px-10",
         )}
       >
-        <ProviderHeartbeat />
         <Outlet />
       </main>
       {!auth && (
@@ -168,7 +149,7 @@ export function Shell() {
       {!focused && (
         <nav
           aria-label="Mobile navigation"
-          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
         >
           {items.map(({ icon: Icon, ...item }) => (
             <Link
