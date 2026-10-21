@@ -13,18 +13,27 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as NearbyRouteImport } from './routes/nearby'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated.account'
 import { Route as AuthenticatedBookingsRouteImport } from './routes/_authenticated.bookings'
+import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated.cart'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated.inbox'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as BuddyIdRouteImport } from './routes/buddy.$id'
 import { Route as ExperienceIdRouteImport } from './routes/experience.$id'
+import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated.account.index'
+import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated.account.profile'
+import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated.account.security'
+import { Route as AuthenticatedAccountSettingsRouteImport } from './routes/_authenticated.account.settings'
 import { Route as AuthenticatedBookingIdRouteImport } from './routes/_authenticated.booking.$id'
 import { Route as AuthenticatedConfirmationIdRouteImport } from './routes/_authenticated.confirmation.$id'
 import { Route as AuthenticatedRegisterCompleteRouteImport } from './routes/_authenticated.register.complete'
+import { Route as AuthenticatedAccountPackagesIndexRouteImport } from './routes/_authenticated.account.packages.index'
+import { Route as AuthenticatedAccountPackagesIdRouteImport } from './routes/_authenticated.account.packages.$id'
+import { Route as AuthenticatedAccountPackagesNewRouteImport } from './routes/_authenticated.account.packages.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +54,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NearbyRoute = NearbyRouteImport.update({
+  id: '/nearby',
+  path: '/nearby',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -60,14 +74,14 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedBookingsRoute = AuthenticatedBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
@@ -85,11 +99,40 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuddyIdRoute = BuddyIdRouteImport.update({
+  id: '/buddy/$id',
+  path: '/buddy/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExperienceIdRoute = ExperienceIdRouteImport.update({
   id: '/experience/$id',
   path: '/experience/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAccountIndexRoute =
+  AuthenticatedAccountIndexRouteImport.update({
+    id: '/account/',
+    path: '/account/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountProfileRoute =
+  AuthenticatedAccountProfileRouteImport.update({
+    id: '/account/profile',
+    path: '/account/profile',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountSecurityRoute =
+  AuthenticatedAccountSecurityRouteImport.update({
+    id: '/account/security',
+    path: '/account/security',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountSettingsRoute =
+  AuthenticatedAccountSettingsRouteImport.update({
+    id: '/account/settings',
+    path: '/account/settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBookingIdRoute = AuthenticatedBookingIdRouteImport.update({
   id: '/booking/$id',
   path: '/booking/$id',
@@ -107,40 +150,76 @@ const AuthenticatedRegisterCompleteRoute =
     path: '/register/complete',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAccountPackagesIndexRoute =
+  AuthenticatedAccountPackagesIndexRouteImport.update({
+    id: '/account/packages/',
+    path: '/account/packages/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountPackagesIdRoute =
+  AuthenticatedAccountPackagesIdRouteImport.update({
+    id: '/account/packages/$id',
+    path: '/account/packages/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountPackagesNewRoute =
+  AuthenticatedAccountPackagesNewRouteImport.update({
+    id: '/account/packages/new',
+    path: '/account/packages/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/nearby': typeof NearbyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
-  '/account': typeof AuthenticatedAccountRoute
   '/bookings': typeof AuthenticatedBookingsRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/buddy/$id': typeof BuddyIdRoute
   '/experience/$id': typeof ExperienceIdRoute
+  '/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/account/security': typeof AuthenticatedAccountSecurityRoute
+  '/account/settings': typeof AuthenticatedAccountSettingsRoute
   '/booking/$id': typeof AuthenticatedBookingIdRoute
   '/confirmation/$id': typeof AuthenticatedConfirmationIdRoute
   '/register/complete': typeof AuthenticatedRegisterCompleteRoute
+  '/account/': typeof AuthenticatedAccountIndexRoute
+  '/account/packages/$id': typeof AuthenticatedAccountPackagesIdRoute
+  '/account/packages/new': typeof AuthenticatedAccountPackagesNewRoute
+  '/account/packages/': typeof AuthenticatedAccountPackagesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/nearby': typeof NearbyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
-  '/account': typeof AuthenticatedAccountRoute
   '/bookings': typeof AuthenticatedBookingsRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/buddy/$id': typeof BuddyIdRoute
   '/experience/$id': typeof ExperienceIdRoute
+  '/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/account/security': typeof AuthenticatedAccountSecurityRoute
+  '/account/settings': typeof AuthenticatedAccountSettingsRoute
   '/booking/$id': typeof AuthenticatedBookingIdRoute
   '/confirmation/$id': typeof AuthenticatedConfirmationIdRoute
   '/register/complete': typeof AuthenticatedRegisterCompleteRoute
+  '/account': typeof AuthenticatedAccountIndexRoute
+  '/account/packages/$id': typeof AuthenticatedAccountPackagesIdRoute
+  '/account/packages/new': typeof AuthenticatedAccountPackagesNewRoute
+  '/account/packages': typeof AuthenticatedAccountPackagesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -148,18 +227,27 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/nearby': typeof NearbyRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
-  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/bookings': typeof AuthenticatedBookingsRoute
+  '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/buddy/$id': typeof BuddyIdRoute
   '/experience/$id': typeof ExperienceIdRoute
+  '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
+  '/_authenticated/account/settings': typeof AuthenticatedAccountSettingsRoute
   '/_authenticated/booking/$id': typeof AuthenticatedBookingIdRoute
   '/_authenticated/confirmation/$id': typeof AuthenticatedConfirmationIdRoute
   '/_authenticated/register/complete': typeof AuthenticatedRegisterCompleteRoute
+  '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
+  '/_authenticated/account/packages/$id': typeof AuthenticatedAccountPackagesIdRoute
+  '/_authenticated/account/packages/new': typeof AuthenticatedAccountPackagesNewRoute
+  '/_authenticated/account/packages/': typeof AuthenticatedAccountPackagesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,53 +255,80 @@ export interface FileRouteTypes {
     | '/'
     | '/forgot-password'
     | '/login'
+    | '/nearby'
     | '/register'
     | '/reset-password'
     | '/search'
-    | '/account'
     | '/bookings'
+    | '/cart'
     | '/checkout'
     | '/inbox'
     | '/auth/callback'
+    | '/buddy/$id'
     | '/experience/$id'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/settings'
     | '/booking/$id'
     | '/confirmation/$id'
     | '/register/complete'
+    | '/account/'
+    | '/account/packages/$id'
+    | '/account/packages/new'
+    | '/account/packages/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/forgot-password'
     | '/login'
+    | '/nearby'
     | '/register'
     | '/reset-password'
     | '/search'
-    | '/account'
     | '/bookings'
+    | '/cart'
     | '/checkout'
     | '/inbox'
     | '/auth/callback'
+    | '/buddy/$id'
     | '/experience/$id'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/settings'
     | '/booking/$id'
     | '/confirmation/$id'
     | '/register/complete'
+    | '/account'
+    | '/account/packages/$id'
+    | '/account/packages/new'
+    | '/account/packages'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/forgot-password'
     | '/login'
+    | '/nearby'
     | '/register'
     | '/reset-password'
     | '/search'
-    | '/_authenticated/account'
     | '/_authenticated/bookings'
+    | '/_authenticated/cart'
     | '/_authenticated/checkout'
     | '/_authenticated/inbox'
     | '/auth/callback'
+    | '/buddy/$id'
     | '/experience/$id'
+    | '/_authenticated/account/profile'
+    | '/_authenticated/account/security'
+    | '/_authenticated/account/settings'
     | '/_authenticated/booking/$id'
     | '/_authenticated/confirmation/$id'
     | '/_authenticated/register/complete'
+    | '/_authenticated/account/'
+    | '/_authenticated/account/packages/$id'
+    | '/_authenticated/account/packages/new'
+    | '/_authenticated/account/packages/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -221,10 +336,12 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  NearbyRoute: typeof NearbyRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  BuddyIdRoute: typeof BuddyIdRoute
   ExperienceIdRoute: typeof ExperienceIdRoute
 }
 
@@ -258,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nearby': {
+      id: '/nearby'
+      path: '/nearby'
+      fullPath: '/nearby'
+      preLoaderRoute: typeof NearbyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -279,18 +403,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/account': {
-      id: '/_authenticated/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AuthenticatedAccountRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/bookings': {
       id: '/_authenticated/bookings'
       path: '/bookings'
       fullPath: '/bookings'
       preLoaderRoute: typeof AuthenticatedBookingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cart': {
+      id: '/_authenticated/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof AuthenticatedCartRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/checkout': {
@@ -314,12 +438,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buddy/$id': {
+      id: '/buddy/$id'
+      path: '/buddy/$id'
+      fullPath: '/buddy/$id'
+      preLoaderRoute: typeof BuddyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/experience/$id': {
       id: '/experience/$id'
       path: '/experience/$id'
       fullPath: '/experience/$id'
       preLoaderRoute: typeof ExperienceIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/account/': {
+      id: '/_authenticated/account/'
+      path: '/account'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account/profile': {
+      id: '/_authenticated/account/profile'
+      path: '/account/profile'
+      fullPath: '/account/profile'
+      preLoaderRoute: typeof AuthenticatedAccountProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account/security': {
+      id: '/_authenticated/account/security'
+      path: '/account/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof AuthenticatedAccountSecurityRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account/settings': {
+      id: '/_authenticated/account/settings'
+      path: '/account/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof AuthenticatedAccountSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/booking/$id': {
       id: '/_authenticated/booking/$id'
@@ -342,27 +501,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRegisterCompleteRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/account/packages/': {
+      id: '/_authenticated/account/packages/'
+      path: '/account/packages'
+      fullPath: '/account/packages/'
+      preLoaderRoute: typeof AuthenticatedAccountPackagesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account/packages/$id': {
+      id: '/_authenticated/account/packages/$id'
+      path: '/account/packages/$id'
+      fullPath: '/account/packages/$id'
+      preLoaderRoute: typeof AuthenticatedAccountPackagesIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/account/packages/new': {
+      id: '/_authenticated/account/packages/new'
+      path: '/account/packages/new'
+      fullPath: '/account/packages/new'
+      preLoaderRoute: typeof AuthenticatedAccountPackagesNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedBookingsRoute: typeof AuthenticatedBookingsRoute
+  AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
+  AuthenticatedAccountProfileRoute: typeof AuthenticatedAccountProfileRoute
+  AuthenticatedAccountSecurityRoute: typeof AuthenticatedAccountSecurityRoute
+  AuthenticatedAccountSettingsRoute: typeof AuthenticatedAccountSettingsRoute
   AuthenticatedBookingIdRoute: typeof AuthenticatedBookingIdRoute
   AuthenticatedConfirmationIdRoute: typeof AuthenticatedConfirmationIdRoute
   AuthenticatedRegisterCompleteRoute: typeof AuthenticatedRegisterCompleteRoute
+  AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
+  AuthenticatedAccountPackagesIdRoute: typeof AuthenticatedAccountPackagesIdRoute
+  AuthenticatedAccountPackagesNewRoute: typeof AuthenticatedAccountPackagesNewRoute
+  AuthenticatedAccountPackagesIndexRoute: typeof AuthenticatedAccountPackagesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedBookingsRoute: AuthenticatedBookingsRoute,
+  AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
+  AuthenticatedAccountProfileRoute: AuthenticatedAccountProfileRoute,
+  AuthenticatedAccountSecurityRoute: AuthenticatedAccountSecurityRoute,
+  AuthenticatedAccountSettingsRoute: AuthenticatedAccountSettingsRoute,
   AuthenticatedBookingIdRoute: AuthenticatedBookingIdRoute,
   AuthenticatedConfirmationIdRoute: AuthenticatedConfirmationIdRoute,
   AuthenticatedRegisterCompleteRoute: AuthenticatedRegisterCompleteRoute,
+  AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
+  AuthenticatedAccountPackagesIdRoute: AuthenticatedAccountPackagesIdRoute,
+  AuthenticatedAccountPackagesNewRoute: AuthenticatedAccountPackagesNewRoute,
+  AuthenticatedAccountPackagesIndexRoute:
+    AuthenticatedAccountPackagesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -374,10 +569,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  NearbyRoute: NearbyRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  BuddyIdRoute: BuddyIdRoute,
   ExperienceIdRoute: ExperienceIdRoute,
 }
 export const routeTree = rootRouteImport
