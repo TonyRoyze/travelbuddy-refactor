@@ -11,13 +11,19 @@ import {
 import { money } from "@/lib/validation";
 import type { Experience } from "./types";
 import { Media } from "./media";
-export function ExperienceCard({ experience: p }: { experience: Experience }) {
+export function ExperienceCard({
+  experience: p,
+  date,
+}: {
+  experience: Experience;
+  date?: string;
+}) {
   return (
     <Card variant="plain" className="gap-0 overflow-visible">
       <Link
         to="/experience/$id"
         params={{ id: p.id }}
-        search={{}}
+        search={date ? { date } : {}}
         className="group block overflow-hidden rounded-lg"
       >
         <Media
@@ -36,7 +42,7 @@ export function ExperienceCard({ experience: p }: { experience: Experience }) {
           <Link
             to="/experience/$id"
             params={{ id: p.id }}
-            search={{}}
+            search={date ? { date } : {}}
             className="text-base leading-snug font-semibold hover:text-primary md:text-lg"
           >
             {p.title}

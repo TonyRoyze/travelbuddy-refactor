@@ -29,7 +29,13 @@ export function BookingsPage({
   });
   if (query.isPending) return <Loading />;
   if (query.error) return <Problem error={query.error} />;
-  const rows = id ? query.data.filter((b) => b.id === id) : query.data;
+  const confirmed =
+    confirmation && id ? query.data.find((b) => b.id === id) : undefined;
+  const rows = confirmed
+    ? query.data.filter((b) => b.orderId === confirmed.orderId)
+    : id
+      ? query.data.filter((b) => b.id === id)
+      : query.data;
   return (
     <section>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-5 [&_h1]:mb-3 [&_p]:text-muted-foreground">

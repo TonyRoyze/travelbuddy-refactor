@@ -7,6 +7,7 @@ export default ts.config(
       "src/routeTree.gen.ts",
       "src/types/database.ts",
       "supabase/functions/**",
+      "legacy/**",
     ],
   },
   js.configs.recommended,

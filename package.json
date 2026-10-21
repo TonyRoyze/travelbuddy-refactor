@@ -5,7 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "tsx scripts/dev.ts",
+    "media:serve": "tsx services/profile-media/server.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "typecheck": "tsc -b",
@@ -14,10 +15,12 @@
     "db:types": "node scripts/database.mjs types",
     "db:migrate": "node scripts/database.mjs migrate",
     "test:db": "node scripts/database.mjs test",
-    "format": "prettier --write src scripts vite.config.ts eslint.config.js README.md docs",
-    "format:check": "prettier --check src scripts vite.config.ts eslint.config.js README.md docs",
+    "format": "prettier --write src scripts services vite.config.ts eslint.config.js README.md docs",
+    "format:check": "prettier --check src scripts services vite.config.ts eslint.config.js README.md docs",
     "db:test:setup": "node scripts/setup-test-db.mjs",
-    "test:compat": "tsx scripts/test-compatibility.ts"
+    "test:compat": "tsx scripts/test-compatibility.ts",
+    "seed:nearby": "tsx scripts/seed-nearby-demo.ts",
+    "test:nearby:http": "tsx scripts/test-nearby-http.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
@@ -27,6 +30,7 @@
     "@tanstack/react-router": "1.170.44",
     "class-variance-authority": "0.7.1",
     "cn": "0.4.0",
+    "leaflet": "1.9.4",
     "lucide-react": "1.57.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -38,6 +42,7 @@
     "@eslint/js": "10.0.1",
     "@tailwindcss/vite": "4.3.3",
     "@tanstack/router-plugin": "1.168.46",
+    "@types/leaflet": "1.9.22",
     "@types/node": "26.6.5",
     "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
