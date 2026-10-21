@@ -30,6 +30,27 @@ describe("navigation and booking inputs", () => {
   });
   it("uses Sri Lanka calendar date at a UTC date boundary", () =>
     expect(today(new Date("2026-10-15T20:00:00Z"))).toBe("2026-10-16"));
+  it("restores legacy search URL filters and parses false booleans correctly", () => {
+    expect(
+      searchSchema.parse({ live: "false", freeCancellation: "false" }),
+    ).toMatchObject({ live: false, freeCancellation: false });
+    expect(
+      searchSchema.parse({
+        date: "2026-10-22",
+        duration: "long",
+        live: "1",
+        freeCancellation: "true",
+      }),
+    ).toMatchObject({
+      date: "2026-10-22",
+      duration: "long",
+      live: true,
+      freeCancellation: true,
+    });
+    expect(
+      searchSchema.parse({ date: "2026-02-30", duration: "injected" }),
+    ).toMatchObject({ date: undefined, duration: undefined });
+  });
   it("validates search defaults", () => {
     expect(searchSchema.parse({ page: -3, sort: "injected" })).toMatchObject({
       page: 1,

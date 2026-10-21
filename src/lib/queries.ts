@@ -11,14 +11,15 @@ export const accountQuery = () =>
     staleTime: 30_000,
     retry: false,
   });
-export const catalogQuery = (filters: SearchFilters) =>
+export const catalogQuery = (filters: SearchFilters & { country?: string }) =>
   queryOptions({
     queryKey: ["catalog", filters],
     queryFn: async () =>
       (await rpc("catalog", {
         filters,
       })) as unknown as Catalog,
-    staleTime: 30_000,
+    staleTime: filters.live ? 0 : 30_000,
+    refetchInterval: filters.live ? 15_000 : filters.date ? 30_000 : false,
   });
 export const packageQuery = (id: string) =>
   queryOptions({
