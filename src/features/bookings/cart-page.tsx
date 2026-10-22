@@ -1,8 +1,8 @@
+import { useMoney } from "@/features/currency/currency-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, Trash2 } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
-import { money } from "@/lib/validation";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loading, NoResults } from "@/components/feedback";
 import { useCart } from "./cart-provider";
+import { BookingPolicy } from "./policy";
 import {
   bookingSearch,
   bookingReturn,
@@ -82,7 +83,7 @@ export function CartPage() {
           </div>
           <p className="text-sm text-muted-foreground">
             Checkout checks current prices and availability for every booking.
-            No payment is collected online.
+            Choose online payment or pay on arrival where your Buddy offers it.
           </p>
         </>
       )}
@@ -135,6 +136,7 @@ function CartEntry({
   );
 }
 export function BookingSummary({ item }: { item: ReviewedItem }) {
+  const money = useMoney();
   const { experience } = item;
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
@@ -153,14 +155,14 @@ export function BookingSummary({ item }: { item: ReviewedItem }) {
         <p>{item.travelers} travelers</p>
         <strong>
           {experience.options[item.option]
-            ? money(itemTotal(item))
+            ? money(itemTotal(item), experience.currency ?? "LKR")
             : "Choose another option"}
         </strong>
-        <p className="text-sm text-muted-foreground">
-          {experience.freeCancellation
-            ? "Free cancellation until 24 hours before departure."
-            : "Non-refundable after confirmation."}
-        </p>
+        <BookingPolicy
+          experience={experience}
+          date={item.date}
+          time={item.time}
+        />
         {experience.canChat ? (
           <Link
             to="/inbox"

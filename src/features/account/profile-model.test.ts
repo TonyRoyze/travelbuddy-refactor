@@ -15,22 +15,29 @@ const profile = {
 describe("profile inputs", () => {
   it("trims names and retains all legacy profile fields", () => {
     expect(profileSchema.parse(profile).displayName).toBe("Maya");
-    expect(profileSchema.parse(profile).profileDetails).toEqual(
-      profile.profileDetails,
-    );
+    expect(profileSchema.parse(profile).profileDetails).toEqual({
+      ...profile.profileDetails,
+      displayCurrency: "LKR",
+    });
   });
   it("rejects oversized text, fractional or out-of-range years", () => {
     expect(
       profileSchema.safeParse({
         ...profile,
-        profileDetails: { ...profile.profileDetails, bio: "a".repeat(501) },
+        profileDetails: {
+          ...{ ...profile.profileDetails, displayCurrency: "LKR" },
+          bio: "a".repeat(501),
+        },
       }).success,
     ).toBe(false);
     for (const yearsExperience of [1.5, -1, 81])
       expect(
         profileSchema.safeParse({
           ...profile,
-          profileDetails: { ...profile.profileDetails, yearsExperience },
+          profileDetails: {
+            ...{ ...profile.profileDetails, displayCurrency: "LKR" },
+            yearsExperience,
+          },
         }).success,
       ).toBe(false);
   });

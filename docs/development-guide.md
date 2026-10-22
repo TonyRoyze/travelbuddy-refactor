@@ -50,7 +50,6 @@ supabase/
   tests/                 database authorization and behavior checks
   functions/              narrowly scoped Edge Functions
 services/profile-media/  server-side profile upload validation and storage
-legacy/                  previous Next.js app, preserved during transition
 ```
 
 Put a reusable primitive in `src/components/ui/` only when it is a general UI building block. Add or update these through the shadcn CLI, selecting the Base UI library. Compose primitives into product-specific components inside their feature directory. For example, package cards and availability pickers belong in `src/features/catalog/` or `src/features/bookings/`, not in the shared UI directory.

@@ -1,8 +1,10 @@
+import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Send } from "lucide-react";
+import { Send, ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
 import { safeReturn } from "@/lib/validation";
@@ -34,6 +36,7 @@ export function InboxPage({
   packageId?: string;
   returnTo?: string;
 }) {
+  const money = useMoney();
   const [body, setBody] = useState("");
   const navigate = useNavigate();
   const client = useQueryClient();
@@ -75,6 +78,31 @@ export function InboxPage({
     if (body.trim() && active) send.mutate();
   }
   const thread = threads.data?.find((t) => t.id === active);
+  const lastMessage = messages.data?.at(-1)?.id;
+  useEffect(() => {
+    if (!active || !lastMessage) return;
+    let visible = true;
+    const markRead = () => {
+      if (document.visibilityState !== "visible") return;
+      void rpc("mark_conversation_read", {
+        conversation_id: active,
+        through_message_id: lastMessage,
+      })
+        .then(() => {
+          if (visible) {
+            void client.invalidateQueries({ queryKey: ["conversations"] });
+            void client.invalidateQueries({ queryKey: ["provider-dashboard"] });
+          }
+        })
+        .catch(() => {});
+    };
+    markRead();
+    document.addEventListener("visibilitychange", markRead);
+    return () => {
+      visible = false;
+      document.removeEventListener("visibilitychange", markRead);
+    };
+  }, [active, lastMessage, client]);
   return (
     <section>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-5 [&_h1]:mb-3 [&_p]:text-muted-foreground">
@@ -88,7 +116,9 @@ export function InboxPage({
             nativeButton={false}
             render={<a href={safeReturn(returnTo)} />}
           >
-            Back to booking
+            {returnTo.startsWith("/account")
+              ? "Back to dashboard"
+              : "Back to booking"}
           </Button>
         )}
       </div>
@@ -126,6 +156,7 @@ export function InboxPage({
                   }
                 >
                   <strong>{t.name}</strong>
+                  {!!t.unread && <Badge>{t.unread} unread</Badge>}
                   <span>{t.packageTitle ?? "Private conversation"}</span>
                   <p>{t.preview ?? "Start a conversation"}</p>
                 </Button>
@@ -151,7 +182,9 @@ export function InboxPage({
                   onClick={() =>
                     navigate({ to: "/inbox", search: { returnTo } })
                   }
-                ></Button>
+                >
+                  <ArrowLeft />
+                </Button>
                 <div>
                   <h2>{thread?.name ?? "Your provider"}</h2>
                   <p>{thread?.packageTitle ?? "Private conversation"}</p>
@@ -210,10 +243,10 @@ export function InboxPage({
                                         <div className="mt-3 flex flex-col gap-2">
                                           <strong>{m.package.title}</strong>
                                           <p>
-                                            {new Intl.NumberFormat("en-US", {
-                                              style: "currency",
-                                              currency: m.package.currency,
-                                            }).format(m.package.price)}
+                                            {money(
+                                              m.package.price,
+                                              m.package.currency,
+                                            )}
                                           </p>
                                           <p>{m.package.description}</p>
                                         </div>

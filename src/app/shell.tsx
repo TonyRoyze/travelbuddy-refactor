@@ -1,3 +1,7 @@
+import {
+  CurrencyNotice,
+  useDisplayCurrency,
+} from "@/features/currency/currency-provider";
 import { Link, Outlet, useLocation } from "@tanstack/react-router";
 import {
   Home,
@@ -35,9 +39,18 @@ export function Brand() {
 }
 export function Shell() {
   const { session } = useSession();
+  const displayCurrency = useDisplayCurrency();
   const { items: cart } = useCart();
   const { pathname } = useLocation();
   const { data: account } = useQuery({ ...accountQuery(), enabled: !!session });
+  const buddy = account?.roles.some(
+    (role) => role === "provider" || role === "guide",
+  );
+  const navigation = items.map((item) =>
+    buddy && item.to === "/bookings"
+      ? { ...item, to: "/account/dashboard" as const, label: "Dashboard" }
+      : item,
+  );
   const auth = [
     "/login",
     "/register",
@@ -53,6 +66,7 @@ export function Shell() {
       : to === "/search"
         ? pathname === "/search" ||
           pathname === "/nearby" ||
+          pathname.startsWith("/destinations/") ||
           pathname.startsWith("/experience/")
         : pathname.startsWith(to);
   return (
@@ -76,7 +90,7 @@ export function Shell() {
               className="hidden items-center gap-7 md:flex"
               aria-label="Main navigation"
             >
-              {items.map((item) => (
+              {navigation.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
@@ -120,7 +134,15 @@ export function Shell() {
                   "gap-2",
                 )}
               >
-                {account ? <ProfileAvatar name={account.displayName} mediaId={account.avatarMediaId} className="size-8 text-xs"/> : <UserRound data-icon="inline-start" />}
+                {account ? (
+                  <ProfileAvatar
+                    name={account.displayName}
+                    mediaId={account.avatarMediaId}
+                    className="size-8 text-xs"
+                  />
+                ) : (
+                  <UserRound data-icon="inline-start" />
+                )}
                 <span className="hidden sm:inline">
                   {account?.displayName.split(" ")[0] ??
                     (session ? "Account" : "Sign in")}
@@ -140,6 +162,7 @@ export function Shell() {
                 "mx-auto max-w-[1280px] px-4 py-8 md:px-8 md:py-10 xl:px-10",
         )}
       >
+        <CurrencyNotice />
         <ProviderHeartbeat />
         <Outlet />
       </main>
@@ -160,7 +183,7 @@ export function Shell() {
             </div>
             <div className="flex flex-col gap-6 text-xs text-muted-foreground md:border-l md:px-12 md:py-8">
               <span>© 2026 TravelBuddy</span>
-              <span>English · USD</span>
+              <span>English · {displayCurrency} · Payments in LKR</span>
             </div>
           </div>
         </footer>
@@ -170,7 +193,7 @@ export function Shell() {
           aria-label="Mobile navigation"
           className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
         >
-          {items.map(({ icon: Icon, ...item }) => (
+          {navigation.map(({ icon: Icon, ...item }) => (
             <Link
               key={item.to}
               to={item.to}

@@ -1,6 +1,6 @@
 # TravelBuddy
 
-A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is also preserved under [`legacy/`](legacy/) so both apps can be run from this branch.
+A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is preserved under [`legacy/`](legacy/) for reference and inventory compatibility checks. Use the Vite app for LKR pricing, payments and traveler currency preferences; the archived UI assumes USD.
 
 ## Run locally
 
@@ -12,6 +12,7 @@ cp .env.example .env.local
 # Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.
 cp .env.media.example .env.media.local
 # Set server-only Supabase credentials for profile uploads.
+# Optional online payments: configure .env.payments.local from .env.payments.example.
 pnpm dev
 ```
 
@@ -55,7 +56,9 @@ Account/profile editing, photo uploads, Buddy/Guide introduction videos, and pub
 
 Buddies now have a dedicated dashboard, profile and complete package editor with media, schedules, publishing and reserved-place protection. See [Buddy package management](docs/buddy-package-editor.md).
 
-No payment collection is implemented. Public request creation/replies, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
+LKR PayHere checkout, verified payment notifications, hold expiry and cancellation refund tracking are implemented. Travelers can save a display-currency preference and see approximate conversions using dated daily rates; settlement remains in LKR. Enable merchant credentials and public callbacks before accepting online payments; optional pay-on-arrival packages work without a gateway. Buddies have a booking/chat dashboard at `/account/dashboard`. Public destination links include generated Facebook preview metadata. See [payment, provider dashboard and destination-link setup](docs/vidura-marketplace-features.md).
+
+Public request creation/replies, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
 
 ## Validation
 

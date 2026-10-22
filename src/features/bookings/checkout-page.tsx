@@ -29,6 +29,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Problem, Loading, NoResults } from "@/components/feedback";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function CheckoutPage({
   packageId,
@@ -71,6 +72,7 @@ function CheckoutContent({
       return JSON.parse(attempt.fingerprint ?? "null") as {
         travelerName: string;
         travelerEmail: string;
+        paymentMethod?: "online" | "pay_later";
       } | null;
     } catch {
       return null;
@@ -96,6 +98,19 @@ function CheckoutContent({
     travelerEmail: string;
   } | null>(null);
   const [accepted, setAccepted] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "pay_later">(
+    contact?.paymentMethod ?? "online",
+  );
+  const paymentConfig = useQuery({
+    queryKey: ["payment-config"],
+    queryFn: async () => {
+      const response = await fetch("/payments-api/config");
+      if (!response.ok)
+        throw new Error("Online payment service is unavailable.");
+      return response.json() as Promise<{ configured: boolean; mode: string }>;
+    },
+    retry: false,
+  });
   const [error, setError] = useState<unknown>();
   const [pending, setPending] = useState(false);
   const submitted = useRef(false);
@@ -122,7 +137,7 @@ function CheckoutContent({
           }),
         })),
       );
-      const fingerprint = JSON.stringify({ ...contact, items });
+      const fingerprint = JSON.stringify({ ...contact, items, paymentMethod });
       // A lost response may already have reserved the last places. Its exact retry
       // must reach the server's idempotency lookup rather than fail a fresh check.
       if (attempt.fingerprint !== fingerprint) {
@@ -155,7 +170,7 @@ function CheckoutContent({
     setPending(true);
     setError(undefined);
     try {
-      const payload = { ...details, items };
+      const payload = { ...details, items, paymentMethod };
       const current = saveAttempt(
         storageKey,
         attempt,
@@ -177,10 +192,19 @@ function CheckoutContent({
       }
       void client.invalidateQueries({ queryKey: ["bookings"] });
       void client.invalidateQueries({ queryKey: ["availability"] });
-      await navigate({
-        to: "/confirmation/$id",
-        params: { id: bookings[0].id },
-      });
+      if (
+        paymentMethod === "online" &&
+        bookings[0].paymentStatus === "pending"
+      ) {
+        await navigate({
+          to: "/payments/$orderId",
+          params: { orderId: bookings[0].orderId },
+        });
+      } else
+        await navigate({
+          to: "/confirmation/$id",
+          params: { id: bookings[0].id },
+        });
       // Clear only after navigation so checkout never flashes an empty cart.
       if (!packageId) cart.remove(items.map((item) => item.id));
     } catch (error) {
@@ -248,8 +272,8 @@ function CheckoutContent({
               {review ? "Review and confirm" : "Lead traveler"}
             </CardTitle>
             <CardDescription>
-              No payment is collected online. Places are reserved when you
-              confirm.
+              Choose online payment or pay on arrival where offered. Online
+              payment holds your places for 15 minutes.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -321,6 +345,46 @@ function CheckoutContent({
                   ))}
                 </div>
                 <FieldGroup>
+                  <Field>
+                    <FieldLabel>How would you like to pay?</FieldLabel>
+                    <ToggleGroup
+                      value={[paymentMethod]}
+                      onValueChange={(values) => {
+                        if (values[0])
+                          setPaymentMethod(values[0] as "online" | "pay_later");
+                      }}
+                      disabled={pending}
+                    >
+                      <ToggleGroupItem value="online">
+                        Pay online
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        value="pay_later"
+                        disabled={!review.every((i) => i.experience.payLater)}
+                      >
+                        Pay on arrival
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    <p className="text-sm text-muted-foreground">
+                      {paymentMethod === "pay_later"
+                        ? "Pay the full balance directly to each Buddy at the meeting point. Nothing is charged online."
+                        : "Pay securely on PayHere. Places are held for 15 minutes while you complete payment."}
+                    </p>
+                    {!review.every((i) => i.experience.payLater) && (
+                      <p className="text-sm text-muted-foreground">
+                        Pay on arrival is available only when every package in
+                        this order offers it.
+                      </p>
+                    )}
+                    {paymentMethod === "online" &&
+                      cartTotal(review) > 0 &&
+                      !paymentConfig.data?.configured && (
+                        <p role="alert" className="text-sm text-destructive">
+                          Online payment is not available yet. Contact your
+                          Buddy or choose an eligible pay-on-arrival package.
+                        </p>
+                      )}
+                  </Field>
                   <Field orientation="horizontal">
                     <Checkbox
                       id="policies"
@@ -336,12 +400,18 @@ function CheckoutContent({
                 </FieldGroup>
                 {error !== undefined && <Problem error={error} />}
                 <Button
-                  disabled={pending || !accepted}
+                  disabled={
+                    pending ||
+                    !accepted ||
+                    (paymentMethod === "online" &&
+                      cartTotal(review) > 0 &&
+                      !paymentConfig.data?.configured)
+                  }
                   onClick={() => void confirm()}
                 >
                   {pending
                     ? "Confirming…"
-                    : `Confirm ${review.length === 1 ? "booking" : "bookings"} · ${money(cartTotal(review))}`}
+                    : `${paymentMethod === "online" ? "Continue to payment" : "Confirm booking"} · ${money(cartTotal(review))}`}
                 </Button>
               </div>
             )}
@@ -369,7 +439,7 @@ function CheckoutContent({
             ))}
           </CardContent>
           <CardFooter className="flex items-center justify-between">
-            <span>Total · USD</span>
+            <span>Total charged · LKR</span>
             <strong>
               {validOptions
                 ? money(cartTotal(preview))

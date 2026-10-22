@@ -1,3 +1,4 @@
+import { useMoney } from "@/features/currency/currency-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
@@ -13,12 +14,13 @@ import {
 } from "lucide-react";
 import { catalogQuery } from "@/lib/queries";
 import { useLiveNowUpdates } from "@/lib/live-now";
-import { searchSchema, money, today } from "@/lib/validation";
+import { searchSchema, today } from "@/lib/validation";
 import { CatalogSearchInput } from "./search-input";
 import { addDays } from "./selection";
 import { Switch } from "@/components/ui/switch";
 import { Media } from "./media";
 import { destinations } from "./destinations";
+import { destinationSlug } from "./destination-links";
 import { ExperienceCard } from "./experience-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +56,7 @@ export function CatalogPage({
   home?: boolean;
   filters?: Record<string, unknown>;
 }) {
+  const money = useMoney();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filterError, setFilterError] = useState<unknown>();
   const parsed = searchSchema.parse(filters);
@@ -242,7 +245,8 @@ export function CatalogPage({
                   </CardHeader>
                   <CardContent className="p-0">
                     <p className="text-sm text-muted-foreground">
-                      {featured.duration} · From {money(featured.price)} /
+                      {featured.duration} · From{" "}
+                      {money(featured.price, featured.currency ?? "LKR")} /
                       person
                     </p>
                   </CardContent>
@@ -274,8 +278,8 @@ export function CatalogPage({
               {destinations.map((p) => (
                 <Link
                   key={p.name}
-                  to="/search"
-                  search={{ q: p.query }}
+                  to="/destinations/$slug"
+                  params={{ slug: destinationSlug(p.name) }}
                   className="group relative isolate aspect-[4/3] w-64 shrink-0 snap-start overflow-hidden rounded-lg bg-hero text-hero-foreground md:w-auto"
                 >
                   <Media
@@ -305,7 +309,11 @@ export function CatalogPage({
           Find something worth going out for
         </p>
         <h1>
-          {parsed.q ? `Discover ${parsed.q}` : "Find your next experience."}
+          {parsed.destination
+            ? `Discover ${parsed.destination}`
+            : parsed.q
+              ? `Discover ${parsed.q}`
+              : "Find your next experience."}
         </h1>
         <form className="max-w-[700px]" onSubmit={submit}>
           {searchInput}
@@ -426,7 +434,7 @@ export function CatalogPage({
                   </Field>
                   <Separator />
                   <Field>
-                    <FieldLabel htmlFor="minPrice">Min price (USD)</FieldLabel>
+                    <FieldLabel htmlFor="minPrice">Min price (LKR)</FieldLabel>
                     <Input
                       id="minPrice"
                       name="minPrice"
@@ -436,7 +444,7 @@ export function CatalogPage({
                     />
                   </Field>
                   <Field>
-                    <FieldLabel htmlFor="maxPrice">Max price (USD)</FieldLabel>
+                    <FieldLabel htmlFor="maxPrice">Max price (LKR)</FieldLabel>
                     <Input
                       id="maxPrice"
                       name="maxPrice"

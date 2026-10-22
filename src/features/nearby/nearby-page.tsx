@@ -1,3 +1,4 @@
+import { useMoney } from "@/features/currency/currency-provider";
 import { useEffect, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -7,7 +8,6 @@ import { areasQuery, liveQuery } from "./queries";
 import { activeExperiences, type NearbySearch } from "./model";
 import { MeetingMap } from "./meeting-map";
 import type { LiveExperience } from "./types";
-import { money } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -250,6 +250,7 @@ function ResultCard({
   selected?: boolean;
   onSelect?: () => void;
 }) {
+  const money = useMoney();
   const p = item.experience;
   return (
     <article
@@ -289,7 +290,7 @@ function ResultCard({
         {item.location.label}
       </p>
       <p>
-        From <strong>{money(p.price)}</strong> / person
+        From <strong>{money(p.price, p.currency ?? "LKR")}</strong> / person
       </p>
       <div className="flex flex-wrap gap-2">
         <Link

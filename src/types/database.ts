@@ -16,6 +16,16 @@ export type Database = {
     }
     Functions: {
       account: { Args: never; Returns: Json }
+      apply_payment_notification: {
+        Args: {
+          amount: number
+          attempt_id: string
+          currency: string
+          payment_id: string
+          status_code: string
+        }
+        Returns: undefined
+      }
       availability: {
         Args: {
           day: string
@@ -25,6 +35,11 @@ export type Database = {
         }
         Returns: Json
       }
+      begin_payment: {
+        Args: { actor_id: string; order_id: string }
+        Returns: Json
+      }
+      booking_chat: { Args: { booking_id: string }; Returns: string }
       bookings: { Args: never; Returns: Json }
       buddy_package: { Args: { package_id: string }; Returns: Json }
       buddy_packages: { Args: never; Returns: Json }
@@ -32,6 +47,7 @@ export type Database = {
       cancel_booking: { Args: { booking_id: string }; Returns: Json }
       catalog: { Args: { filters?: Json }; Returns: Json }
       checkout: { Args: { input: Json }; Returns: Json }
+      claim_payment_refund: { Args: never; Returns: Json }
       commit_package_upload: {
         Args: { actor_id: string; input: Json }
         Returns: string
@@ -41,6 +57,15 @@ export type Database = {
         Returns: string
       }
       conversations: { Args: never; Returns: Json }
+      expire_payment_holds: { Args: never; Returns: undefined }
+      finish_payment_refund: {
+        Args: { reference?: string; refund_id: string }
+        Returns: undefined
+      }
+      mark_conversation_read: {
+        Args: { conversation_id: string; through_message_id: string }
+        Returns: undefined
+      }
       media_path: { Args: { media_id: string }; Returns: string }
       messages: { Args: { conversation_id: string }; Returns: Json }
       nearby_areas: { Args: never; Returns: Json }
@@ -55,6 +80,8 @@ export type Database = {
       }
       package_detail: { Args: { package_id: string }; Returns: Json }
       package_reservations: { Args: { package_id: string }; Returns: Json }
+      payment_order: { Args: { order_id: string }; Returns: Json }
+      provider_dashboard: { Args: { filters?: Json }; Returns: Json }
       provider_discovery: { Args: never; Returns: Json }
       provider_heartbeat: { Args: never; Returns: Json }
       save_buddy_package: {
