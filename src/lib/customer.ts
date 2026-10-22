@@ -1,15 +1,16 @@
+import type { Experience } from './catalog';
 import { experiences, getExperience } from './catalog';
 
 export type Account = { id: string; name: string; email: string };
 /** Browser marketplace data uses the verified server identity, never a stored demo session. */
-export function customerAccountFromSession(account: { id: string; displayName: string; onboarding: 'pending' | 'completed' } | null, accounts: Account[]): Account | undefined {
+export function customerAccountFromSession(account: { id: string; email?: string; displayName: string; onboarding: 'pending' | 'completed' } | null, accounts: Account[]): Account | undefined {
   if (!account || account.onboarding !== 'completed') return undefined;
   const local = accounts.find(value => value.id === account.id);
-  return { id: account.id, name: local?.name ?? account.displayName, email: local?.email ?? '' };
+  return { id: account.id, name: account.displayName, email: account.email ?? local?.email ?? '' };
 }
 
-export type CartItem = { id: string; experienceId: string; option: number; date: string; time: string; travelers: number };
-export type Booking = CartItem & { owner: string; status: 'Upcoming' | 'Completed' | 'Cancelled'; reference: string; total: number; created: string; travelerName: string; travelerEmail: string };
+export type CartItem = { id: string; experienceId: string; experience?: Experience; option: number; date: string; time: string; travelers: number };
+export type Booking = CartItem & { owner: string; status: 'Upcoming' | 'Completed' | 'Cancelled'; reference: string; total: number; orderId?: string; created: string; travelerName: string; travelerEmail: string };
 export type Review = { id: string; owner: string; bookingId: string; experienceId: string; rating: number; text: string; date: string };
 export type SharedPackage = { experienceId: string; title: string; image: string; price: number };
 export type Message = { id: string; author: 'customer' | 'sample'; text: string; at: string; package?: SharedPackage };
@@ -18,7 +19,7 @@ export type CustomerState = { version: 1; accounts: Account[]; saved: Record<str
 export const DATA_KEY = 'travelbuddy-v1.1-customer-data';
 export const SESSION_KEY = 'travelbuddy-v1.1-customer-session';
 export const DEMO_EMAIL = 'traveler@travelbuddy.demo';
-export const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+export const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(value);
 export function today(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
   return `${parts.find(p => p.type === 'year')!.value}-${parts.find(p => p.type === 'month')!.value}-${parts.find(p => p.type === 'day')!.value}`;
@@ -35,7 +36,7 @@ export function restoreState(raw: string | null): CustomerState {
   try { const data = raw && JSON.parse(raw); if (data?.version === 1 && Array.isArray(data.accounts) && Array.isArray(data.bookings) && Array.isArray(data.reviews) && Array.isArray(data.conversations) && data.saved && data.carts && data.accounts.every((a: Account) => typeof a.id === 'string' && typeof a.email === 'string' && typeof a.name === 'string')) return data; } catch { /* Recover a corrupted local fixture. */ }
   return emptyState();
 }
-export const itemPrice = (item: CartItem) => (getExperience(item.experienceId)?.options[item.option]?.price ?? 0) * item.travelers;
+export const itemPrice = (item: CartItem) => Math.round(((item.experience ?? getExperience(item.experienceId))?.options[item.option]?.price ?? 0) * 100) * item.travelers / 100;
 export function availableSlots(experienceId: string, date: string, option: number, travelers: number, bookings: Booking[] = [], now = new Date()): string[] {
   const experience = getExperience(experienceId);
   const selected = experience?.options[option];
@@ -45,7 +46,7 @@ export function availableSlots(experienceId: string, date: string, option: numbe
   return selected.times.filter(time => (date > today(now) || time > current) && bookings.filter(b => b.experienceId === experienceId && b.date === date && b.time === time && b.option === option && b.status === 'Upcoming').reduce((count, b) => count + b.travelers, 0) + travelers <= (selected.capacity ?? 12)).sort();
 }
 export function nextAvailable(experienceId: string, option = 0, travelers = 1, bookings: Booking[] = [], now = new Date()) {
-  for (let day = 0; day < 60; day++) { const date = addDays(today(now), day); const time = availableSlots(experienceId, date, option, travelers, bookings, now)[0]; if (time) return { date, time }; }
+  for (let day = 0; day <= 180; day++) { const date = addDays(today(now), day); const time = availableSlots(experienceId, date, option, travelers, bookings, now)[0]; if (time) return { date, time }; }
   return null;
 }
 export function validateCart(items: CartItem[], bookings: Booking[], now = new Date()) {
@@ -77,7 +78,7 @@ export function scriptedReply(text: string, experienceId: string) {
   if (/time|available|date/i.test(text)) return 'Use the date and time selector on the experience page to see the available schedule.';
   return 'Thanks for your question! The experience page has the inclusions, meeting point and schedule.';
 }
-export function cancelAllowed(booking: Booking, now = new Date()) { const experience = getExperience(booking.experienceId); return booking.status === 'Upcoming' && Boolean(experience?.freeCancellation) && new Date(`${booking.date}T${booking.time}:00+05:30`).getTime() - now.getTime() >= 24 * 60 * 60 * 1000; }
+export function cancelAllowed(booking: Booking, now = new Date()) { const experience = booking.experience ?? getExperience(booking.experienceId); return booking.status === 'Upcoming' && Boolean(experience?.freeCancellation) && new Date(`${booking.date}T${booking.time}:00+05:30`).getTime() - now.getTime() >= 24 * 60 * 60 * 1000; }
 export function filteredExperiences({ query = '', category = '', minPrice = 0, maxPrice = 500, duration = '', cancellation = false, live = false, date = '', sort = 'recommended' }: { query?: string; category?: string; minPrice?: number; maxPrice?: number; duration?: string; cancellation?: boolean; live?: boolean; date?: string; sort?: string }, bookings: Booking[] = []) {
   const result = experiences.filter(e => `${e.title} ${e.destination} ${e.country} ${e.category}`.toLowerCase().includes(query.trim().toLowerCase()) && (!category || e.category === category) && e.price >= minPrice && e.price <= maxPrice && (!cancellation || e.freeCancellation) && (!live || liveIds.includes(e.id) && e.options.some((_, index) => nextAvailable(e.id, index, 1, bookings) !== null)) && (!duration || (duration === 'short' ? parseFloat(e.duration) <= 4 || e.duration.includes('minutes') : parseFloat(e.duration) > 4 && !e.duration.includes('minutes'))) && (!date || availableSlots(e.id, date, 0, 1, bookings).length > 0));
   return sort === 'price-low' ? result.sort((a, b) => a.price - b.price) : sort === 'rating' ? result.sort((a, b) => b.rating - a.rating) : result;

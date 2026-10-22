@@ -64,3 +64,26 @@ export async function sendMessage(currentAccountId: string, conversationId: stri
     return message;
   });
 }
+
+/** Resolve the host on the server; never accept a caller-supplied package recipient. */
+export async function startPackageConversation(currentAccountId: string, packageId: string) {
+  const current = accountIdSchema.parse(currentAccountId);
+  return documentDatabase().$transaction(async tx => {
+    const sender = await requireActiveAccount(tx, current);
+    if (sender.onboarding !== 'completed') throw new RequestAccessError(403, 'Complete your account to chat with a provider.');
+    // Serialize starts with package changes and concurrent starts of the same thread.
+    await tx.$queryRaw`SELECT id FROM travelbuddy_backend.packages WHERE id = ${packageId} FOR UPDATE`;
+    const pack = await tx.experiencePackage.findUnique({ where: { id: packageId } });
+    if (!pack?.published) throw new RequestAccessError(404, 'This package is no longer available.');
+    if (!pack.ownerId) throw new RequestAccessError(409, 'This listing does not have a provider available for chat.');
+    if (pack.ownerId === current) throw new RequestAccessError(409, 'You cannot start a chat with yourself.');
+    const host = await requireActiveAccount(tx, pack.ownerId);
+    if (host.onboarding !== 'completed' || !host.roles.some(role => role === 'provider' || role === 'guide')) throw new MessageRecipientError();
+    const [participantOneId, participantTwoId] = [current, pack.ownerId].sort();
+    const contextKey = `package:${packageId}`;
+    return tx.conversation.upsert({
+      where: { participantOneId_participantTwoId_contextKey: { participantOneId, participantTwoId, contextKey } },
+      create: { participantOneId, participantTwoId, contextKey, packageId }, update: {}, select: { id: true },
+    });
+  });
+}

@@ -3,7 +3,7 @@ import { useId, useRef, useState, type FormEvent } from 'react';
 import { Eye, EyeOff, Mail } from 'lucide-react';
 import { useCustomer } from './CustomerProvider';
 
-export function EmailSignIn({ registration = false, next = '/account/security' }: { registration?: boolean; next?: string }) {
+export function EmailSignIn({ registration = false, next = '/account' }: { registration?: boolean; next?: string }) {
   const { logout: logoutDemo } = useCustomer();
   const formId = useId();
   const emailInput = useRef<HTMLInputElement>(null);
