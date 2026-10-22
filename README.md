@@ -30,7 +30,7 @@ pnpm start
 
 TravelBuddy uses self-hosted Supabase Postgres for account and inbox data, and Supabase Auth for email/password, Google, Facebook, and Apple sign-in. Provider buttons are enabled only when configured on the Supabase server. See [Supabase setup](docs/supabase-setup.md) for local configuration, OAuth credentials, database permissions, and deployment.
 
-First sign-in creates an account with pending onboarding. Registration offers Traveller or Buddy; buddies can reply to traveller requests and send custom packages. Roles and suspension status remain server-managed; social profile metadata cannot grant roles. Marketplace bookings, reviews, and checkout remain browser-based demonstrations. Traveller requests and private replies are stored on the server. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Production booking and payment services are not implemented.
+First sign-in creates an account with pending onboarding. Registration offers Traveller or Buddy; buddies can reply to traveller requests and send custom packages. Roles and suspension status remain server-managed; social profile metadata cannot grant roles. Profile photos and booking inventory are stored on the server. Package calendars, capacity checks, checkout, and cancellation use persistent reservations; reviews remain browser-based. Traveller requests and private replies are stored on the server. Map tiles come from OpenStreetMap, and experience photography comes from Unsplash. Payment collection is not implemented. See [live availability and profile photos](docs/live-availability-and-profile-photos.md) for scheduling, inventory and verification.
 
 Package browse and search use the Prisma package catalog. Apply the migrations and seed a development database with `pnpm db:documents:deploy` and `pnpm db:packages:seed`; see [package catalog search](docs/package-catalog-search.md).
 
@@ -50,7 +50,7 @@ The inbox has a request board and a combined Replies tab for the traveller’s o
 
 Each request has a separate conversation for each responder. Only its two participants can read or send messages; the board never returns other responders’ conversations. Closing a request stops new replies and leaves existing conversations available. The inbox refreshes every five seconds while open and shows the latest 50 posts/conversations and 100 messages per conversation.
 
-Requests and messages use the existing Prisma/PostgreSQL backend and Supabase sessions. Apply migrations with `pnpm db:documents:deploy`. Existing direct conversations are preserved. The old browser demo chats are no longer shown. Experience and booking pages now open a prefilled request form.
+Requests and messages use the existing Prisma/PostgreSQL backend and Supabase sessions. Apply migrations with `pnpm db:documents:deploy`. Existing direct conversations are preserved. The old browser demo chats are no longer shown. Package pages and the cart open private provider chats and preserve the selected date, time, option and party size. Listings without an eligible provider disable chat. Booking details can also open a prefilled public travel request.
 
 Run privacy, role, validation, and persistence integration checks against a migrated disposable database with `DOCUMENT_TEST_DATABASE_URL=... pnpm test:inbox:integration`. Never point this at the production database.
 

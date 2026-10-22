@@ -7,6 +7,17 @@ export const accountDataSchema = z.object({
   status: z.enum(['active', 'suspended', 'closed']),
   onboarding: z.enum(['pending', 'completed']),
   avatarUrl: z.string().url().max(2048).optional(),
+  avatarMediaId: z.string().uuid().nullable().default(null),
+  profileVideoIds: z.array(z.string().uuid()).max(3).default([]),
+  profileDetails: z.object({
+    bio: z.string().trim().max(500).default(''),
+    homeBase: z.string().trim().max(120).default(''),
+    languages: z.string().trim().max(160).default(''),
+    interests: z.string().trim().max(240).default(''),
+    travelStyle: z.string().trim().max(120).default(''),
+    specialties: z.string().trim().max(240).default(''),
+    yearsExperience: z.number().int().min(0).max(80).nullable().default(null),
+  }).default({}),
 }).strict();
 
 export type AccountData = z.infer<typeof accountDataSchema>;

@@ -11,7 +11,8 @@ const defaults = packageSearchParamsSchema.parse({});
 assert.deepEqual({ ...defaults, freeCancellation: defaults.freeCancellation === 'true' }, {
   sort: 'recommended', page: 1, pageSize: 24, freeCancellation: false,
 });
-assert.deepEqual(packageWhere({ ...defaults, freeCancellation: false }), { AND: [{ published: true }] });
+const publicPackages = { published: true, OR: [{ ownerId: null }, { owner: { data: { path: ['status'], equals: 'active' } } }] };
+assert.deepEqual(packageWhere({ ...defaults, live: defaults.live === 'true', freeCancellation: false }), { AND: [publicPackages] });
 
 const filters = packageSearchParamsSchema.parse({
   q: '  Sigiriya  ', destination: 'Ella', category: 'Day trips',
@@ -23,9 +24,9 @@ assert.deepEqual({ ...filters, freeCancellation: filters.freeCancellation === 't
   duration: 'long', freeCancellation: true, sort: 'price-low', page: 2, pageSize: 12,
 });
 
-const query = packageWhere({ ...filters, freeCancellation: filters.freeCancellation === 'true' });
+const query = packageWhere({ ...filters, live: filters.live === 'true', freeCancellation: filters.freeCancellation === 'true' });
 assert.deepEqual(query, { AND: [
-  { published: true },
+  publicPackages,
   { OR: [
     { title: { contains: 'Sigiriya', mode: 'insensitive' } },
     { destination: { contains: 'Sigiriya', mode: 'insensitive' } },
