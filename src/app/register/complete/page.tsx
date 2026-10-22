@@ -5,6 +5,6 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   const account = await sessionAccount();
   if (!account) redirect('/login');
-  if (account.data.onboarding === 'completed') redirect('/account');
+  if (account.data.onboarding === 'completed') redirect('/account/security');
   return <AccountOnboarding account={publicAccount(account)} />;
 }

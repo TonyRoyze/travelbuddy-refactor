@@ -2,8 +2,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-export type ProfileDetails = { bio: string; homeBase: string; languages: string; interests: string; travelStyle: string; specialties: string; yearsExperience: number | null };
-export type ServerAccount = { id: string; email: string; displayName: string; roles: ('traveler' | 'provider' | 'guide' | 'admin')[]; onboarding: 'pending' | 'completed'; revision: number; profileDetails: ProfileDetails; avatarMediaId: string | null; profileVideoIds: string[] };
+export type ServerAccount = { id: string; displayName: string; roles: ('traveler' | 'provider' | 'guide' | 'admin')[]; onboarding: 'pending' | 'completed'; revision: number };
 const AuthContext = createContext<{ account: ServerAccount | null; ready: boolean; error: string; refresh: () => Promise<void>; logout: () => Promise<void> }>({ account: null, ready: false, error: '', refresh: async () => {}, logout: async () => {} });
 
 export function ServerAuthProvider({ children }: { children: React.ReactNode }) {

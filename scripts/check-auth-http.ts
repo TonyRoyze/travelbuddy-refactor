@@ -63,7 +63,7 @@ async function main() {
     assert.equal(url.pathname, '/auth/v1/authorize');
     assert.equal(url.searchParams.get('code_challenge_method'), 's256');
     assert.ok(url.searchParams.get('code_challenge'));
-    assert.equal(new URL(url.searchParams.get('redirect_to')!).searchParams.get('next'), '/account');
+    assert.equal(new URL(url.searchParams.get('redirect_to')!).searchParams.get('next'), '/account/security');
     assert.equal((await request('/api/auth/logout', {})).status, 200);
     const traveler = await createAuthTestUser('HTTP traveller');
     cookie = traveler.cookie;

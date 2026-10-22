@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import type { Prisma } from '../../generated/documents';
 import { documentDatabase } from './database';
-import { dateSchema } from '../availability';
-import { today } from '../customer';
 
 const optionSchema = z.object({
   name: z.string(), price: z.number().nonnegative(), duration: z.string(), detail: z.string(),
@@ -11,19 +9,17 @@ const optionSchema = z.object({
 
 export const packageDataSchema = z.object({
   id: z.string().min(1).max(80), title: z.string().min(1).max(200),
-  destination: z.string().max(120), country: z.string().max(120),
-  category: z.string().max(80), image: z.string().min(1), gallery: z.array(z.string()),
+  destination: z.string().min(1).max(120), country: z.string().min(1).max(120),
+  category: z.string().min(1).max(80), image: z.string().min(1), gallery: z.array(z.string()),
   rating: z.number().min(0).max(5), reviews: z.number().int().nonnegative(), price: z.number().nonnegative(),
   originalPrice: z.number().nonnegative().optional(), duration: z.string().min(1).max(80), tag: z.string().optional(),
   freeCancellation: z.boolean(), payLater: z.boolean(), pickup: z.boolean(), languages: z.array(z.string()),
   supplier: z.string(), description: z.string(), highlights: z.array(z.string()), included: z.array(z.string()),
   notIncluded: z.array(z.string()), meetingPoint: z.string(), options: z.array(optionSchema),
   itinerary: z.array(z.object({ time: z.string(), title: z.string(), detail: z.string() }).strict()),
-  videoIds: z.array(z.string().uuid()).max(3).optional(),
 }).strict();
 
 export const packageSearchParamsSchema = z.object({
-  date: dateSchema.optional(), live: z.enum(['true', 'false']).optional(),
   q: z.string().trim().max(120).optional(),
   destination: z.string().trim().max(120).optional(),
   category: z.string().trim().max(80).optional(),
@@ -39,7 +35,6 @@ export const packageSearchParamsSchema = z.object({
 });
 
 export type PackageSearch = {
-  date?: string; live?: boolean;
   q?: string;
   destination?: string;
   category?: string;
@@ -54,13 +49,8 @@ export type PackageSearch = {
 
 function searchText(value: string) { return { contains: value, mode: 'insensitive' as const }; }
 
-const publicPackages: Prisma.ExperiencePackageWhereInput = {
-  published: true,
-  OR: [{ ownerId: null }, { owner: { data: { path: ['status'], equals: 'active' } } }],
-};
-
 export function packageWhere(filters: PackageSearch): Prisma.ExperiencePackageWhereInput {
-  const and: Prisma.ExperiencePackageWhereInput[] = [publicPackages];
+  const and: Prisma.ExperiencePackageWhereInput[] = [{ published: true }];
   if (filters.q) and.push({ OR: [
     { title: searchText(filters.q) }, { destination: searchText(filters.q) },
     { country: searchText(filters.q) }, { category: searchText(filters.q) },
@@ -85,25 +75,6 @@ export async function searchPackages(filters: PackageSearch) {
       ? [{ rating: 'desc' }, { id: 'asc' }]
       : [{ sortOrder: 'asc' }, { id: 'asc' }];
   const db = documentDatabase();
-  if (filters.date || filters.live) {
-    const { packageAvailability } = await import('./inventory');
-    const matches: z.infer<typeof packageDataSchema>[] = [];
-    // Scan in bounded batches so pagination and total counts reflect real inventory.
-    for (let skip = 0;; skip += 24) {
-      const batch = await db.experiencePackage.findMany({ where, orderBy, skip, take: 24, select: { data: true } });
-      const checked = await Promise.all(batch.map(async row => {
-        const item = packageDataSchema.parse(row.data);
-        for (let option = 0; option < item.options.length; option++) {
-          const availability = await packageAvailability(item.id, filters.date ?? today(), option);
-          if (filters.date ? availability.slots.some(slot => slot.remaining > 0) : availability.next) return item;
-        }
-        return null;
-      }));
-      matches.push(...checked.filter((item): item is z.infer<typeof packageDataSchema> => item !== null));
-      if (batch.length < 24) break;
-    }
-    return { packages: matches.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize), total: matches.length, page: filters.page, pageSize: filters.pageSize };
-  }
   const [rows, total] = await Promise.all([
     db.experiencePackage.findMany({ where, orderBy, skip: (filters.page - 1) * filters.pageSize, take: filters.pageSize, select: { id: true, data: true } }),
     db.experiencePackage.count({ where }),
@@ -123,19 +94,19 @@ export async function suggestPackages(query: string): Promise<PackageSuggestion[
   const db = documentDatabase();
   const [destinations, countries, categories, packages] = await Promise.all([
     db.experiencePackage.groupBy({
-      by: ['destination'], where: { ...publicPackages, destination: searchText(query) },
+      by: ['destination'], where: { published: true, destination: searchText(query) },
       orderBy: { destination: 'asc' }, take: 5,
     }),
     db.experiencePackage.groupBy({
-      by: ['country'], where: { ...publicPackages, country: searchText(query) },
+      by: ['country'], where: { published: true, country: searchText(query) },
       orderBy: { country: 'asc' }, take: 4,
     }),
     db.experiencePackage.groupBy({
-      by: ['category'], where: { ...publicPackages, category: searchText(query) },
+      by: ['category'], where: { published: true, category: searchText(query) },
       orderBy: { category: 'asc' }, take: 4,
     }),
     db.experiencePackage.findMany({
-      where: { ...publicPackages, title: searchText(query) },
+      where: { published: true, title: searchText(query) },
       orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }], take: 6,
       select: { title: true },
     }),

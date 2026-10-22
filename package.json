@@ -8,13 +8,12 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsx scripts/check-customer.ts && tsx scripts/check-cart.ts",
+    "test": "tsx scripts/check-customer.ts",
     "postinstall": "tsx scripts/document-db.ts generate",
     "db:documents:generate": "tsx scripts/document-db.ts generate",
     "db:documents:validate": "tsx scripts/document-db.ts validate",
     "db:documents:deploy": "tsx scripts/document-db.ts deploy",
     "db:packages:seed": "tsx scripts/seed-package-catalog.ts",
-    "db:media:setup": "tsx scripts/setup-buddy-media.ts",
     "test:documents": "tsx scripts/check-documents.ts",
     "test:documents:integration": "tsx scripts/check-documents-integration.ts",
     "test:inbox:integration": "tsx scripts/check-inbox-integration.ts",
@@ -22,9 +21,7 @@
     "test:auth:integration": "tsx scripts/check-supabase-auth-integration.ts",
     "test:auth:http": "tsx scripts/check-auth-http.ts",
     "test:email:http": "tsx scripts/check-email-http.ts",
-    "test:packages": "tsx scripts/check-package-search.ts",
-    "test:buddy:http": "tsx scripts/check-buddy-http.ts",
-    "test:inventory:http": "tsx scripts/check-inventory-http.ts"
+    "test:packages": "tsx scripts/check-package-search.ts"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

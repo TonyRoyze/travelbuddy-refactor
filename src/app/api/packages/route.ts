@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   try {
     const filters = packageSearchParamsSchema.parse({
-      date: params.get('date') ?? undefined, live: params.get('live') ?? undefined,
       q: params.get('q') ?? undefined,
       destination: params.get('destination') ?? undefined,
       category: params.get('category') ?? undefined,
@@ -23,7 +22,6 @@ export async function GET(request: NextRequest) {
     const result = await searchPackages({
       ...filters,
       freeCancellation: filters.freeCancellation === 'true',
-      live: filters.live === 'true',
     });
     return NextResponse.json(result, { headers: noStore });
   } catch (error) {

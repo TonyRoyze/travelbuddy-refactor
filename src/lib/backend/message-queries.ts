@@ -15,7 +15,6 @@ export async function listConversations(currentAccountId: string) {
     include: {
       participantOne: { select: { id: true, data: true } },
       participantTwo: { select: { id: true, data: true } },
-      package: { select: { id: true, title: true, destination: true, published: true } },
       request: { select: { id: true, title: true, destination: true, details: true, closed: true, pickupLocation: true, latitude: true, longitude: true } },
       messages: { orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 1 },
     },
@@ -27,7 +26,6 @@ export async function listConversations(currentAccountId: string) {
     return {
       id: conversation.id,
       request: conversation.request,
-      package: conversation.package,
       updatedAt: conversation.updatedAt,
       participant: { id: other.id, displayName: accountName(other.data) },
       latestMessage: latest ? { body: latest.body, senderId: latest.senderId, createdAt: latest.createdAt } : null,
@@ -42,7 +40,6 @@ export async function getConversation(currentAccountId: string, conversationId: 
     include: {
       participantOne: { select: { id: true, data: true } },
       participantTwo: { select: { id: true, data: true } },
-      package: { select: { id: true, title: true, destination: true, published: true } },
       request: { select: { id: true, title: true, destination: true, details: true, closed: true, pickupLocation: true, latitude: true, longitude: true } },
       messages: { orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 100 },
     },
@@ -54,7 +51,6 @@ export async function getConversation(currentAccountId: string, conversationId: 
   return {
     id: conversation.id,
     request: conversation.request,
-    package: conversation.package,
     participant: { id: other.id, displayName: accountName(other.data) },
     messages: conversation.messages.reverse(),
   };

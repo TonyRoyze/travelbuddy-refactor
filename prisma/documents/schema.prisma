@@ -22,9 +22,6 @@ model AccountDocument {
   sentMessages Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageRecipient")
   travelRequests TravelRequest[]
-  packages ExperiencePackage[]
-  media MediaAsset[]
-  bookingOrders BookingOrder[]
 
   @@map("accounts")
 }
@@ -33,9 +30,7 @@ model Conversation {
   id                String   @id @default(uuid()) @db.Uuid
   participantOneId  String   @map("participant_one_id") @db.Uuid
   participantTwoId  String   @map("participant_two_id") @db.Uuid
-  contextKey        String   @default("direct") @map("context_key") @db.VarChar(88)
-  packageId         String? @map("package_id") @db.VarChar(80)
-  package           ExperiencePackage? @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  contextKey        String   @default("direct") @map("context_key") @db.VarChar(36)
   requestId         String?  @map("request_id") @db.Uuid
   request           TravelRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -46,7 +41,6 @@ model Conversation {
 
   @@unique([participantOneId, participantTwoId, contextKey])
   @@index([requestId])
-  @@index([packageId])
   @@index([participantOneId, updatedAt])
   @@index([participantTwoId, updatedAt])
   @@map("conversations")
@@ -91,10 +85,6 @@ model Message {
 
 model ExperiencePackage {
   id               String   @id @db.VarChar(80)
-  ownerId          String?  @map("owner_id") @db.Uuid
-  owner            AccountDocument? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  revision         Int      @default(1)
-  schedule         Json     @default("{}") @db.JsonB
   title            String   @db.VarChar(200)
   destination      String   @db.VarChar(120)
   country          String   @db.VarChar(120)
@@ -109,11 +99,8 @@ model ExperiencePackage {
   data             Json     @db.JsonB
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
-  bookings         ScheduledBooking[]
-  conversations    Conversation[]
 
   @@index([published, destination])
-  @@index([ownerId, updatedAt])
   @@index([published, category])
   @@index([published, price])
   @@index([published, rating])
@@ -121,52 +108,4 @@ model ExperiencePackage {
   @@index([published, durationMinutes])
   @@index([published, freeCancellation])
   @@map("packages")
-}
-
-model BookingOrder {
-  id             String @id @default(uuid()) @db.Uuid
-  travelerId     String @map("traveler_id") @db.Uuid
-  traveler       AccountDocument @relation(fields: [travelerId], references: [id], onDelete: Cascade)
-  idempotencyKey String @map("idempotency_key") @db.Uuid
-  fingerprint    String @db.VarChar(64)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  bookings       ScheduledBooking[]
-  @@unique([travelerId, idempotencyKey])
-  @@index([travelerId, createdAt])
-  @@map("booking_orders")
-}
-
-model ScheduledBooking {
-  id            String @id @default(uuid()) @db.Uuid
-  orderId       String @map("order_id") @db.Uuid
-  order         BookingOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  packageId     String @map("package_id") @db.VarChar(80)
-  package       ExperiencePackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
-  optionIndex   Int @map("option_index")
-  date          DateTime @db.Date
-  time          String @db.VarChar(5)
-  travelers     Int
-  status        String @default("confirmed") @db.VarChar(12)
-  total         Decimal @db.Decimal(12,2)
-  travelerName  String @map("traveler_name") @db.VarChar(120)
-  travelerEmail String @map("traveler_email") @db.VarChar(320)
-  snapshot      Json @db.JsonB
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  @@index([packageId, date, optionIndex, time, status])
-  @@index([orderId])
-  @@map("scheduled_bookings")
-}
-
-model MediaAsset {
-  id              String @id @default(uuid()) @db.Uuid
-  ownerId         String @map("owner_id") @db.Uuid
-  owner           AccountDocument @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  storagePath     String @unique @map("storage_path") @db.VarChar(200)
-  mimeType        String @map("mime_type") @db.VarChar(80)
-  bytes           Int
-  durationSeconds Float? @map("duration_seconds")
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-
-  @@index([ownerId, createdAt])
-  @@map("media_assets")
 }

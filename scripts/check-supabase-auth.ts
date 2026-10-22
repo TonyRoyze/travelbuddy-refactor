@@ -12,7 +12,7 @@ async function main() {
   assert.equal(authConfig().secure, true);
   assert.equal(authCookieOptions().httpOnly, true);
   assert.equal(authCookieOptions().sameSite, 'lax');
-  for (const value of ['https://evil.example', '//evil.example', '/\\evil.example', '/\n/evil.example']) assert.equal(safeAuthReturn(value), '/account');
+  for (const value of ['https://evil.example', '//evil.example', '/\\evil.example', '/\n/evil.example']) assert.equal(safeAuthReturn(value), '/account/security');
   assert.equal(safeAuthReturn('/inbox?tab=replies'), '/inbox?tab=replies');
   assert.equal(sameOrigin(new Request('https://travelbuddy.example', { headers: { Origin: 'https://evil.example' } })), false);
   const request = (path: string, body: unknown, origin = 'https://travelbuddy.example') => new NextRequest(`https://travelbuddy.example${path}`, { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });

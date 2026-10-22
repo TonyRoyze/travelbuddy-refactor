@@ -1,7 +1,7 @@
 FROM node:22-alpine
 
 WORKDIR /app
-RUN apk add --no-cache openssl ffmpeg \
+RUN apk add --no-cache openssl \
     && corepack enable
 
 COPY . .

@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
-import { scheduledSlots } from '../src/lib/availability';
 import { experiences } from '../src/lib/catalog';
 import { customerAccountFromSession, addDays, availableSlots, canReview, cancelAllowed, emptyState, filteredExperiences, formatDate, itemPrice, nextAvailable, restoreState, safeReturn, today, validDate, validateCart, validateReview } from '../src/lib/customer';
 let checks = 0;
@@ -10,13 +9,6 @@ const monday = new Date('2026-10-05T04:30:00Z'); // 10:00 in Sri Lanka
 const state = emptyState(monday);
 const booking = state.bookings[0];
 const cart = { id: 'test-cart', experienceId: 'colombo-food', option: 0, date: '2026-10-06', time: '17:30', travelers: 2 };
-check('Live schedules sort future slots in Sri Lanka time and respect exceptions', () => {
-  const experience = { options: [{ times: ['18:30', '09:00', '10:00', '17:30'], capacity: 3 }] };
-  const schedule = { startDate: '2026-10-01', endDate: '2026-10-31', weekdays: [0, 1, 2, 3, 4, 5, 6], exceptions: [{ date: '2026-10-06', closed: true }] };
-  assert.deepEqual(scheduledSlots(experience, schedule, '2026-10-05', 0, monday).map(slot => slot.time), ['17:30', '18:30']);
-  assert.deepEqual(scheduledSlots(experience, schedule, '2026-10-06', 0, monday), []);
-  assert.deepEqual(scheduledSlots(experience, schedule, '2026-10-05', 0, new Date('2026-10-05T19:00:00Z')), []);
-});
 check('Sri Lanka date and midnight rollover', () => { assert.equal(today(monday), '2026-10-05'); assert.equal(today(new Date('2026-10-05T19:00:00Z')), '2026-10-06'); });
 check('Calendar validates real dates and handles month rollover', () => { assert.equal(validDate('2026-02-30'), false); assert.equal(validDate('2028-02-29'), true); assert.equal(addDays('2026-10-31', 1), '2026-11-01'); });
 check('Schedule excludes past dates, past times and closed Sundays', () => { assert.deepEqual(availableSlots('colombo-food', '2026-10-04', 0, 1, [], monday), []); assert.deepEqual(availableSlots('colombo-food', '2026-10-11', 0, 1, [], monday), []); assert.deepEqual(availableSlots('colombo-food', '2026-10-05', 0, 1, [], new Date('2026-10-05T14:00:00Z')), []); });
@@ -36,12 +28,11 @@ check('Marketplace identity requires a completed server session and isolates acc
   assert.equal(customerAccountFromSession({ ...account, onboarding: 'pending' }, state.accounts), undefined);
   assert.deepEqual(customerAccountFromSession(account, state.accounts), { id: 'supabase-traveler', name: 'Vidura', email: '' });
   const own = { id: account.id, name: 'Updated name', email: 'traveler@example.com' };
-  assert.deepEqual(customerAccountFromSession(account, [...state.accounts, own]), { ...own, name: 'Vidura' });
-  assert.deepEqual(customerAccountFromSession({ ...account, email: 'verified@example.com' }, [...state.accounts, own]), { id: account.id, name: 'Vidura', email: 'verified@example.com' });
+  assert.deepEqual(customerAccountFromSession(account, [...state.accounts, own]), own);
   assert.equal(customerAccountFromSession({ ...account, id: 'another-supabase-account' }, [...state.accounts, own])?.name, 'Vidura');
 });
 check('Auth return URLs stay on the local customer app', () => { assert.equal(safeReturn('//evil.example'), '/'); assert.equal(safeReturn('/\\evil.example'), '/'); assert.equal(safeReturn('/login?next=/cart'), '/'); assert.equal(safeReturn('/experience/colombo-food?date=2026-10-06'), '/experience/colombo-food?date=2026-10-06'); });
 check('Local fixtures recover corrupted storage without persisting credentials', () => { assert.equal(restoreState('{bad-json').accounts[0].email, 'traveler@travelbuddy.demo'); assert.ok(!JSON.stringify(state).includes('demo123')); assert.equal(restoreState(JSON.stringify(state)).version, 1); });
-check('Customer routes preserve V1.1 scope and expose authentication, packages, messaging and request APIs', () => { const app = path.resolve('src/app'); for (const name of ['admin', 'supplier', 'guide-workspace', 'guide', 'advisor', 'partner', 'community', 'requests', 'trips', 'scan']) assert.equal(existsSync(path.join(app, name)), false, `${name} must not ship in V1.1`); assert.deepEqual(readdirSync(path.join(app, 'register')).sort(), ['complete', 'google', 'page.tsx']); assert.deepEqual(readdirSync(path.join(app, 'api')).sort(), ['account', 'auth', 'bookings', 'buddy', 'dev', 'media', 'messages', 'packages', 'requests']); assert.deepEqual(readdirSync(path.join(app, 'api/auth')).sort(), ['email', 'logout', 'onboarding', 'providers', 'session', 'signin']); assert.ok(existsSync(path.join(app, 'api/packages/route.ts'))); assert.ok(existsSync(path.join(app, 'api/packages/suggestions/route.ts'))); assert.ok(existsSync(path.join(app, 'reviews/page.tsx'))); });
+check('Customer routes preserve V1.1 scope and expose authentication, packages, messaging and request APIs', () => { const app = path.resolve('src/app'); for (const name of ['admin', 'supplier', 'guide-workspace', 'guide', 'advisor', 'partner', 'community', 'requests', 'trips', 'scan']) assert.equal(existsSync(path.join(app, name)), false, `${name} must not ship in V1.1`); assert.deepEqual(readdirSync(path.join(app, 'register')).sort(), ['complete', 'google', 'page.tsx']); assert.deepEqual(readdirSync(path.join(app, 'api')).sort(), ['auth', 'dev', 'messages', 'packages', 'requests']); assert.deepEqual(readdirSync(path.join(app, 'api/auth')).sort(), ['email', 'logout', 'onboarding', 'providers', 'session', 'signin']); assert.ok(existsSync(path.join(app, 'api/packages/route.ts'))); assert.ok(existsSync(path.join(app, 'api/packages/suggestions/route.ts'))); assert.ok(existsSync(path.join(app, 'reviews/page.tsx'))); });
 check('Every catalog listing has a customer detail and valid option prices', () => { assert.ok(experiences.length > 0); experiences.forEach(e => { assert.ok(e.options.length); e.options.forEach(o => { assert.ok(o.price > 0); assert.ok(o.times.every(t => /^\d{2}:\d{2}$/.test(t))); }); }); });
 console.log(`${checks} customer checks passed.`);

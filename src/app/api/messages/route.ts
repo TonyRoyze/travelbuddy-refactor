@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sameOrigin } from '@/lib/backend/auth-security';
 import { sessionAccount } from '@/lib/backend/sessions';
-import { RequestAccessError } from '@/lib/backend/request-commands';
-import { startConversation, startPackageConversation } from '@/lib/backend/message-commands';
+import { startConversation } from '@/lib/backend/message-commands';
 import { MessageRecipientError } from '@/lib/backend/message-errors';
 import { listConversations } from '@/lib/backend/message-queries';
 
 export const dynamic = 'force-dynamic';
 const headers = { 'Cache-Control': 'no-store' };
-const startSchema = z.union([z.object({ recipientId: z.string().uuid() }).strict(), z.object({ packageId: z.string().min(1).max(80) }).strict()]);
+const startSchema = z.object({ recipientId: z.string().uuid() }).strict();
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,10 +29,9 @@ export async function POST(request: NextRequest) {
     const text = await request.text();
     if (text.length > 2000) return NextResponse.json({ error: 'Invalid conversation details.' }, { status: 400, headers });
     const body = startSchema.parse(JSON.parse(text));
-    const conversation = await ('packageId' in body ? startPackageConversation(account.id, body.packageId) : startConversation(account.id, body.recipientId));
+    const conversation = await startConversation(account.id, body.recipientId);
     return NextResponse.json({ conversation }, { status: 201, headers });
   } catch (error) {
-    if (error instanceof RequestAccessError) return NextResponse.json({ error: error.message }, { status: error.status, headers });
     if (error instanceof z.ZodError || error instanceof SyntaxError) return NextResponse.json({ error: 'Enter a valid recipient account ID.' }, { status: 400, headers });
     if (error instanceof MessageRecipientError) return NextResponse.json({ error: 'That recipient account is unavailable.' }, { status: 404, headers });
     return NextResponse.json({ error: 'A conversation could not be started.' }, { status: 503, headers });

@@ -4,8 +4,6 @@ import { accountDataSchema, newTravelerData } from '../src/lib/backend/documents
 
 assert.deepEqual(newTravelerData('  Maya  '), {
   displayName: 'Maya', roles: ['traveler'], status: 'active', onboarding: 'pending',
-  avatarMediaId: null, profileVideoIds: [],
-  profileDetails: { bio: '', homeBase: '', languages: '', interests: '', travelStyle: '', specialties: '', yearsExperience: null },
 });
 for (const input of [
   { ...newTravelerData('Maya'), roles: ['owner'] },
