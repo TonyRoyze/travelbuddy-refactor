@@ -72,9 +72,12 @@ try {
     if (r.status !== 0) throw new Error(r.stderr);
     writeFileSync("src/types/database.ts", r.stdout);
     console.log("Generated database types");
-  } else if (action === "test")
-    console.log(await query(readFileSync("supabase/tests/api.sql", "utf8")));
-  else throw new Error("Use migrate, types or test");
+  } else if (action === "test") {
+    for (const file of readdirSync("supabase/tests")
+      .filter((file) => file.endsWith(".sql"))
+      .sort())
+      console.log(await query(readFileSync(`supabase/tests/${file}`, "utf8")));
+  } else throw new Error("Use migrate, types or test");
 } finally {
   await client?.end();
 }

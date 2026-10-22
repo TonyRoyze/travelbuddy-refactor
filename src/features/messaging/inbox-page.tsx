@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { useState, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send } from "lucide-react";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
 import { safeReturn } from "@/lib/validation";
@@ -151,9 +151,7 @@ export function InboxPage({
                   onClick={() =>
                     navigate({ to: "/inbox", search: { returnTo } })
                   }
-                >
-                  <ArrowLeft />
-                </Button>
+                ></Button>
                 <div>
                   <h2>{thread?.name ?? "Your provider"}</h2>
                   <p>{thread?.packageTitle ?? "Private conversation"}</p>

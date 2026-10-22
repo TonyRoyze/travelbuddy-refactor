@@ -13,7 +13,7 @@ Use Node 22.12 or newer and pnpm 11. From the repository root:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm dev            # Vite at http://localhost:5173
+pnpm dev            # Vite :5173 and profile upload service :5174
 pnpm typecheck
 pnpm lint
 pnpm test
@@ -22,6 +22,8 @@ pnpm db:types       # regenerate Supabase API types
 ```
 
 The root frontend reads `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from `.env.local`. Only browser-safe values belong there. Database administration credentials stay on the Supabase host or in a private operator environment.
+
+Profile uploads also require FFmpeg/ffprobe and the server-only `.env.media.local`; see [profile service setup](profile-parity.md).
 
 To run the previous app, install and start it from `legacy/`:
 
@@ -47,6 +49,7 @@ supabase/
   migrations/            additive database changes
   tests/                 database authorization and behavior checks
   functions/              narrowly scoped Edge Functions
+services/profile-media/  server-side profile upload validation and storage
 legacy/                  previous Next.js app, preserved during transition
 ```
 

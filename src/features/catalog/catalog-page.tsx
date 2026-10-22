@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import {
-  Search,
   MapPin,
   ArrowRight,
   Compass,
@@ -14,17 +13,15 @@ import {
 } from "lucide-react";
 import { catalogQuery } from "@/lib/queries";
 import { useLiveNowUpdates } from "@/lib/live-now";
-import { searchSchema, money } from "@/lib/validation";
+import { searchSchema, money, today } from "@/lib/validation";
+import { CatalogSearchInput } from "./search-input";
+import { addDays } from "./selection";
+import { Switch } from "@/components/ui/switch";
 import { Media } from "./media";
 import { destinations } from "./destinations";
 import { ExperienceCard } from "./experience-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupInput,
-  InputGroupAddon,
-} from "@/components/ui/input-group";
 import {
   NativeSelect,
   NativeSelectOption,
@@ -58,57 +55,74 @@ export function CatalogPage({
   filters?: Record<string, unknown>;
 }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterError, setFilterError] = useState<unknown>();
   const parsed = searchSchema.parse(filters);
-  const query = useQuery(catalogQuery(parsed));
+  const query = useQuery(
+    catalogQuery(home ? { ...parsed, country: "Sri Lanka" } : parsed),
+  );
   useLiveNowUpdates();
   const navigate = useNavigate();
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    navigate({
-      to: "/search",
-      search: {
-        ...parsed,
-        q: String(f.get("q") ?? ""),
-        category: String(f.get("category") ?? ""),
-        minPrice: f.get("minPrice") ? Number(f.get("minPrice")) : undefined,
-        maxPrice: f.get("maxPrice") ? Number(f.get("maxPrice")) : undefined,
-        freeCancellation: f.get("freeCancellation") === "on",
-        sort: String(f.get("sort") ?? "recommended") as "recommended",
-        page: 1,
-      },
-    });
+    const next = {
+      ...parsed,
+      q: String(f.get("q") ?? parsed.q),
+      destination: String(f.get("destination") ?? parsed.destination),
+      category: String(f.get("category") ?? parsed.category),
+      date: f.has("date")
+        ? String(f.get("date") || "") || undefined
+        : parsed.date,
+      duration: f.has("duration")
+        ? String(f.get("duration") || "") || undefined
+        : parsed.duration,
+      minPrice: f.has("minPrice")
+        ? f.get("minPrice")
+          ? Number(f.get("minPrice"))
+          : undefined
+        : parsed.minPrice,
+      maxPrice: f.has("maxPrice")
+        ? f.get("maxPrice")
+          ? Number(f.get("maxPrice"))
+          : undefined
+        : parsed.maxPrice,
+      freeCancellation: f.get("filterForm")
+        ? f.get("freeCancellation") === "on"
+        : parsed.freeCancellation,
+      sort: String(f.get("sort") ?? parsed.sort),
+      page: 1,
+    };
+    if (
+      next.minPrice !== undefined &&
+      next.maxPrice !== undefined &&
+      next.minPrice > next.maxPrice
+    ) {
+      setFilterError(new Error("Minimum price must not exceed maximum price."));
+      return;
+    }
+    setFilterError(undefined);
+    void navigate({ to: "/search", search: searchSchema.parse(next) });
   }
   const packages = query.data?.items ?? [];
   const featured = packages.find((p) => p.id === "colombo-food") ?? packages[0];
   const searchInput = (
-    <FieldGroup>
-      <Field>
-        <FieldLabel htmlFor="q" className="sr-only">
-          Destination or experience
-        </FieldLabel>
-        <InputGroup className="h-16 rounded-lg bg-card p-2 shadow-sm">
-          <InputGroupInput
-            id="q"
-            name="q"
-            defaultValue={parsed.q}
-            key={parsed.q}
-            placeholder="Where would you like to go?"
-            maxLength={120}
-          />
-          <InputGroupAddon>
-            <Search />
-          </InputGroupAddon>
-          <InputGroupAddon align="inline-end">
-            <Button type="submit" aria-label="Search experiences">
-              <Search data-icon="inline-start" />
-              <span className="hidden sm:inline">Search</span>
-            </Button>
-          </InputGroupAddon>
-        </InputGroup>
-      </Field>
-    </FieldGroup>
+    <CatalogSearchInput
+      key={parsed.q}
+      initial={parsed.q}
+      onChoose={(item) =>
+        void navigate({
+          to: "/search",
+          search: {
+            ...parsed,
+            q: item.kind === "category" ? "" : item.value.slice(0, 120),
+            category: item.kind === "category" ? item.value : parsed.category,
+            page: 1,
+          },
+        })
+      }
+    />
   );
+
   const resultGrid = query.isPending ? (
     <Loading />
   ) : query.error ? (
@@ -126,7 +140,7 @@ export function CatalogPage({
       )}
     >
       {(home ? packages.slice(0, 4) : packages).map((p) => (
-        <ExperienceCard key={p.id} experience={p} />
+        <ExperienceCard key={p.id} experience={p} date={parsed.date} />
       ))}
     </div>
   );
@@ -143,7 +157,7 @@ export function CatalogPage({
           <div className={cn(container, "py-12 md:py-16")}>
             <p className="flex items-center gap-2 text-xs">
               <MapPin className="size-3.5" />
-              Sri Lanka, and a world beyond
+              Discover Sri Lanka
             </p>
             <h1 className="my-6 text-4xl leading-[1.05] tracking-[-.03em] sm:text-5xl lg:text-[64px]">
               Go somewhere
@@ -207,7 +221,7 @@ export function CatalogPage({
                 Book a local experience today or plan for the next available
                 time.
               </p>
-              <Link to="/search" search={{}} className={buttonVariants()}>
+              <Link to="/nearby" search={{}} className={buttonVariants()}>
                 Explore nearby
                 <ArrowRight data-icon="inline-end" />
               </Link>
@@ -297,6 +311,35 @@ export function CatalogPage({
           {searchInput}
         </form>
       </div>
+      <Link
+        to="/nearby"
+        search={{}}
+        className={cn(buttonVariants({ variant: "outline" }), "mb-5")}
+      >
+        Map and list of live local hosts
+      </Link>
+      <Field
+        orientation="horizontal"
+        className="mb-5 rounded-xl border bg-card p-4"
+      >
+        <Switch
+          id="live-now"
+          checked={parsed.live}
+          onCheckedChange={(live) =>
+            void navigate({
+              to: "/search",
+              search: { ...parsed, live, page: 1 },
+            })
+          }
+        />
+        <div>
+          <FieldLabel htmlFor="live-now">Live Now</FieldLabel>
+          <p className="text-sm text-muted-foreground">
+            Online hosts accepting requests, with available places. Refreshes
+            every 15 seconds.
+          </p>
+        </div>
+      </Field>
       <Button
         variant="outline"
         className="mb-5 lg:hidden"
@@ -316,7 +359,12 @@ export function CatalogPage({
               <CardTitle>Filter experiences</CardTitle>
             </CardHeader>
             <CardContent>
-              <form id="catalog-filters" onSubmit={submit}>
+              <form
+                id="catalog-filters"
+                key={JSON.stringify(parsed)}
+                onSubmit={submit}
+              >
+                <input type="hidden" name="filterForm" value="1" />
                 <input type="hidden" name="q" value={parsed.q} />
                 <FieldGroup>
                   <Field>
@@ -336,6 +384,44 @@ export function CatalogPage({
                       ].map((c) => (
                         <NativeSelectOption key={c}>{c}</NativeSelectOption>
                       ))}
+                    </NativeSelect>
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="destination">Destination</FieldLabel>
+                    <Input
+                      id="destination"
+                      name="destination"
+                      defaultValue={parsed.destination}
+                      maxLength={120}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="search-date">Date</FieldLabel>
+                    <Input
+                      id="search-date"
+                      name="date"
+                      type="date"
+                      min={today()}
+                      max={addDays(today(), 180)}
+                      defaultValue={parsed.date}
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="duration">Duration</FieldLabel>
+                    <NativeSelect
+                      id="duration"
+                      name="duration"
+                      defaultValue={parsed.duration ?? ""}
+                    >
+                      <NativeSelectOption value="">
+                        Any duration
+                      </NativeSelectOption>
+                      <NativeSelectOption value="short">
+                        Up to 4 hours
+                      </NativeSelectOption>
+                      <NativeSelectOption value="long">
+                        More than 4 hours
+                      </NativeSelectOption>
                     </NativeSelect>
                   </Field>
                   <Separator />
@@ -396,7 +482,10 @@ export function CatalogPage({
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => navigate({ to: "/search", search: {} })}
+                onClick={() => {
+                  setFilterError(undefined);
+                  void navigate({ to: "/search", search: {} });
+                }}
               >
                 Reset
               </Button>
@@ -404,6 +493,7 @@ export function CatalogPage({
           </Card>
         </aside>
         <div>
+          {!!filterError && <Problem error={filterError} />}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-xl">Experiences</h2>
             <p className="text-sm text-muted-foreground">

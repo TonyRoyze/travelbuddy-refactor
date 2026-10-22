@@ -20,6 +20,7 @@ export interface Experience {
   meetingPoint: string;
   canChat?: boolean;
   liveNow?: boolean;
+  providerId?: string | null;
   options: {
     name: string;
     price: number;
