@@ -3,7 +3,7 @@ import { rpc } from "./supabase";
 import type { SearchFilters } from "./validation";
 import type { Account } from "@/features/account/types";
 import type { Experience, Catalog } from "@/features/catalog/types";
-import type { Booking } from "@/features/bookings/types";
+import type { Booking, Cart } from "@/features/bookings/types";
 export const accountQuery = () =>
   queryOptions({
     queryKey: ["account"],
@@ -11,14 +11,15 @@ export const accountQuery = () =>
     staleTime: 30_000,
     retry: false,
   });
-export const catalogQuery = (filters: SearchFilters) =>
+export const catalogQuery = (filters: SearchFilters & { country?: string }) =>
   queryOptions({
     queryKey: ["catalog", filters],
     queryFn: async () =>
       (await rpc("catalog", {
         filters,
       })) as unknown as Catalog,
-    staleTime: 30_000,
+    staleTime: filters.live ? 0 : 30_000,
+    refetchInterval: filters.live ? 15_000 : filters.date ? 30_000 : false,
   });
 export const packageQuery = (id: string) =>
   queryOptions({
@@ -32,4 +33,11 @@ export const bookingsQuery = () =>
   queryOptions({
     queryKey: ["bookings"],
     queryFn: async () => (await rpc("bookings", {})) as unknown as Booking[],
+  });
+export const cartQuery = () =>
+  queryOptions({
+    queryKey: ["cart"],
+    queryFn: async () => (await rpc("cart", {})) as unknown as Cart,
+    staleTime: 5_000,
+    retry: false,
   });

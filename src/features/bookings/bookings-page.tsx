@@ -55,15 +55,19 @@ export function BookingsPage({
   });
   if (query.isPending) return <Loading />;
   if (query.error) return <Problem error={query.error} />;
+  const confirmed =
+    confirmation && id ? query.data.find((b) => b.id === id) : undefined;
+  const accountBookings = confirmed
+    ? query.data.filter((b) => b.orderId === confirmed.orderId)
+    : id
+      ? query.data.filter((b) => b.id === id)
+      : query.data;
   const historyMode = !id && !confirmation;
-  const accountBookings = id
-    ? query.data.filter((b) => b.id === id)
-    : query.data;
   const counts = {
-    all: query.data.length,
-    upcoming: query.data.filter((b) => b.status === "Upcoming").length,
-    completed: query.data.filter((b) => b.status === "Completed").length,
-    cancelled: query.data.filter((b) => b.status === "Cancelled").length,
+    all: accountBookings.length,
+    upcoming: accountBookings.filter((b) => b.status === "Upcoming").length,
+    completed: accountBookings.filter((b) => b.status === "Completed").length,
+    cancelled: accountBookings.filter((b) => b.status === "Cancelled").length,
   };
   const normalizedSearch = search.trim().toLocaleLowerCase();
   const rows = (historyMode
@@ -99,7 +103,9 @@ export function BookingsPage({
           </h1>
           <p>
             {confirmation
-              ? "Your reservation is confirmed. Your host will be ready to welcome you."
+              ? rows.length > 1
+                ? "Your reservations are confirmed. Your hosts will be ready to welcome you."
+                : "Your reservation is confirmed. Your host will be ready to welcome you."
               : id
                 ? "Review the details and status of this reservation."
                 : "Review upcoming plans, completed experiences, and cancelled reservations."}
