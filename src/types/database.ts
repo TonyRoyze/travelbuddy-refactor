@@ -71,6 +71,7 @@ export type Database = {
         Args: { body: string; conversation_id: string }
         Returns: string
       }
+      set_live_now: { Args: { live_now: boolean }; Returns: Json }
       set_profile_media: {
         Args: { expected_revision: number; input: Json }
         Returns: Json

@@ -9,6 +9,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { money } from "@/lib/validation";
+import { Badge } from "@/components/ui/badge";
 import type { Experience } from "./types";
 import { Media } from "./media";
 export function ExperienceCard({
@@ -37,6 +38,7 @@ export function ExperienceCard({
           <MapPin className="size-3.5 shrink-0" />
           {p.destination}
           <span>· {p.category}</span>
+          {p.liveNow && <Badge variant="secondary">Live now</Badge>}
         </CardDescription>
         <CardTitle>
           <Link

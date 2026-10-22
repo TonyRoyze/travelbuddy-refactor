@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
+import { useLiveNowUpdates } from "@/lib/live-now";
 import { rpc } from "@/lib/supabase";
 import { today, money, type Selection } from "@/lib/validation";
 import type { Availability } from "./types";
@@ -35,6 +36,7 @@ import { useCart } from "@/features/bookings/cart-provider";
 import { CartStorageNotice } from "@/features/bookings/cart-page";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Problem, Loading } from "@/components/feedback";
+import { Badge } from "@/components/ui/badge";
 export function ExperiencePage({
   id,
   initial,
@@ -42,6 +44,7 @@ export function ExperiencePage({
   id: string;
   initial: Selection & { item?: string };
 }) {
+  useLiveNowUpdates();
   const detail = useQuery(packageQuery(id));
   const [selection, setSelection] = useState<Selection>(() => ({
     ...initial,
@@ -177,6 +180,7 @@ export function ExperiencePage({
                 p.supplier
               )}
             </span>
+            {p.liveNow && <Badge variant="secondary">Live now</Badge>}
           </p>
         </div>
       </div>

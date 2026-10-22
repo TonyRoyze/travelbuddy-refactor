@@ -12,6 +12,7 @@ import {
   Waves,
 } from "lucide-react";
 import { catalogQuery } from "@/lib/queries";
+import { useLiveNowUpdates } from "@/lib/live-now";
 import { searchSchema, money, today } from "@/lib/validation";
 import { CatalogSearchInput } from "./search-input";
 import { addDays } from "./selection";
@@ -59,6 +60,7 @@ export function CatalogPage({
   const query = useQuery(
     catalogQuery(home ? { ...parsed, country: "Sri Lanka" } : parsed),
   );
+  useLiveNowUpdates();
   const navigate = useNavigate();
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

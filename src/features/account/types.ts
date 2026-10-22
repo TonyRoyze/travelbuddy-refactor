@@ -6,6 +6,7 @@ export interface Account {
   roles: ("traveler" | "provider" | "guide" | "admin")[];
   onboarding: "pending" | "completed";
   revision: number;
+  liveNow: boolean;
   avatarMediaId: string | null;
   profileVideoIds: string[];
   profileDetails: ProfileDetails;
