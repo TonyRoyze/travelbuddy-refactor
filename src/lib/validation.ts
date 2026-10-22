@@ -34,13 +34,21 @@ export const selectionSchema = z.object({
   travelers: z.coerce.number().int().min(1).max(12).catch(1),
 });
 export type Selection = z.infer<typeof selectionSchema>;
+const searchBoolean = z.preprocess(
+  (value) =>
+    value === true || value === "true" || value === "1" || value === "on",
+  z.boolean(),
+);
 export const searchSchema = z.object({
   q: z.string().trim().max(120).catch(""),
   category: z.string().max(80).catch(""),
   destination: z.string().max(120).catch(""),
+  date: date.optional().catch(undefined),
+  duration: z.enum(["short", "long"]).optional().catch(undefined),
+  live: searchBoolean,
   minPrice: z.coerce.number().min(0).optional().catch(undefined),
   maxPrice: z.coerce.number().min(0).optional().catch(undefined),
-  freeCancellation: z.coerce.boolean().catch(false),
+  freeCancellation: searchBoolean,
   sort: z.enum(["recommended", "price-low", "rating"]).catch("recommended"),
   page: z.coerce.number().int().min(1).max(10000).catch(1),
 });

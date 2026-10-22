@@ -4,12 +4,14 @@ A React + Vite application backed by the existing self-hosted Supabase instance.
 
 ## Run locally
 
-Requires Node 22.12+ (or Node 24+), pnpm 11, and the existing local Supabase Docker stack.
+Requires Node 22.12+ (or Node 24+), pnpm 11, FFmpeg (for `ffprobe`), and the existing local Supabase Docker stack.
 
 ```sh
 pnpm install --frozen-lockfile
 cp .env.example .env.local
 # Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.
+cp .env.media.example .env.media.local
+# Set server-only Supabase credentials for profile uploads.
 pnpm dev
 ```
 
@@ -45,9 +47,15 @@ Use TanStack Query for remote data and React state for local interactions. New r
 
 ## Features in this milestone
 
-Email registration/login/recovery, configured social login, Traveller/Buddy onboarding, package search/details, live availability, an account-owned cart, multi-item checkout, booking history/cancellation, and private package conversations. Book Now selects today's nearest future slot in Asia/Colombo time, falling forward when needed. Cart selections do not reserve inventory; checkout rechecks prices and capacity in the database, with the same package locks and idempotency fingerprints used by the existing booking backend. No payment is collected. Chat retains the booking selection and does not reserve inventory. Inbox queries poll every five seconds while visible.
+Email registration/login/recovery, configured social login, Traveller/Buddy onboarding, package search/details, live availability, a persistent account-specific cart, multi-item checkout, booking history/cancellation, and private package conversations. Book Now selects today's nearest future slot in Asia/Colombo time, falling forward when needed. Checkout prices and capacity are checked in the database, with the same package locks and idempotency fingerprints used by the old server. Chat retains the booking selection and cart edit context and does not reserve inventory. Cart entries can be edited or removed; editing replaces the original entry. Checkout refreshes prices and checks the combined demand for entries sharing a slot before review, then confirms the full cart atomically. Confirmation lists every booking in the order. Inbox queries poll every five seconds while visible.
 
-No payment collection is implemented. Package editing/uploads, public request creation/replies, maps, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
+Live provider discovery is available at `/nearby`: choose a town, switch between map and list, and chat with online hosts. Buddy/Guide accounts can enable accepting requests and save meeting-point pins from Account. See [live discovery setup and verification](docs/nearby-live-providers.md).
+
+Account/profile editing, photo uploads, Buddy/Guide introduction videos, and public Buddy profiles are restored. See [profile setup and deployment](docs/profile-parity.md).
+
+Buddies now have a dedicated dashboard, profile and complete package editor with media, schedules, publishing and reserved-place protection. See [Buddy package management](docs/buddy-package-editor.md).
+
+No payment collection is implemented. Public request creation/replies, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
 
 ## Validation
 
@@ -65,3 +73,12 @@ pnpm test:compat   # migration boundary checks using the original sibling checko
 
 See [deployment and validation notes](docs/deployment.md) for hosting and the checks performed during this implementation.
 See the [development guide](docs/development-guide.md) for the stack, file layout, component placement, and route conventions.
+See the [legacy feature coverage audit](docs/legacy-feature-audit.md) and [legacy UI screenshots](docs/reference/legacy/README.md) for the parity check and visual references.
+
+## Booking and cart changes
+
+The cart is stored in this browser, separately for each signed-in user. Checkout and reservations remain server-backed; putting an item in the cart or starting a chat does not hold places. Currency totals use integer cents. A checkout with an unknown outcome retains its retry key and contact details, allowing the exact attempt to be retried even if it reserved the final places.
+
+Apply the additive `booking_chat_eligibility` migration with `pnpm db:migrate` when local Supabase is running. It aligns `canChat` with active, completed provider/guide eligibility and disables self-chat. Existing private function ownership and restricted grants are retained.
+
+See the [Phase 1 feature audit (F001–F014)](docs/phase-one-feature-audit.md) for current status, restored legacy gaps, verification commands and payment limitations.

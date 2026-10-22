@@ -11,11 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Problem, Loading, NoResults } from "@/components/feedback";
 export function BookingsPage({
   id,
-  orderId,
   confirmation = false,
 }: {
   id?: string;
-  orderId?: string;
   confirmation?: boolean;
 }) {
   const query = useQuery(bookingsQuery());
@@ -31,8 +29,10 @@ export function BookingsPage({
   });
   if (query.isPending) return <Loading />;
   if (query.error) return <Problem error={query.error} />;
-  const rows = orderId
-    ? query.data.filter((b) => b.orderId === orderId)
+  const confirmed =
+    confirmation && id ? query.data.find((b) => b.id === id) : undefined;
+  const rows = confirmed
+    ? query.data.filter((b) => b.orderId === confirmed.orderId)
     : id
       ? query.data.filter((b) => b.id === id)
       : query.data;
@@ -52,9 +52,7 @@ export function BookingsPage({
           </h1>
           <p>
             {confirmation
-              ? rows.length > 1
-                ? "Your reservations are confirmed. Your hosts will be ready to welcome you."
-                : "Your reservation is confirmed. Your host will be ready to welcome you."
+              ? "Your reservation is confirmed. Your host will be ready to welcome you."
               : "All your experiences, together in one place."}
           </p>
         </div>

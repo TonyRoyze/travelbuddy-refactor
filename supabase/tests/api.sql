@@ -66,11 +66,32 @@ SET LOCAL ROLE authenticated;
 DO $$ DECLARE a jsonb; BEGIN
  a:=travelbuddy_api.account(); ASSERT a->>'onboarding'='pending','new user';
  BEGIN PERFORM travelbuddy_api.onboard('Attacker','admin',1); RAISE EXCEPTION 'admin signup'; EXCEPTION WHEN raise_exception THEN IF SQLERRM='admin signup' THEN RAISE; END IF; END;
- a:=travelbuddy_api.onboard('New Buddy','buddy',1); ASSERT a->'roles'='["provider"]' AND (a->>'revision')::int=2,'onboarding';
+ a:=travelbuddy_api.onboard('New Guide','guide',1); ASSERT a->'roles'='["guide"]' AND (a->>'revision')::int=2,'onboarding';
 END $$;
 RESET ROLE;
 -- Explicit closed exception overrides weekdays and fallback skips it.
 UPDATE travelbuddy_backend.packages SET schedule=jsonb_set(schedule,'{exceptions}',jsonb_build_array(jsonb_build_object('date',current_date+1,'closed',true))) WHERE id='refactor-test-pack';
 DO $$ BEGIN ASSERT travelbuddy_api.availability('refactor-test-pack',current_date+1)->'slots'='[]','closed date'; END $$;
+-- Package chat availability must reflect the same host eligibility as start_chat.
+SELECT set_config('request.jwt.claim.sub','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',true);
+SET LOCAL ROLE authenticated;
+DO $$ BEGIN ASSERT (travelbuddy_api.package_detail('refactor-test-pack')->>'canChat')::boolean,'active host can chat'; END $$;
+RESET ROLE;
+SELECT set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',true);
+SET LOCAL ROLE authenticated;
+DO $$ BEGIN ASSERT NOT (travelbuddy_api.package_detail('refactor-test-pack')->>'canChat')::boolean,'host cannot self-chat'; END $$;
+RESET ROLE;
+UPDATE travelbuddy_backend.accounts SET data=jsonb_set(data,'{roles}','["traveler"]') WHERE id=(SELECT owner_id FROM travelbuddy_backend.packages WHERE id='refactor-test-pack');
+SET LOCAL ROLE anon;
+DO $$ BEGIN ASSERT NOT (travelbuddy_api.package_detail('refactor-test-pack')->>'canChat')::boolean,'traveler owner cannot host chat'; END $$;
+RESET ROLE;
+UPDATE travelbuddy_backend.accounts SET data=jsonb_set(jsonb_set(data,'{roles}','["provider"]'),'{onboarding}','"pending"') WHERE id=(SELECT owner_id FROM travelbuddy_backend.packages WHERE id='refactor-test-pack');
+SET LOCAL ROLE anon;
+DO $$ BEGIN ASSERT NOT (travelbuddy_api.package_detail('refactor-test-pack')->>'canChat')::boolean,'pending provider cannot host chat'; END $$;
+RESET ROLE;
+UPDATE travelbuddy_backend.packages SET owner_id=NULL WHERE id='refactor-test-pack';
+SET LOCAL ROLE anon;
+DO $$ BEGIN ASSERT NOT (travelbuddy_api.package_detail('refactor-test-pack')->>'canChat')::boolean,'ownerless chat is disabled'; END $$;
+RESET ROLE;
 ROLLBACK;
 SELECT 'API authorization, booking, scheduling, onboarding and messaging checks passed';
