@@ -25,6 +25,7 @@ model AccountDocument {
   packages ExperiencePackage[]
   media MediaAsset[]
   bookingOrders BookingOrder[]
+  cartItems CartItem[]
 
   @@map("accounts")
 }
@@ -110,6 +111,7 @@ model ExperiencePackage {
   createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
   bookings         ScheduledBooking[]
+  cartItems        CartItem[]
   conversations    Conversation[]
 
   @@index([published, destination])
@@ -131,6 +133,7 @@ model BookingOrder {
   fingerprint    String @db.VarChar(64)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   bookings       ScheduledBooking[]
+  cartItems      CartItem[]
   @@unique([travelerId, idempotencyKey])
   @@index([travelerId, createdAt])
   @@map("booking_orders")
@@ -155,6 +158,26 @@ model ScheduledBooking {
   @@index([packageId, date, optionIndex, time, status])
   @@index([orderId])
   @@map("scheduled_bookings")
+}
+
+model CartItem {
+  id          String          @id @default(uuid()) @db.Uuid
+  travelerId  String          @map("traveler_id") @db.Uuid
+  traveler    AccountDocument @relation(fields: [travelerId], references: [id], onDelete: Cascade)
+  packageId   String          @map("package_id") @db.VarChar(80)
+  package     ExperiencePackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  optionIndex Int             @map("option_index")
+  bookingDate DateTime        @map("booking_date") @db.Date
+  startTime   String          @map("start_time") @db.VarChar(5)
+  travelers   Int
+  orderId     String?         @map("order_id") @db.Uuid
+  order       BookingOrder?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime        @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@index([travelerId, createdAt, id])
+  @@index([orderId])
+  @@map("cart_items")
 }
 
 model MediaAsset {
