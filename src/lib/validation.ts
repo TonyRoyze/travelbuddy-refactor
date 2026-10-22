@@ -40,6 +40,7 @@ const searchBoolean = z.preprocess(
   z.boolean(),
 );
 export const searchSchema = z.object({
+  country: z.string().trim().max(120).catch(""),
   q: z.string().trim().max(120).catch(""),
   category: z.string().max(80).catch(""),
   destination: z.string().max(120).catch(""),
@@ -52,12 +53,6 @@ export const searchSchema = z.object({
   sort: z.enum(["recommended", "price-low", "rating"]).catch("recommended"),
   page: z.coerce.number().int().min(1).max(10000).catch(1),
 });
-export const money = (amount: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
-  }).format(amount);
+export { formatMoney as money } from "@/features/currency/model";
 
 export type SearchFilters = z.infer<typeof searchSchema>;

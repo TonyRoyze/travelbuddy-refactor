@@ -22,13 +22,14 @@ export const packageEditorSchema = z
     notIncluded: z.array(line).max(20),
     meetingPoint: z.string().trim().max(500),
     freeCancellation: z.boolean(),
+    payLater: z.boolean().default(false),
     pickup: z.boolean(),
     options: z
       .array(
         z
           .object({
             name: z.string().trim().min(1).max(120),
-            price: z.number().finite().min(0).max(100000),
+            price: z.number().finite().min(0).max(10000000),
             capacity: z.number().int().min(1).max(12),
             times: z
               .array(
@@ -111,11 +112,12 @@ export function emptyPackage(): PackageEditorData {
     notIncluded: [],
     meetingPoint: "",
     freeCancellation: true,
+    payLater: false,
     pickup: false,
     options: [
       {
         name: "Small group experience",
-        price: 25,
+        price: 7500,
         capacity: 6,
         times: ["09:00"],
       },

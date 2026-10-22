@@ -1,4 +1,5 @@
 export interface Conversation {
+  unread?: number;
   id: string;
   packageId: string | null;
   packageTitle: string | null;

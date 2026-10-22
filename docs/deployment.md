@@ -1,12 +1,24 @@
 # Deployment and compatibility
 
+## k3s namespace reset
+
+The Vite app's namespace manifest is [k8s/namespace.yaml](../k8s/namespace.yaml). To replace the old `travelbuddy` namespace from a machine with authorized cluster access, delete and recreate it:
+
+```sh
+kubectl delete namespace travelbuddy
+kubectl wait --for=delete namespace/travelbuddy --timeout=2m
+kubectl apply -f k8s/namespace.yaml
+```
+
+Deleting a namespace removes all namespaced workloads, Secrets, PVCs, and other resources in it. Supabase is in the separate `supabase` namespace and is not included. This workspace has no configured kubectl context, so the reset has not been run.
+
 ## Personal server
 
 Keep the existing self-hosted Supabase Docker deployment and its persisted database/storage volumes. The frontend builds to static files:
 
 ```sh
 pnpm install --frozen-lockfile
-VITE_SUPABASE_URL=https://supabase.example.com VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_KEY pnpm build
+PUBLIC_SITE_URL=https://travel.example.com VITE_SUPABASE_URL=https://supabase.example.com VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_KEY pnpm build
 ```
 
 Serve `dist/` through Caddy or Nginx over HTTPS with SPA fallback to `index.html` for non-file paths. For Nginx, use `try_files $uri $uri/ /index.html;`. Cache content-hashed assets for a year with `immutable`, and serve `index.html` with revalidation. Vite's development server is not a production web server. Public environment settings are compiled into the bundle; rebuild when the Supabase origin changes.
@@ -15,7 +27,7 @@ Apply SQL migrations with a Supabase administrator that can create roles and gra
 
 Expose `travelbuddy_api` through PostgREST, add the deployed app's exact callback URLs to Auth, and install the `media-url` Edge Function in the server's shared functions volume. Keep both app callback origins during migration. The Edge Function rewrites internal storage URLs to `SUPABASE_PUBLIC_URL`, so that value must match the externally reachable Supabase origin. Retain HTTPS, mail delivery configuration for password recovery, database backups, and Storage backups.
 
-No Spring Boot service is needed for the current scope. When migrating media uploads, move server-side ffprobe validation into a dedicated service rather than trusting browser-reported file metadata.
+Run the Node media service with ffprobe and the Node payment service alongside the static site. Proxy `/profile-media/` and `/payments-api/` to their private ports. See [profile service deployment](profile-parity.md) and [PayHere/refund and Facebook configuration](vidura-marketplace-features.md).
 
 ## Authorization model
 

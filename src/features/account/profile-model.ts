@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { currencies } from "@/features/currency/model";
 export const profileDetailsSchema = z.object({
+  displayCurrency: z.enum(currencies).default("LKR"),
   bio: z.string().trim().max(500),
   homeBase: z.string().trim().max(120),
   languages: z.string().trim().max(160),

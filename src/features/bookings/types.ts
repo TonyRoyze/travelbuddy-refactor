@@ -12,6 +12,13 @@ export interface Booking {
   travelerEmail: string;
   reference: string;
   status: "Upcoming" | "Completed" | "Cancelled";
+  canCancel?: boolean;
+  cancellationDeadline?: string;
+  paymentMethod?: "online" | "pay_later";
+  paymentStatus?: "pending" | "paid" | "due" | "expired" | "disputed";
+  paymentExpiresAt?: string | null;
+  refundStatus?: "pending" | "refunded" | null;
+  currency?: string;
   experience: Experience;
 }
 

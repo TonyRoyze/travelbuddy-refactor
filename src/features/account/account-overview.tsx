@@ -85,6 +85,12 @@ export function AccountOverview({ account: a }: { account: Account }) {
   const links = buddy
     ? [
         {
+          to: "/account/dashboard" as const,
+          icon: CalendarDays,
+          label: "Bookings & conversations",
+          description: "Guest reservations, arrivals and your traveler inbox",
+        },
+        {
           to: "/account/packages" as const,
           icon: Package,
           label: "My packages",

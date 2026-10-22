@@ -293,7 +293,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
             <EditorSection
               id="package-pricing"
               title="Price and availability"
-              description="Prices are USD per person. Start times use Sri Lanka time."
+              description="Prices are LKR per person. Start times use Sri Lanka time."
             >
               {input.options.map((option, index) => (
                 <div
@@ -309,10 +309,10 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                   />
                   <FieldGroup className="grid gap-5 sm:grid-cols-2">
                     <EditorField
-                      label={`Option ${index + 1} price (USD)`}
+                      label={`Option ${index + 1} price (LKR)`}
                       type="number"
                       min={0}
-                      max={100000}
+                      max={10000000}
                       step={0.01}
                       value={option.price}
                       onChange={(v) =>
@@ -418,6 +418,17 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                 />
                 <FieldLabel htmlFor="package-cancel">
                   Free cancellation until 24 hours before the start
+                </FieldLabel>
+              </Field>
+              <Field orientation="horizontal">
+                <Checkbox
+                  id="package-pay-later"
+                  checked={input.payLater}
+                  onCheckedChange={(v) => change("payLater", v)}
+                />
+                <FieldLabel htmlFor="package-pay-later">
+                  Allow payment on arrival: full balance paid directly to you at
+                  the meeting point
                 </FieldLabel>
               </Field>
               <Field orientation="horizontal">

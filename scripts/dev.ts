@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 const children = [
   spawn("pnpm", ["exec", "vite", "--host", "0.0.0.0"], { stdio: "inherit" }),
   spawn("pnpm", ["media:serve"], { stdio: "inherit" }),
+  spawn("pnpm", ["payments:serve"], { stdio: "inherit" }),
 ];
 let stopping = false;
 function stop() {
