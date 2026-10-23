@@ -18,6 +18,21 @@ pnpm dev
 
 Open http://localhost:5173. The legacy Next.js app can run independently on port 3000; see [`docs/development-guide.md`](docs/development-guide.md). Browser sessions and the original app's HttpOnly cookies are separate; both map to the same Auth identities and application accounts.
 
+Local development uses `.env.local` and `.env.media.local`, both pointed at the local Docker Supabase gateway on `http://localhost:8000`. Keep these separate from deployment settings. For a manual production image build, copy `.env.deploy.example` to `.env.deploy`, fill in the public publishable key and final HTTPS app origin, then run:
+
+```sh
+set -a
+. ./.env.deploy
+set +a
+docker build \
+  --build-arg "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" \
+  --build-arg "VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY" \
+  --build-arg "PUBLIC_SITE_URL=$PUBLIC_SITE_URL" \
+  -t ghcr.io/tonyroyze/travelbuddy-refactor:manual .
+```
+
+The GitHub Actions workflow instead reads `SUPABASE_PUBLISHABLE_KEY` and `PUBLIC_SITE_URL` from repository variables; the Supabase server-only key belongs in the Kubernetes `travelbuddy-runtime` Secret, never in either env file or the image.
+
 ## Database and API setup
 
 The application tables remain in the private `travelbuddy_backend` schema. Apply the additive migrations once:

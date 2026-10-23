@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: travelbuddy
+  namespace: travelbuddy
+  labels:
+    app.kubernetes.io/name: travelbuddy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: travelbuddy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: travelbuddy
+    spec:
+      # If the GHCR package is private, create this pull Secret in this namespace.
+      # imagePullSecrets:
+      #   - name: ghcr-pull
+      containers:
+        - name: app
+          image: ghcr.io/tonyroyze/travelbuddy-refactor:REPLACE_WITH_COMMIT_SHA
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: SUPABASE_URL
+              value: http://supabase-envoy.supabase.svc.cluster.local:8000
+            - name: SUPABASE_PUBLISHABLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: SUPABASE_PUBLISHABLE_KEY
+            - name: SUPABASE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: SUPABASE_SECRET_KEY
+            - name: SUPABASE_STORAGE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: SUPABASE_STORAGE_SECRET_KEY
+                  optional: true
+            - name: MEDIA_HOST
+              value: 127.0.0.1
+            - name: MEDIA_PORT
+              value: "5174"
+            - name: MEDIA_ALLOWED_ORIGINS
+              value: https://REPLACE_WITH_APP_HOSTNAME
+            - name: PAYMENTS_HOST
+              value: 127.0.0.1
+            - name: PAYMENTS_PORT
+              value: "5175"
+            - name: PAYMENTS_SITE_URL
+              value: https://REPLACE_WITH_APP_HOSTNAME
+            - name: PAYMENTS_CALLBACK_URL
+              value: https://REPLACE_WITH_APP_HOSTNAME
+            - name: PAYHERE_MODE
+              value: sandbox
+            - name: PAYHERE_MERCHANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: PAYHERE_MERCHANT_ID
+                  optional: true
+            - name: PAYHERE_MERCHANT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: PAYHERE_MERCHANT_SECRET
+                  optional: true
+            - name: PAYHERE_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: PAYHERE_APP_ID
+                  optional: true
+            - name: PAYHERE_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: PAYHERE_APP_SECRET
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
