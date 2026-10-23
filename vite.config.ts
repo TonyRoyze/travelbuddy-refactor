@@ -13,7 +13,10 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    proxy: { "/profile-media": "http://127.0.0.1:5174" },
+    proxy: {
+      "/profile-media": "http://127.0.0.1:5174",
+      "/payments-api": "http://127.0.0.1:5175",
+    },
   },
   build: { outDir: "dist" },
 });

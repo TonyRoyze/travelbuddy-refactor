@@ -1,0 +1,46 @@
+name: Build and publish container
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required repository variables
+        env:
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+        run: |
+          test -n "$SUPABASE_PUBLISHABLE_KEY" || { echo "Set repository variable SUPABASE_PUBLISHABLE_KEY."; exit 1; }
+          test -n "$PUBLIC_SITE_URL" || { echo "Set repository variable PUBLIC_SITE_URL to the app's final HTTPS origin."; exit 1; }
+
+      - name: Set image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.image.outputs.name }}:${{ github.sha }}
+          build-args: |
+            VITE_SUPABASE_URL=https://supabase.shalinda.com
+            VITE_SUPABASE_PUBLISHABLE_KEY=${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+            PUBLIC_SITE_URL=${{ vars.PUBLIC_SITE_URL }}

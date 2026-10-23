@@ -1,3 +1,4 @@
+import { useMoney } from "@/features/currency/currency-provider";
 import {
   Card,
   CardHeader,
@@ -6,6 +7,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { useRef, useState } from "react";
+import { BookingPolicy } from "@/features/bookings/policy";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -17,8 +19,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
+import { useLiveNowUpdates } from "@/lib/live-now";
 import { rpc } from "@/lib/supabase";
-import { today, money, type Selection } from "@/lib/validation";
+import { today, type Selection } from "@/lib/validation";
 import type { Availability } from "./types";
 import { useSession } from "@/features/auth/session";
 import { VideoMedia } from "./media";
@@ -35,6 +38,7 @@ import { useCart } from "@/features/bookings/cart-provider";
 import { CartStorageNotice } from "@/features/bookings/cart-page";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Problem, Loading } from "@/components/feedback";
+import { Badge } from "@/components/ui/badge";
 export function ExperiencePage({
   id,
   initial,
@@ -42,6 +46,8 @@ export function ExperiencePage({
   id: string;
   initial: Selection & { item?: string };
 }) {
+  useLiveNowUpdates();
+  const money = useMoney();
   const detail = useQuery(packageQuery(id));
   const [selection, setSelection] = useState<Selection>(() => ({
     ...initial,
@@ -177,6 +183,7 @@ export function ExperiencePage({
                 p.supplier
               )}
             </span>
+            {p.liveNow && <Badge variant="secondary">Live now</Badge>}
           </p>
         </div>
       </div>
@@ -196,6 +203,10 @@ export function ExperiencePage({
               </span>
             )}
           </div>
+          <section>
+            <h2>Cancellation &amp; payment</h2>
+            <BookingPolicy experience={p} date={date} time={time} />
+          </section>
           {!!p.videoIds?.length && (
             <section>
               <h2>A glimpse of the experience</h2>
@@ -263,7 +274,13 @@ export function ExperiencePage({
         <Card className="row-start-1 self-start lg:sticky lg:top-24 lg:row-auto">
           <CardHeader>
             <p>
-              From <strong>{money(p.options[option]?.price ?? p.price)}</strong>{" "}
+              From{" "}
+              <strong>
+                {money(
+                  p.options[option]?.price ?? p.price,
+                  p.currency ?? "LKR",
+                )}
+              </strong>{" "}
               / person
             </p>
             <CardTitle>Choose your date and travelers</CardTitle>

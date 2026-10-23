@@ -50,7 +50,7 @@ const examples = [
     point: "Ella railway station entrance",
     lat: 6.8753,
     lng: 81.0463,
-    price: 28,
+    price: 9300,
     time: "07:00",
     description:
       "An easy morning walk through tea country, followed by a Sri Lankan village breakfast.",
@@ -69,7 +69,7 @@ const examples = [
     point: "Ella railway station entrance",
     lat: 6.8753,
     lng: 81.0463,
-    price: 24,
+    price: 8000,
     time: "09:00",
     description:
       "Explore Ella’s green hills, hear railway stories and pause for a cup of local tea.",
@@ -82,7 +82,7 @@ const examples = [
     point: "Galle Face Green, near the Galle Face Hotel entrance",
     lat: 6.9203,
     lng: 79.8449,
-    price: 32,
+    price: 10600,
     time: "17:00",
     description:
       "Discover local snacks and everyday food stories on an easy evening walk.",
@@ -101,7 +101,7 @@ const examples = [
     point: "Galle Face Green, near the Galle Face Hotel entrance",
     lat: 6.9203,
     lng: 79.8449,
-    price: 18,
+    price: 6000,
     time: "16:30",
     description:
       "A relaxed seafront stroll with local stories and time to enjoy the sunset.",
@@ -114,7 +114,7 @@ const examples = [
     point: "Galle Fort clock tower",
     lat: 6.0309,
     lng: 80.2151,
-    price: 26,
+    price: 8600,
     time: "08:30",
     description:
       "Walk the fort’s lanes and ramparts, discover coastal stories and stop for tea.",
@@ -133,7 +133,7 @@ const examples = [
     point: "Kandy Lake, Queen’s Hotel side",
     lat: 7.2931,
     lng: 80.6403,
-    price: 22,
+    price: 7300,
     time: "09:00",
     description:
       "Meet by the lake for city stories, a market visit and a taste of everyday Kandy.",
@@ -163,6 +163,7 @@ for (const [index, e] of examples.entries()) {
     category: e.category,
     image: photo,
     gallery: [photo],
+    currency: "LKR",
     price: e.price,
     rating: 0,
     reviews: 0,

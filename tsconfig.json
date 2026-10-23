@@ -20,6 +20,7 @@
     "src",
     "vite.config.ts",
     "services/profile-media",
+    "services/payments",
     "scripts/dev.ts"
   ]
 }

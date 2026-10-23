@@ -1,3 +1,4 @@
+import { useMoney } from "@/features/currency/currency-provider";
 import { Link } from "@tanstack/react-router";
 import { MapPin, Star, Check } from "lucide-react";
 import {
@@ -8,7 +9,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { money } from "@/lib/validation";
+import { Badge } from "@/components/ui/badge";
 import type { Experience } from "./types";
 import { Media } from "./media";
 export function ExperienceCard({
@@ -18,6 +19,7 @@ export function ExperienceCard({
   experience: Experience;
   date?: string;
 }) {
+  const money = useMoney();
   return (
     <Card variant="plain" className="gap-0 overflow-visible">
       <Link
@@ -37,6 +39,7 @@ export function ExperienceCard({
           <MapPin className="size-3.5 shrink-0" />
           {p.destination}
           <span>· {p.category}</span>
+          {p.liveNow && <Badge variant="secondary">Live now</Badge>}
         </CardDescription>
         <CardTitle>
           <Link
@@ -61,7 +64,7 @@ export function ExperienceCard({
         <p className="text-sm">
           From{" "}
           <strong className="text-xl font-semibold md:text-2xl">
-            {money(p.price)}
+            {money(p.price, p.currency ?? "LKR")}
           </strong>
           <span className="text-muted-foreground"> / person</span>
         </p>

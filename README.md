@@ -1,6 +1,6 @@
 # TravelBuddy
 
-A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is also preserved under [`legacy/`](legacy/) so both apps can be run from this branch.
+A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is preserved under [`legacy/`](legacy/) for reference and inventory compatibility checks. Use the Vite app for LKR pricing, payments and traveler currency preferences; the archived UI assumes USD.
 
 ## Run locally
 
@@ -12,10 +12,26 @@ cp .env.example .env.local
 # Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.
 cp .env.media.example .env.media.local
 # Set server-only Supabase credentials for profile uploads.
+# Optional online payments: configure .env.payments.local from .env.payments.example.
 pnpm dev
 ```
 
 Open http://localhost:5173. The legacy Next.js app can run independently on port 3000; see [`docs/development-guide.md`](docs/development-guide.md). Browser sessions and the original app's HttpOnly cookies are separate; both map to the same Auth identities and application accounts.
+
+Local development uses `.env.local` and `.env.media.local`, both pointed at the local Docker Supabase gateway on `http://localhost:8000`. Keep these separate from deployment settings. For a manual production image build, copy `.env.deploy.example` to `.env.deploy`, fill in the public publishable key and final HTTPS app origin, then run:
+
+```sh
+set -a
+. ./.env.deploy
+set +a
+docker build \
+  --build-arg "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" \
+  --build-arg "VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY" \
+  --build-arg "PUBLIC_SITE_URL=$PUBLIC_SITE_URL" \
+  -t ghcr.io/tonyroyze/travelbuddy-refactor:manual .
+```
+
+The GitHub Actions workflow instead reads `SUPABASE_PUBLISHABLE_KEY` and `PUBLIC_SITE_URL` from repository variables; the Supabase server-only key belongs in the Kubernetes `travelbuddy-runtime` Secret, never in either env file or the image.
 
 ## Database and API setup
 
@@ -47,7 +63,7 @@ Use TanStack Query for remote data and React state for local interactions. New r
 
 ## Features in this milestone
 
-Email registration/login/recovery, configured social login, Traveller/Buddy onboarding, package search/details, live availability, a persistent account-specific cart, multi-item checkout, booking history/cancellation, and private package conversations. Book Now selects today's nearest future slot in Asia/Colombo time, falling forward when needed. Checkout prices and capacity are checked in the database, with the same package locks and idempotency fingerprints used by the old server. Chat retains the booking selection and cart edit context and does not reserve inventory. Cart entries can be edited or removed; editing replaces the original entry. Checkout refreshes prices and checks the combined demand for entries sharing a slot before review, then confirms the full cart atomically. Confirmation lists every booking in the order. Inbox queries poll every five seconds while visible.
+Email registration/login/recovery, configured social login, Traveller/Buddy onboarding, package search/details, Live Now availability, a persistent account-specific cart, multi-item checkout, traveler booking history with status filters and cancellation, and private package conversations. Book Now selects today's nearest future slot in Asia/Colombo time, falling forward when needed. Cart entries can be edited or removed; editing replaces the original entry. Checkout refreshes prices and checks capacity in the database before confirming all bookings in the order. Booking history uses the account-scoped bookings RPC and shows upcoming, completed, and cancelled reservations. Chat retains the booking selection and cart edit context and does not reserve inventory. Confirmation lists every booking in the order. Inbox queries poll every five seconds while visible.
 
 Live provider discovery is available at `/nearby`: choose a town, switch between map and list, and chat with online hosts. Buddy/Guide accounts can enable accepting requests and save meeting-point pins from Account. See [live discovery setup and verification](docs/nearby-live-providers.md).
 
@@ -55,7 +71,9 @@ Account/profile editing, photo uploads, Buddy/Guide introduction videos, and pub
 
 Buddies now have a dedicated dashboard, profile and complete package editor with media, schedules, publishing and reserved-place protection. See [Buddy package management](docs/buddy-package-editor.md).
 
-No payment collection is implemented. Public request creation/replies, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
+LKR PayHere checkout, verified payment notifications, hold expiry and cancellation refund tracking are implemented. Travelers can save a display-currency preference and see approximate conversions using dated daily rates; settlement remains in LKR. Enable merchant credentials and public callbacks before accepting online payments; optional pay-on-arrival packages work without a gateway. Buddies have a booking/chat dashboard at `/account/dashboard`. Public destination links include generated Facebook preview metadata. See [payment, provider dashboard and destination-link setup](docs/vidura-marketplace-features.md).
+
+Public request creation/replies, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
 
 ## Validation
 

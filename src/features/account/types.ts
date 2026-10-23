@@ -6,6 +6,7 @@ export interface Account {
   roles: ("traveler" | "provider" | "guide" | "admin")[];
   onboarding: "pending" | "completed";
   revision: number;
+  liveNow: boolean;
   avatarMediaId: string | null;
   profileVideoIds: string[];
   profileDetails: ProfileDetails;
@@ -16,6 +17,9 @@ export interface BuddyProfile {
   displayName: string;
   avatarMediaId: string | null;
   profileVideoIds: string[];
-  profileDetails: Omit<ProfileDetails, "interests" | "travelStyle">;
+  profileDetails: Omit<
+    ProfileDetails,
+    "interests" | "travelStyle" | "displayCurrency"
+  >;
   packages: import("@/features/catalog/types").Experience[];
 }

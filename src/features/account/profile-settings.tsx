@@ -1,3 +1,8 @@
+import { currencies, type DisplayCurrency } from "@/features/currency/model";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import { useState, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -289,6 +294,34 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
               </>
             ) : (
               <>
+                <Field>
+                  <FieldLabel htmlFor="profile-currency">
+                    Display currency
+                  </FieldLabel>
+                  <NativeSelect
+                    id="profile-currency"
+                    value={draft.profileDetails.displayCurrency}
+                    onChange={(event) =>
+                      detail(
+                        "displayCurrency",
+                        event.target.value as DisplayCurrency,
+                      )
+                    }
+                    disabled={save.isPending}
+                  >
+                    {currencies.map((currency) => (
+                      <NativeSelectOption key={currency} value={currency}>
+                        {currency}
+                        {currency === "LKR" ? " — Sri Lankan rupee" : ""}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                  <p className="text-xs text-muted-foreground">
+                    Conversions are approximate and use the latest available
+                    daily rate. Payments are always charged in LKR; your bank’s
+                    rate and fees may differ.
+                  </p>
+                </Field>
                 <Field>
                   <FieldLabel htmlFor="profile-interests">Interests</FieldLabel>
                   <Input

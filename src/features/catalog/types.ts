@@ -1,4 +1,5 @@
 export interface Experience {
+  currency?: string;
   id: string;
   title: string;
   destination: string;
@@ -11,6 +12,7 @@ export interface Experience {
   price: number;
   duration: string;
   freeCancellation: boolean;
+  payLater?: boolean;
   description: string;
   supplier: string;
   languages: string[];
@@ -19,6 +21,7 @@ export interface Experience {
   notIncluded: string[];
   meetingPoint: string;
   canChat?: boolean;
+  liveNow?: boolean;
   providerId?: string | null;
   options: {
     name: string;

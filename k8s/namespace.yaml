@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: travelbuddy
+  labels:
+    app.kubernetes.io/part-of: travelbuddy
+    app.kubernetes.io/component: vite-app

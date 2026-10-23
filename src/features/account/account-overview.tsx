@@ -13,7 +13,8 @@ import {
 import type { Account } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { ProviderControls } from "@/features/nearby/provider-controls";
-import { supabase } from "@/lib/supabase";
+import { broadcastLiveNowChange } from "@/lib/live-now";
+import { rpc, supabase } from "@/lib/supabase";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -84,6 +85,12 @@ export function AccountOverview({ account: a }: { account: Account }) {
   ];
   const links = buddy
     ? [
+        {
+          to: "/account/dashboard" as const,
+          icon: CalendarDays,
+          label: "Bookings & conversations",
+          description: "Guest reservations, arrivals and your traveler inbox",
+        },
         {
           to: "/account/packages" as const,
           icon: Package,
@@ -190,6 +197,18 @@ export function AccountOverview({ account: a }: { account: Account }) {
           {buddy && (
             <Card>
               <CardContent>
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b pb-5">
+                  <div>
+                    <h2 className="font-semibold">Live Now availability</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Let travellers know when you’re available right now.
+                    </p>
+                    <p className="mt-2 text-sm" role="status">
+                      Currently {a.liveNow ? "live" : "offline"}
+                    </p>
+                  </div>
+                  <LiveNowButton liveNow={a.liveNow} />
+                </div>
                 <ProviderControls />
               </CardContent>
             </Card>
@@ -197,5 +216,34 @@ export function AccountOverview({ account: a }: { account: Account }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function LiveNowButton({ liveNow }: { liveNow: boolean }) {
+  const client = useQueryClient();
+  const toggle = useMutation({
+    mutationFn: () => rpc("set_live_now", { live_now: !liveNow }),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["account"] }),
+        client.invalidateQueries({ queryKey: ["catalog"] }),
+        client.invalidateQueries({ queryKey: ["package"] }),
+      ]);
+      broadcastLiveNowChange();
+    },
+  });
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <Button
+        type="button"
+        variant={liveNow ? "default" : "outline"}
+        aria-pressed={liveNow}
+        disabled={toggle.isPending}
+        onClick={() => toggle.mutate()}
+      >
+        {toggle.isPending ? "Updating…" : liveNow ? "Go Offline" : "Go Live"}
+      </Button>
+      {toggle.error && <Problem error={toggle.error} />}
+    </div>
   );
 }
