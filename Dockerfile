@@ -29,6 +29,7 @@ COPY --from=build --chown=app:app /app/package.json /app/pnpm-lock.yaml ./
 COPY --from=build --chown=app:app /app/dist ./dist
 COPY --from=build --chown=app:app /app/services ./services
 COPY --from=build --chown=app:app /app/src/types ./src/types
+COPY --from=build --chown=app:app /app/src/features/currency/model.ts ./src/features/currency/model.ts
 USER app
 EXPOSE 8080
 CMD ["node", "services/runtime/server.mjs"]
