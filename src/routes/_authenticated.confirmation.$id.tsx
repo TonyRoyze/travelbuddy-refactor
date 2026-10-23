@@ -9,7 +9,6 @@ function Page() {
   return (
     <BookingsPage
       id={Route.useParams().id}
-      orderId={Route.useSearch().orderId}
       confirmation={true}
     />
   );
