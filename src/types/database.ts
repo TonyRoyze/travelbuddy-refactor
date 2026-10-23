@@ -45,6 +45,7 @@ export type Database = {
       buddy_packages: { Args: never; Returns: Json }
       buddy_profile: { Args: { profile_id: string }; Returns: Json }
       cancel_booking: { Args: { booking_id: string }; Returns: Json }
+      cart: { Args: never; Returns: Json }
       catalog: { Args: { filters?: Json }; Returns: Json }
       checkout: { Args: { input: Json }; Returns: Json }
       claim_payment_refund: { Args: never; Returns: Json }
