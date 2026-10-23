@@ -85,6 +85,8 @@ export type Database = {
       provider_dashboard: { Args: { filters?: Json }; Returns: Json }
       provider_discovery: { Args: never; Returns: Json }
       provider_heartbeat: { Args: never; Returns: Json }
+      review_dashboard: { Args: never; Returns: Json }
+      experience_reviews: { Args: { package_id: string }; Returns: Json }
       save_buddy_package: {
         Args: { input: Json; package_id?: string }
         Returns: Json
@@ -109,6 +111,10 @@ export type Database = {
         Returns: Json
       }
       start_chat: { Args: { package_id: string }; Returns: string }
+      submit_review: {
+        Args: { booking_id: string; body: string; rating: number }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
