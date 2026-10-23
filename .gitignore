@@ -5,6 +5,7 @@ dist/
 !.env.example
 !.env.media.example
 !.env.payments.example
+!.env.deploy.example
 *.tsbuildinfo
 playwright-report/
 test-results/

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: travelbuddy
+  namespace: travelbuddy
+  labels:
+    app.kubernetes.io/name: travelbuddy
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: travelbuddy
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
