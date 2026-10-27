@@ -1,5 +1,7 @@
 # TravelBuddy
 
+[![Code quality](https://github.com/tonyroyze/travelbuddy-refactor/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/tonyroyze/travelbuddy-refactor/actions/workflows/quality.yml)
+
 A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is preserved under [`legacy/`](legacy/) for reference and inventory compatibility checks. Use the Vite app for LKR pricing, payments and traveler currency preferences; the archived UI assumes USD.
 
 ## Run locally
@@ -100,3 +102,7 @@ The cart is stored in this browser, separately for each signed-in user. Checkout
 Apply the additive `booking_chat_eligibility` migration with `pnpm db:migrate` when local Supabase is running. It aligns `canChat` with active, completed provider/guide eligibility and disables self-chat. Existing private function ownership and restricted grants are retained.
 
 See the [Phase 1 feature audit (F001–F014)](docs/phase-one-feature-audit.md) for current status, restored legacy gaps, verification commands and payment limitations.
+
+## Automated code quality checks
+
+The [Code quality workflow](https://github.com/tonyroyze/travelbuddy-refactor/actions/workflows/quality.yml) runs typecheck, lint, unit tests with coverage, and a production build on pull requests targeting `main` and again after pushes to `main`. Each run shows statement, branch, function, and line coverage in its summary; the detailed coverage files are kept as an artifact for 14 days. Coverage is reported as a trend and does not currently enforce a percentage threshold. Configure the `Typecheck, lint, tests and build` check as a required status check in GitHub branch protection to prevent merging when it fails.
