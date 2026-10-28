@@ -23,6 +23,7 @@ export default ts.config(
         console: "readonly",
         URL: "readonly",
         fetch: "readonly",
+        setTimeout: "readonly",
       },
     },
   },

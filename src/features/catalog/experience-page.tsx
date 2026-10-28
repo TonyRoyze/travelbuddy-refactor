@@ -28,16 +28,13 @@ import { VideoMedia } from "./media";
 import { PhotoGallery } from "./photo-gallery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { addDays } from "./selection";
 import { useCart } from "@/features/bookings/cart-provider";
 import { CartStorageNotice } from "@/features/bookings/cart-page";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Problem, Loading } from "@/components/feedback";
+import { Problem, Loading } from "@/components/custom-ui/feedback";
 import { Badge } from "@/components/ui/badge";
 export function ExperiencePage({
   id,
@@ -289,23 +286,18 @@ export function ExperiencePage({
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="option">Experience option</FieldLabel>
-                <NativeSelect
+                <SelectCombobox
                   id="option"
-                  value={option}
-                  onChange={(e) =>
+                  value={String(option)}
+                  onValueChange={(value) =>
                     setSelection({
                       ...selection,
-                      option: Number(e.target.value),
+                      option: Number(value),
                       time: undefined,
                     })
                   }
-                >
-                  {p.options.map((o, i) => (
-                    <NativeSelectOption key={i} value={i}>
-                      {o.name}
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
+                  options={p.options.map((o, i) => ({ value: String(i), label: o.name }))}
+                />
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field>
@@ -350,24 +342,18 @@ export function ExperiencePage({
                 <FieldLabel htmlFor="time">
                   Start time · Sri Lanka time
                 </FieldLabel>
-                <NativeSelect
+                <SelectCombobox
                   id="time"
                   value={time ?? ""}
-                  onChange={(e) =>
-                    setSelection({ ...selection, time: e.target.value })
+                  placeholder={availability.isPending ? "Checking times…" : "Choose a time"}
+                  onValueChange={(value) =>
+                    setSelection({ ...selection, time: value })
                   }
-                >
-                  <NativeSelectOption value="" disabled>
-                    {availability.isPending
-                      ? "Checking times…"
-                      : "Choose a time"}
-                  </NativeSelectOption>
-                  {slots.map((s) => (
-                    <NativeSelectOption key={s.time} value={s.time}>
-                      {s.time} · {s.remaining} places left
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
+                  options={slots.map((s) => ({
+                    value: s.time,
+                    label: `${s.time} · ${s.remaining} places left`,
+                  }))}
+                />
               </Field>
             </FieldGroup>
             {availability.error && <Problem error={availability.error} />}

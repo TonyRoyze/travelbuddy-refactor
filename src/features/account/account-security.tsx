@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { accountQuery } from "@/lib/queries";
 import { SignOutButton } from "./account-overview";
-import { Loading, Problem } from "@/components/feedback";
+import { Loading, Problem } from "@/components/custom-ui/feedback";
 import { buttonVariants } from "@/components/ui/button";
 export function AccountSecurityPage() {
   const query = useQuery(accountQuery());

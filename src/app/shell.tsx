@@ -17,7 +17,7 @@ import { accountQuery } from "@/lib/queries";
 import { buttonVariants } from "@/components/ui/button";
 import { useCart } from "@/features/bookings/cart-provider";
 import { ProviderHeartbeat } from "@/features/nearby/provider-heartbeat";
-import { ProfileAvatar } from "@/features/account/profile-avatar";
+import Avatar04 from "@/components/custom-ui/avatar-04";
 import { cn } from "@/lib/utils";
 const items = [
   { to: "/", label: "Home", icon: Home },
@@ -83,7 +83,7 @@ export function Shell() {
         Skip to content
       </a>
       <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-14 max-w-[1280px] items-center justify-between gap-3 px-4 md:min-h-16 md:px-8 xl:px-10">
+        <div className="mx-auto flex min-h-14 max-w-7xl items-center justify-between gap-3 px-4 md:min-h-16 md:px-8 xl:px-10">
           <Brand />
           {!focused && (
             <nav
@@ -120,33 +120,29 @@ export function Shell() {
               <Link
                 to="/cart"
                 aria-label={`Cart, ${cart.length} experiences`}
-                className={buttonVariants({ variant: "ghost" })}
+                className={buttonVariants({ variant: "ghost", size: "icon" })}
               >
-                <ShoppingBag data-icon="inline-start" />
-                <span>{cart.length || "Cart"}</span>
+                <ShoppingBag aria-hidden="true" />
               </Link>
               <Link
                 to={session ? "/account" : "/login"}
                 search={{}}
                 aria-label={account?.displayName ?? "Sign in"}
                 className={cn(
-                  buttonVariants({ variant: "secondary" }),
+                  buttonVariants({ variant: "ghost" }),
                   "gap-2",
                 )}
               >
                 {account ? (
-                  <ProfileAvatar
+                  <Avatar04
                     name={account.displayName}
                     mediaId={account.avatarMediaId}
-                    className="size-8 text-xs"
+                    subtitle="Account"
                   />
                 ) : (
                   <UserRound data-icon="inline-start" />
                 )}
-                <span className="hidden sm:inline">
-                  {account?.displayName.split(" ")[0] ??
-                    (session ? "Account" : "Sign in")}
-                </span>
+                {!account && <span>{session ? "Account" : "Sign in"}</span>}
               </Link>
             </div>
           )}
@@ -157,9 +153,9 @@ export function Shell() {
         className={cn(
           "min-h-[65vh]",
           pathname === "/login"
-            ? "mx-auto max-w-[1440px] px-4 py-4 md:px-6 md:py-6"
+            ? "mx-auto max-w-360 px-4 py-4 md:px-6 md:py-6"
             : pathname !== "/" &&
-                "mx-auto max-w-[1280px] px-4 py-8 md:px-8 md:py-10 xl:px-10",
+                "mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10 xl:px-10",
         )}
       >
         <CurrencyNotice />
@@ -168,7 +164,7 @@ export function Shell() {
       </main>
       {!auth && (
         <footer className="mt-12 border-t bg-secondary md:mt-24">
-          <div className="mx-auto grid max-w-[1280px] gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-16 md:px-8 md:py-14 xl:px-10">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-16 md:px-8 md:py-14 xl:px-10">
             <div className="flex flex-col gap-5">
               <Brand />
               <h2>

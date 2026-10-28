@@ -28,7 +28,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Problem, Loading, NoResults } from "@/components/feedback";
+import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function CheckoutPage({

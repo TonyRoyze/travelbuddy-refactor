@@ -23,7 +23,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Problem } from "@/components/feedback";
+import { Problem } from "@/components/custom-ui/feedback";
 export function SignOutButton() {
   const client = useQueryClient(),
     navigate = useNavigate();

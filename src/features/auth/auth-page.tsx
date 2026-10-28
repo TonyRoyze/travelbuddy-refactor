@@ -5,6 +5,7 @@ import type { Provider } from "@supabase/supabase-js";
 import { Apple, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { safeReturn } from "@/lib/validation";
+import { authCallbackUrl } from "./oauth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -16,7 +17,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Problem } from "@/components/feedback";
+import { Problem } from "@/components/custom-ui/feedback";
+import { LoginForm } from "@/components/sections/login-form";
 export function AuthPage({
   mode,
   returnTo = "/",
@@ -55,8 +57,7 @@ export function AuthPage({
     try {
       if (mode === "recover") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo:
-            location.origin + "/auth/callback?returnTo=/reset-password",
+          redirectTo: authCallbackUrl(location.origin, "/reset-password"),
         });
         if (error) throw error;
         setNotice("Check your email for a password reset link.");
@@ -70,10 +71,7 @@ export function AuthPage({
           email,
           password,
           options: {
-            emailRedirectTo:
-              location.origin +
-              "/auth/callback?returnTo=" +
-              encodeURIComponent(target),
+            emailRedirectTo: authCallbackUrl(location.origin, target),
           },
         });
         if (error) throw error;
@@ -107,10 +105,7 @@ export function AuthPage({
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo:
-            location.origin +
-            "/auth/callback?returnTo=" +
-            encodeURIComponent(target),
+          redirectTo: authCallbackUrl(location.origin, target),
         },
       });
       if (error) throw error;
@@ -132,7 +127,9 @@ export function AuthPage({
     ).filter((provider) => providers.data?.external[provider]);
 
     return (
-      <div className="mx-auto grid min-h-[min(820px,calc(100dvh-8rem))] max-w-[1440px] overflow-hidden rounded-[1.5rem] border border-border bg-background shadow-sm md:grid-cols-[1.2fr_1fr]">
+      <LoginForm
+        className="min-h-[min(820px,calc(100dvh-8rem))]"
+        aside={
         <section className="relative isolate flex min-h-52 flex-col justify-end overflow-hidden bg-hero px-6 py-7 text-hero-foreground sm:min-h-60 sm:px-9 sm:py-9 md:min-h-[min(820px,calc(100dvh-8rem))] md:px-12 md:py-12">
           <img
             src="https://images.unsplash.com/photo-1711100358840-ce6fd71c31b3?auto=format&fit=crop&w=1600&q=90"
@@ -159,7 +156,8 @@ export function AuthPage({
             TravelBuddy · Your next story starts here.
           </p>
         </section>
-
+        }
+      >
         <section className="flex items-center justify-center px-6 py-10 sm:px-10 md:px-12 lg:px-16">
           <div className="w-full max-w-[430px]">
             <p className="mb-4 text-sm font-semibold tracking-[0.08em] text-primary">
@@ -203,7 +201,8 @@ export function AuthPage({
                     className="rounded-lg bg-destructive/10 px-4 py-3 text-sm leading-relaxed text-destructive"
                     role="alert"
                   >
-                    <p>Sign-in is temporarily unavailable. Please try again.</p>
+                    <p>Sign-in could not be started. Please try again.</p>
+                    {error !== undefined && <Problem error={error} />}
                     {lastProvider && (
                       <Button
                         type="button"
@@ -289,7 +288,7 @@ export function AuthPage({
             </p>
           </div>
         </section>
-      </div>
+      </LoginForm>
     );
   }
 

@@ -24,10 +24,7 @@ import { destinationSlug } from "./destination-links";
 import { ExperienceCard } from "./experience-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Card,
@@ -39,7 +36,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Problem, Loading, NoResults } from "@/components/feedback";
+import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 const categories = [
   { name: "Tours & sightseeing", label: "Tours", icon: Landmark },
   { name: "Food & drink", label: "Food & drink", icon: Utensils },
@@ -377,22 +374,21 @@ export function CatalogPage({
                 <FieldGroup>
                   <Field>
                     <FieldLabel htmlFor="category">Category</FieldLabel>
-                    <NativeSelect
+                    <SelectCombobox
                       id="category"
                       name="category"
                       defaultValue={parsed.category}
-                    >
-                      <NativeSelectOption value="">
-                        All experiences
-                      </NativeSelectOption>
-                      {[
+                      placeholder="All experiences"
+                      options={[
+                        "",
                         ...categories.map((c) => c.name),
                         "Cultural experiences",
                         "Outdoor activities",
-                      ].map((c) => (
-                        <NativeSelectOption key={c}>{c}</NativeSelectOption>
-                      ))}
-                    </NativeSelect>
+                      ].map((category) => ({
+                        value: category,
+                        label: category || "All experiences",
+                      }))}
+                    />
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="destination">Destination</FieldLabel>
@@ -416,21 +412,17 @@ export function CatalogPage({
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="duration">Duration</FieldLabel>
-                    <NativeSelect
+                    <SelectCombobox
                       id="duration"
                       name="duration"
                       defaultValue={parsed.duration ?? ""}
-                    >
-                      <NativeSelectOption value="">
-                        Any duration
-                      </NativeSelectOption>
-                      <NativeSelectOption value="short">
-                        Up to 4 hours
-                      </NativeSelectOption>
-                      <NativeSelectOption value="long">
-                        More than 4 hours
-                      </NativeSelectOption>
-                    </NativeSelect>
+                      placeholder="Any duration"
+                      options={[
+                        { value: "", label: "Any duration" },
+                        { value: "short", label: "Up to 4 hours" },
+                        { value: "long", label: "More than 4 hours" },
+                      ]}
+                    />
                   </Field>
                   <Separator />
                   <Field>
@@ -455,21 +447,16 @@ export function CatalogPage({
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="sort">Sort by</FieldLabel>
-                    <NativeSelect
+                    <SelectCombobox
                       id="sort"
                       name="sort"
                       defaultValue={parsed.sort}
-                    >
-                      <NativeSelectOption value="recommended">
-                        Recommended
-                      </NativeSelectOption>
-                      <NativeSelectOption value="price-low">
-                        Lowest price
-                      </NativeSelectOption>
-                      <NativeSelectOption value="rating">
-                        Highest rated
-                      </NativeSelectOption>
-                    </NativeSelect>
+                      options={[
+                        { value: "recommended", label: "Recommended" },
+                        { value: "price-low", label: "Lowest price" },
+                        { value: "rating", label: "Highest rated" },
+                      ]}
+                    />
                   </Field>
                   <Field orientation="horizontal">
                     <Checkbox

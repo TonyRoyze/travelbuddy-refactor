@@ -1,7 +1,7 @@
 import { createRootRouteWithContext } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { Shell } from "@/app/shell";
-import { Problem, NoResults } from "@/components/feedback";
+import { Problem, NoResults } from "@/components/custom-ui/feedback";
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     component: Shell,

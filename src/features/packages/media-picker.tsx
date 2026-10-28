@@ -1,9 +1,11 @@
-import { useId, useState } from "react";
-import FileUpload from "@/components/file-upload";
+import { useEffect, useId, useRef, useState } from "react";
+import { createSwapy } from "swapy";
+import FileUpload from "@/components/custom-ui/file-upload";
 import { supabase } from "@/lib/supabase";
 import { Media, VideoMedia } from "@/features/catalog/media";
 import { Button } from "@/components/ui/button";
-import { Problem } from "@/components/feedback";
+import { DeleteButton } from "@/components/custom-ui/delete-button";
+import { Problem } from "@/components/custom-ui/feedback";
 import { mediaUrl } from "./model";
 export function PackageMediaPicker({
   kind,
@@ -18,11 +20,30 @@ export function PackageMediaPicker({
   onBusyChange: (busy: boolean) => void;
   disabled: boolean;
 }) {
-  const id = useId(),
-    [files, setFiles] = useState<File[]>([]),
-    [busy, setBusy] = useState(false),
-    [progress, setProgress] = useState(0),
-    [error, setError] = useState<unknown>();
+  const id = useId();
+  const [files, setFiles] = useState<File[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<unknown>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const onChangeRef = useRef(onChange);
+  const idsKey = ids.join("\u0000");
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+  useEffect(() => {
+    if (kind !== "photo" || !idsKey.includes("\u0000") || !containerRef.current) return;
+    const swapy = createSwapy(containerRef.current, {
+      manualSwap: true,
+      swapMode: "drop",
+      enabled: !disabled && !busy,
+    });
+    swapy.onSwap((event) => {
+      onChangeRef.current(event.newSlotItemMap.asArray.map(({ item }) => item));
+    });
+    return () => swapy.destroy();
+  }, [kind, idsKey, disabled, busy]);
+
   const limit = kind === "photo" ? 6 : 3;
   const validate = (file: File) => {
     if (
@@ -89,58 +110,77 @@ export function PackageMediaPicker({
   }
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        {ids.map((ref, index) => (
-          <div key={ref} className="flex flex-col gap-2 rounded-lg border p-3">
-            {kind === "video" ? (
-              <VideoMedia id={ref} title={`Package video ${index + 1}`} />
-            ) : (
-              <Media
-                src={ref.includes("/") ? ref : mediaUrl(ref)}
-                alt={
-                  index === 0 ? "Package cover" : `Package photo ${index + 1}`
-                }
-                className="aspect-video w-full rounded-lg object-cover"
-              />
-            )}
-            <p className="text-sm">
-              {kind === "photo"
-                ? index === 0
-                  ? "Cover photo"
-                  : `Photo ${index + 1}`
-                : `Clip ${index + 1}`}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={disabled || busy}
-                onClick={() => onChange(ids.filter((_, i) => i !== index))}
-              >
-                Remove {kind} {index + 1}
-              </Button>
-              {index > 0 && (
+      {kind === "photo" && ids.length > 1 && (
+        <p className="text-sm text-muted-foreground">Drag photos to change their order.</p>
+      )}
+      <div
+        ref={containerRef}
+        className="grid gap-4 sm:grid-cols-2"
+      >
+        {ids.map((ref, index) => {
+          const card = (
+            <div className="relative flex h-full flex-col gap-2 rounded-lg border p-3">
+              {kind === "video" ? (
+                <>
+                  <DeleteButton
+                    data-swapy-no-drag
+                    className="absolute right-5 top-5 z-10"
+                    disabled={disabled || busy}
+                    onConfirm={() => onChange(ids.filter((_, i) => i !== index))}
+                  />
+                  <VideoMedia id={ref} title={`Package video ${index + 1}`} />
+                </>
+              ) : (
+                <div className="relative">
+                  <Media
+                    src={ref.includes("/") ? ref : mediaUrl(ref)}
+                    alt={index === 0 ? "Package cover" : `Package photo ${index + 1}`}
+                    className="aspect-video w-full rounded-lg object-cover"
+                  />
+                  {index === 0 && (
+                    <span className="absolute left-3 top-3 z-10 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm">
+                      Cover photo
+                    </span>
+                  )}
+                  <DeleteButton
+                    data-swapy-no-drag
+                    className="absolute right-3 top-3 z-10"
+                    disabled={disabled || busy}
+                    onConfirm={() => onChange(ids.filter((_, i) => i !== index))}
+                  />
+                </div>
+              )}
+              {(kind === "video" || index > 0) && (
+                <p className="text-sm">
+                  {kind === "video" ? `Clip ${index + 1}` : `Photo ${index + 1}`}
+                </p>
+              )}
+              {kind === "video" && index > 0 && (
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
+                  data-swapy-no-drag
                   disabled={disabled || busy}
                   onClick={() => {
                     const next = [...ids];
-                    [next[index - 1], next[index]] = [
-                      next[index],
-                      next[index - 1],
-                    ];
+                    [next[index - 1], next[index]] = [next[index], next[index - 1]];
                     onChange(next);
                   }}
                 >
-                  Move {kind} {index + 1} earlier
+                  Move clip {index + 1} earlier
                 </Button>
               )}
             </div>
-          </div>
-        ))}
+          );
+
+          if (kind === "video") return <div key={ref}>{card}</div>;
+          return (
+            <div key={`slot-${index}`} data-swapy-slot={`slot-${index}`}>
+              <div data-swapy-item={ref}>{card}</div>
+            </div>
+          );
+        })}
       </div>
       <FileUpload
         id={id}

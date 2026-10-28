@@ -14,7 +14,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loading, NoResults } from "@/components/feedback";
+import { Loading, NoResults } from "@/components/custom-ui/feedback";
 import { useCart } from "./cart-provider";
 import { BookingPolicy } from "./policy";
 import {

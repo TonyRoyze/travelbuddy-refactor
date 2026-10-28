@@ -11,7 +11,7 @@ import { money as settlementMoney } from "@/lib/validation";
 import { Media } from "@/features/catalog/media";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Problem, Loading, NoResults } from "@/components/feedback";
+import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 import type { Booking } from "./types";
 
 type HistoryFilter = "all" | "upcoming" | "completed" | "cancelled";

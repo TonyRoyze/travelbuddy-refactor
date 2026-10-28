@@ -8,10 +8,7 @@ import type { Conversation } from "@/features/messaging/types";
 import { BuddyGate } from "@/features/packages/buddy-gate";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field";
 import {
   Card,
@@ -21,7 +18,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loading, Problem, NoResults } from "@/components/feedback";
+import { Loading, Problem, NoResults } from "@/components/custom-ui/feedback";
 
 interface Dashboard {
   items: Booking[];
@@ -125,17 +122,12 @@ function DashboardContent() {
                       <FieldLabel htmlFor="booking-status">
                         Booking status
                       </FieldLabel>
-                      <NativeSelect
+                      <SelectCombobox
                         id="booking-status"
                         name="status"
                         defaultValue={filters.status}
-                      >
-                        {["All", "Upcoming", "Completed", "Cancelled"].map(
-                          (s) => (
-                            <NativeSelectOption key={s}>{s}</NativeSelectOption>
-                          ),
-                        )}
-                      </NativeSelect>
+                        options={["All", "Upcoming", "Completed", "Cancelled"].map((s) => ({ value: s, label: s }))}
+                      />
                     </Field>
                     <Field>
                       <FieldLabel htmlFor="booking-date">

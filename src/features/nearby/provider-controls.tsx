@@ -16,12 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { Badge } from "@/components/ui/badge";
-import { Problem, Loading, NoResults } from "@/components/feedback";
+import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 export function ProviderControls() {
   const { session } = useSession();
   const discovery = useQuery(providerDiscoveryQuery());
@@ -103,18 +100,15 @@ export function ProviderControls() {
             <FieldLabel htmlFor="provider-package">
               Experience meeting point
             </FieldLabel>
-            <NativeSelect
+            <SelectCombobox
               id="provider-package"
               value={pack.id}
-              onChange={(event) => setSelected(event.target.value)}
-            >
-              {discovery.data.packages.map((pack) => (
-                <NativeSelectOption key={pack.id} value={pack.id}>
-                  {pack.title}
-                  {pack.published ? "" : " (unpublished)"}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+              onValueChange={setSelected}
+              options={discovery.data.packages.map((pack) => ({
+                value: pack.id,
+                label: `${pack.title}${pack.published ? "" : " (unpublished)"}`,
+              }))}
+            />
           </Field>
           <LocationEditor key={pack.id} pack={pack} />
         </>

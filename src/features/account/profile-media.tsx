@@ -6,7 +6,7 @@ import type { Account } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { VideoMedia } from "@/features/catalog/media";
 import { Button } from "@/components/ui/button";
-import FileUpload from "@/components/file-upload";
+import FileUpload from "@/components/custom-ui/file-upload";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Card,
@@ -15,7 +15,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Problem } from "@/components/feedback";
+import { Problem } from "@/components/custom-ui/feedback";
 export function ProfileMedia({
   account,
   kind,

@@ -7,12 +7,9 @@ import { AccountOverview, SignOutButton } from "./account-overview";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Problem, Loading } from "@/components/feedback";
+import { Problem, Loading } from "@/components/custom-ui/feedback";
 export function AccountPage({
   onboarding = false,
   returnTo = "/",
@@ -65,14 +62,15 @@ export function AccountPage({
           </Field>
           <Field>
             <FieldLabel htmlFor="type">I’m joining as a</FieldLabel>
-            <NativeSelect id="type" name="type">
-              <NativeSelectOption value="traveler">
-                Traveller — explore and book
-              </NativeSelectOption>
-              <NativeSelectOption value="buddy">
-                Buddy — host local experiences
-              </NativeSelectOption>
-            </NativeSelect>
+            <SelectCombobox
+              id="type"
+              name="type"
+              defaultValue="traveler"
+              options={[
+                { value: "traveler", label: "Traveller — explore and book" },
+                { value: "buddy", label: "Buddy — host local experiences" },
+              ]}
+            />
           </Field>
           <Field orientation="horizontal">
             <Checkbox id="accept" required />
