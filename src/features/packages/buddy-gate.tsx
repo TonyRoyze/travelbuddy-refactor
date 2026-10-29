@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { accountQuery } from "@/lib/queries";
-import { Loading, Problem, NoResults } from "@/components/feedback";
+import { Loading, Problem, NoResults } from "@/components/custom-ui/feedback";
 import { Link } from "@tanstack/react-router";
 export function BuddyGate({ children }: { children: ReactNode }) {
   const account = useQuery(accountQuery());

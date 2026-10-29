@@ -15,20 +15,38 @@ import { BuddyGate } from "./buddy-gate";
 import { EditorField, EditorSection } from "./fields";
 import { PackageMediaPicker } from "./media-picker";
 import { ScheduleEditor } from "./schedule-editor";
+import { TimeListField } from "./time-list-field";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { DeleteButton } from "@/components/custom-ui/delete-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+  Combobox,
+  ComboboxContent,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 import { Badge } from "@/components/ui/badge";
-import { Loading, Problem } from "@/components/feedback";
+import { Save } from "lucide-react";
+import { Loading, Problem } from "@/components/custom-ui/feedback";
 export function BuddyPackageEditor({ id }: { id?: string }) {
   return (
     <BuddyGate>{id ? <LoadEditor id={id} /> : <Editor key="new" />}</BuddyGate>
   );
 }
+
+const packageCategories = [
+  "Tours & sightseeing",
+  "Food & drink",
+  "Tickets & passes",
+  "Day trips",
+  "Wildlife",
+  "Cruises & sailing",
+  "Cultural experiences",
+  "Outdoor activities",
+];
+
 function LoadEditor({ id }: { id: string }) {
   const query = useQuery(buddyPackageQuery(id));
   if (query.isPending) return <Loading />;
@@ -166,10 +184,6 @@ function Editor({ saved }: { saved?: EditorPackage }) {
             stop.
           </p>
         </div>
-        <Badge variant={published ? "default" : "secondary"}>
-          {published ? "Published" : "Draft"}
-          {dirty ? " · Unsaved changes" : ""}
-        </Badge>
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
         <form
@@ -185,6 +199,25 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               id="package-story"
               title="The experience"
               description="Start with the place, the people and what you’ll do together."
+              status={
+                <Badge variant={published ? "default" : "secondary"}>
+                  {published ? "Published" : "Draft"}
+                  {dirty ? " · Unsaved changes" : ""}
+                </Badge>
+              }
+              action={
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  size="icon"
+                  className="h-12 w-12 rounded-2xl bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  disabled={blocked}
+                  aria-label={save.isPending ? "Saving changes" : "Save changes"}
+                  title={save.isPending ? "Saving…" : "Save changes"}
+                >
+                  <Save aria-hidden="true" />
+                </Button>
+              }
             >
               <EditorField
                 label="Package title"
@@ -208,40 +241,34 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                 />
                 <Field>
                   <FieldLabel htmlFor="package-category">Category</FieldLabel>
-                  <NativeSelect
-                    id="package-category"
+                  <Combobox
+                    items={[
+                      ...new Set([
+                        ...packageCategories,
+                        ...(input.category ? [input.category] : []),
+                      ]),
+                    ]}
                     value={input.category}
-                    onChange={(event) => change("category", event.target.value)}
+                    onValueChange={(value) => {
+                      if (typeof value === "string") change("category", value);
+                    }}
                   >
-                    {![
-                      "Tours & sightseeing",
-                      "Food & drink",
-                      "Tickets & passes",
-                      "Day trips",
-                      "Wildlife",
-                      "Cruises & sailing",
-                      "Cultural experiences",
-                      "Outdoor activities",
-                    ].includes(input.category) && (
-                      <NativeSelectOption value={input.category}>
-                        {input.category || "Choose a category"}
-                      </NativeSelectOption>
-                    )}
-                    {[
-                      "Tours & sightseeing",
-                      "Food & drink",
-                      "Tickets & passes",
-                      "Day trips",
-                      "Wildlife",
-                      "Cruises & sailing",
-                      "Cultural experiences",
-                      "Outdoor activities",
-                    ].map((value) => (
-                      <NativeSelectOption key={value} value={value}>
-                        {value}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
+                    <ComboboxInput
+                      id="package-category"
+                      aria-label="Category"
+                      placeholder="Choose a category"
+                      className="w-full"
+                    />
+                    <ComboboxContent>
+                      <ComboboxList>
+                        {(item) => (
+                          <ComboboxItem key={item} value={item}>
+                            {item}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                 </Field>
                 <EditorField
                   label="Duration in minutes"
@@ -298,8 +325,19 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               {input.options.map((option, index) => (
                 <div
                   key={index}
-                  className="flex flex-col gap-4 rounded-lg border p-4"
+                  className="relative flex flex-col gap-4 rounded-lg border p-4"
                 >
+                  {input.options.length > 1 && (
+                    <DeleteButton
+                      className="absolute right-4 top-4 z-10"
+                      onConfirm={() =>
+                        change(
+                          "options",
+                          input.options.filter((_, i) => i !== index),
+                        )
+                      }
+                    />
+                  )}
                   <h3>Option {index + 1}</h3>
                   <EditorField
                     label={`Option ${index + 1} name`}
@@ -331,28 +369,13 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                       }
                     />
                   </FieldGroup>
-                  <EditorField
+                  <TimeListField
                     label={`Option ${index + 1} start times`}
-                    value={option.times.join(",")}
-                    description="24-hour clock, separated by commas. Example: 09:00,14:00"
-                    onChange={(v) =>
-                      updateOption(index, { times: v.split(",") })
+                    times={option.times}
+                    onChange={(times) =>
+                      updateOption(index, { times })
                     }
                   />
-                  {input.options.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() =>
-                        change(
-                          "options",
-                          input.options.filter((_, i) => i !== index),
-                        )
-                      }
-                    >
-                      Remove option {index + 1}
-                    </Button>
-                  )}
                 </div>
               ))}
               {input.options.length < 8 && (
@@ -450,8 +473,17 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               {input.itinerary.map((stop, index) => (
                 <div
                   key={index}
-                  className="flex flex-col gap-4 rounded-lg border p-4"
+                  className="relative flex flex-col gap-4 rounded-lg border p-4"
                 >
+                  <DeleteButton
+                    className="absolute right-4 top-4 z-10"
+                    onConfirm={() =>
+                      change(
+                        "itinerary",
+                        input.itinerary.filter((_, i) => i !== index),
+                      )
+                    }
+                  />
                   <h3>Stop {index + 1}</h3>
                   <EditorField
                     label={`Stop ${index + 1} time or duration`}
@@ -493,18 +525,6 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                       )
                     }
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() =>
-                      change(
-                        "itinerary",
-                        input.itinerary.filter((_, i) => i !== index),
-                      )
-                    }
-                  >
-                    Remove stop {index + 1}
-                  </Button>
                 </div>
               ))}
               {input.itinerary.length < 20 && (
@@ -523,7 +543,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               )}
             </EditorSection>
           </fieldset>
-          <div className="mt-6 flex flex-col gap-4 rounded-xl border bg-card p-4">
+          <div className="mt-4 flex flex-col gap-3 rounded-xl border bg-card p-3">
             <p className="text-sm" role="status">
               {blocked
                 ? "Wait for saving and uploads to finish…"
@@ -548,13 +568,6 @@ function Editor({ saved }: { saved?: EditorPackage }) {
             )}
             {notice && <p role="status">{notice}</p>}
             <div className="flex flex-wrap gap-3">
-              <Button type="submit" variant="outline" disabled={blocked}>
-                {save.isPending
-                  ? "Saving…"
-                  : published
-                    ? "Save changes"
-                    : "Save draft"}
-              </Button>
               <Button
                 type="button"
                 disabled={blocked}

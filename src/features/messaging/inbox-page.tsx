@@ -26,7 +26,7 @@ import {
   MessageScrollerItem,
   MessageScrollerButton,
 } from "@/components/ui/message-scroller";
-import { Problem, Loading, NoResults } from "@/components/feedback";
+import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 export function InboxPage({
   conversation,
   packageId,

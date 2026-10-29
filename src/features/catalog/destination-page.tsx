@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CatalogPage } from "./catalog-page";
 import { destinationFromSlug, destinationMetadata } from "./destination-links";
-import { NoResults } from "@/components/feedback";
+import { NoResults } from "@/components/custom-ui/feedback";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
 export function DestinationPage({ slug }: { slug: string }) {

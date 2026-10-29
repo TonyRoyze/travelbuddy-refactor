@@ -16,7 +16,7 @@ Deno.serve(async(request:Request)=>{
   const storage=createClient(url,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false}})
   const {data,error:signError}=await storage.storage.from('buddy-media').createSignedUrl(path,300)
   if(signError||!data)throw new Error('Signing failed')
-  const signed=new URL(data.signedUrl);const publicUrl=new URL(Deno.env.get('SUPABASE_PUBLIC_URL')!);signed.protocol=publicUrl.protocol;signed.host=publicUrl.host
+  const signed=new URL(data.signedUrl);const publicUrl=new URL(Deno.env.get('SUPABASE_PUBLIC_URL')!);signed.protocol=publicUrl.protocol;signed.host=publicUrl.host;signed.port=publicUrl.port
   return Response.json({url:signed.toString()},{headers})
  }catch{return Response.json({error:'Media temporarily unavailable'},{status:503,headers})}
 })

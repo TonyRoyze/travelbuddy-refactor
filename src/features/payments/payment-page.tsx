@@ -15,7 +15,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loading, Problem } from "@/components/feedback";
+import { Loading, Problem } from "@/components/custom-ui/feedback";
 interface PaymentOrder {
   id: string;
   method: "online" | "pay_later";

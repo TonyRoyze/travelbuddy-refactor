@@ -1,8 +1,5 @@
 import { currencies, type DisplayCurrency } from "@/features/currency/model";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { useState, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -29,7 +26,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Loading, Problem } from "@/components/feedback";
+import { Loading, Problem } from "@/components/custom-ui/feedback";
 export function ProfileSettingsPage() {
   const account = useQuery(accountQuery());
   if (account.isPending) return <Loading />;
@@ -298,24 +295,21 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
                   <FieldLabel htmlFor="profile-currency">
                     Display currency
                   </FieldLabel>
-                  <NativeSelect
+                  <SelectCombobox
                     id="profile-currency"
                     value={draft.profileDetails.displayCurrency}
-                    onChange={(event) =>
+                    onValueChange={(value) =>
                       detail(
                         "displayCurrency",
-                        event.target.value as DisplayCurrency,
+                        value as DisplayCurrency,
                       )
                     }
                     disabled={save.isPending}
-                  >
-                    {currencies.map((currency) => (
-                      <NativeSelectOption key={currency} value={currency}>
-                        {currency}
-                        {currency === "LKR" ? " — Sri Lankan rupee" : ""}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
+                    options={currencies.map((currency) => ({
+                      value: currency,
+                      label: `${currency}${currency === "LKR" ? " — Sri Lankan rupee" : ""}`,
+                    }))}
+                  />
                   <p className="text-xs text-muted-foreground">
                     Conversions are approximate and use the latest available
                     daily rate. Payments are always charged in LKR; your bank’s

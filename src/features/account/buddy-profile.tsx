@@ -9,7 +9,7 @@ import type { BuddyProfile } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { VideoMedia } from "@/features/catalog/media";
 import { ExperienceCard } from "@/features/catalog/experience-card";
-import { Loading, NoResults, Problem } from "@/components/feedback";
+import { Loading, NoResults, Problem } from "@/components/custom-ui/feedback";
 import { Button } from "@/components/ui/button";
 export function BuddyProfilePage({ id }: { id: string }) {
   const { session } = useSession();

@@ -15,7 +15,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Loading, Problem, NoResults } from "@/components/feedback";
+import { Loading, Problem, NoResults } from "@/components/custom-ui/feedback";
 export function BuddyPackagesPage() {
   return (
     <BuddyGate>

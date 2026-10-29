@@ -11,14 +11,11 @@ import type { LiveExperience } from "./types";
 import { cn } from "@/lib/utils";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
-import { Problem, Loading, NoResults } from "@/components/feedback";
+import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 export function NearbyPage({ filters }: { filters: NearbySearch }) {
   const navigate = useNavigate();
   const areas = useQuery(areasQuery());
@@ -65,34 +62,27 @@ export function NearbyPage({ filters }: { filters: NearbySearch }) {
       <div className="flex flex-wrap items-end justify-between gap-4 rounded-xl border bg-card p-4 md:p-5">
         <Field className="min-w-56 flex-1 sm:max-w-sm">
           <FieldLabel htmlFor="nearby-area">Town or area</FieldLabel>
-          <NativeSelect
+          <SelectCombobox
             id="nearby-area"
             value={filters.area}
-            onChange={(event) =>
+            placeholder="Choose a town or area"
+            options={[
+              ...(filters.area && !towns.includes(filters.area)
+                ? [{ value: filters.area, label: filters.area }]
+                : []),
+              ...towns.map((area) => ({ value: area, label: area })),
+            ]}
+            onValueChange={(area) =>
               void navigate({
                 to: "/nearby",
                 search: {
                   ...filters,
-                  area: event.target.value,
+                  area,
                   selected: undefined,
                 },
               })
             }
-          >
-            <NativeSelectOption value="">
-              Choose a town or area
-            </NativeSelectOption>
-            {filters.area && !towns.includes(filters.area) && (
-              <NativeSelectOption value={filters.area}>
-                {filters.area}
-              </NativeSelectOption>
-            )}
-            {towns.map((area) => (
-              <NativeSelectOption key={area} value={area}>
-                {area}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          />
         </Field>
         <ToggleGroup
           value={[filters.view]}
