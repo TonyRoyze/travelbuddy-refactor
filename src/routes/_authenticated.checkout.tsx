@@ -19,7 +19,8 @@ export const Route = createFileRoute("/_authenticated/checkout")({
 });
 function Page() {
   const search = Route.useSearch();
-  if ("cart" in search) return <CheckoutPage key="cart" cart={true} />;
+  if ("cart" in search)
+    return <CheckoutPage key="cart" {...selectionSchema.parse({})} />;
   return (
     <CheckoutPage
       key={JSON.stringify(search)}
