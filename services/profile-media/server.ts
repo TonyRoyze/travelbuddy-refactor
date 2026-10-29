@@ -1,13 +1,14 @@
 import { createServer } from "node:http";
 import { loadEnvFile } from "node:process";
 import { existsSync } from "node:fs";
-import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { mkdtemp, writeFile, readFile, stat, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { createClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 import type { Database } from "../../src/types/database";
 if (existsSync(".env.media.local")) loadEnvFile(".env.media.local");
 const url = process.env.SUPABASE_URL,
@@ -87,6 +88,14 @@ const server = createServer(
         auth: { persistSession: false, autoRefreshToken: false },
       });
       const verified = await client.auth.getUser(authorization.slice(7));
+      if (
+        verified.error &&
+        (!verified.error.status || verified.error.status >= 500)
+      )
+        throw new UploadError(
+          "Sign-in verification is temporarily unavailable. Please try again.",
+          503,
+        );
       if (verified.error || !verified.data.user)
         throw new UploadError("Sign in before uploading.", 401);
       const account = await client.rpc("account");
@@ -159,8 +168,9 @@ const server = createServer(
         chunks.push(chunk);
       }
       if (!size) throw new UploadError("Choose a non-empty file.");
-      const bytes = Buffer.concat(chunks),
-        dir = await mkdtemp(join(tmpdir(), "tb-profile-media-"));
+      let bytes = Buffer.concat(chunks),
+        savedMime = mime;
+      const dir = await mkdtemp(join(tmpdir(), "tb-profile-media-"));
       let duration: number | null = null;
       try {
         const path = join(dir, "upload." + extensions[mime]);
@@ -216,6 +226,30 @@ const server = createServer(
             throw new UploadError(
               "The photo contents do not match its file type.",
             );
+          const output = join(dir, "converted.webp");
+          try {
+            await sharp(path, {
+              limitInputPixels: 4096 * 4096,
+              failOn: "warning",
+            })
+              .rotate()
+              .webp({ quality: 82, effort: 4 })
+              .timeout({ seconds: 20 })
+              .toFile(output);
+          } catch {
+            throw new UploadError(
+              "This photo could not be converted. Choose another JPEG, PNG or WebP photo.",
+            );
+          }
+          const convertedSize = (await stat(output)).size;
+          if (!convertedSize || convertedSize > max)
+            throw new UploadError(
+              "The converted photo is too large. Choose a smaller photo.",
+              413,
+            );
+          bytes = await readFile(output);
+          size = bytes.length;
+          savedMime = "image/webp";
         } else {
           duration = Number(probe.format?.duration);
           const format = mime === "video/mp4" ? /mp4/ : /webm/;
@@ -233,16 +267,16 @@ const server = createServer(
         await rm(dir, { recursive: true, force: true });
       }
       const id = randomUUID();
-      storagePath = `${a.id}/${id}.${extensions[mime]}`;
+      storagePath = `${a.id}/${id}.${extensions[savedMime]}`;
       const uploaded = await storage.storage
         .from("buddy-media")
-        .upload(storagePath, bytes, { contentType: mime, upsert: false });
+        .upload(storagePath, bytes, { contentType: savedMime, upsert: false });
       if (uploaded.error)
         throw new UploadError("Upload failed. Please try again.", 503);
       const metadata = {
         id,
         path: storagePath,
-        mimeType: mime,
+        mimeType: savedMime,
         bytes: size,
         duration,
       };
