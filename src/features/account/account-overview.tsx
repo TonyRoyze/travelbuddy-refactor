@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   UserRound,
   Package,
+  Star,
 } from "lucide-react";
 import type { Account } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
@@ -69,6 +70,12 @@ export function AccountOverview({ account: a }: { account: Account }) {
       icon: MessageCircle,
       label: "Your inbox",
       description: "Conversations with local hosts and travelers",
+    },
+    {
+      to: "/account/reviews" as const,
+      icon: Star,
+      label: "Your reviews",
+      description: "Review completed experiences and see your feedback",
     },
     {
       to: "/account/settings" as const,

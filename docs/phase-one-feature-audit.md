@@ -51,3 +51,14 @@ Live discovery uses bounded polling and expiring presence, not WebSocket push. C
 ## 22 October extension
 
 The five additional Vidura items are covered in [marketplace features and verification](vidura-marketplace-features.md): payments, cancellation/pay-later information, package management, provider bookings/chat dashboard and Facebook destination deep links. Real local integration/browser checks use signed callback fixtures and intercept the external gateway, so they do not prove real merchant settlement.
+
+## Cluster readiness fixes — 26 October 2026
+
+- Unified the account Go Live control and nearby accepting-requests switch on the heartbeat-backed provider presence record. Account/package live badges and discovery now require an accepting provider with a heartbeat newer than two minutes.
+- Malformed URL escapes now receive HTTP 400 instead of escaping the static server request handler.
+- Added traveler review submission/history and public package review displays using the verified-review API. The database limits review eligibility to completed paid or pay-on-arrival bookings.
+- Added keyset-paginated message history so conversations can load beyond the newest 100 messages without unbounded reads.
+- The image publishing workflow now gates publication on typecheck, lint, unit tests and a production build.
+- Hardened the one-replica k3s manifest with process readiness/startup probes, a non-root read-only container, bounded temp storage, graceful termination and explicit resource requests/limits. See [deployment guidance](deployment.md#single-node-k3s-deployment).
+
+These changes were prepared in the local checkout. Cluster access, public hostname, image registry credentials, live merchant setup and rollout were not available during this change; verify deployment using the staging/sandbox steps in [deployment guidance](deployment.md#single-node-k3s-deployment).

@@ -36,6 +36,7 @@ import { CartStorageNotice } from "@/features/bookings/cart-page";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Problem, Loading } from "@/components/custom-ui/feedback";
 import { Badge } from "@/components/ui/badge";
+import { ExperienceReviews } from "@/features/reviews/reviews";
 export function ExperiencePage({
   id,
   initial,
@@ -267,6 +268,7 @@ export function ExperiencePage({
             <h2>Where you’ll meet</h2>
             <p>{p.meetingPoint}</p>
           </section>
+          <ExperienceReviews packageId={p.id} />
         </div>
         <Card className="row-start-1 self-start lg:sticky lg:top-24 lg:row-auto">
           <CardHeader>

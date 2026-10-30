@@ -257,6 +257,14 @@ export function BookingsPage({
                   </Link>
                 )}
                 <div className="flex flex-wrap gap-3">
+                  {historyMode && b.status === "Completed" && (
+                    <Link
+                      to="/account/reviews"
+                      className="text-primary"
+                    >
+                      Write or manage reviews
+                    </Link>
+                  )}
                   <Button
                     variant="outline"
                     disabled={chat.isPending}

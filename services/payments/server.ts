@@ -118,6 +118,10 @@ const server = createServer(
       res.end(JSON.stringify(data));
     };
     try {
+      if (req.method === "GET" && req.url === "/payments-api/health") {
+        send(200, { ready: true });
+        return;
+      }
       if (req.method === "GET" && req.url === "/payments-api/exchange-rates") {
         try {
           send(200, await exchangeRates());

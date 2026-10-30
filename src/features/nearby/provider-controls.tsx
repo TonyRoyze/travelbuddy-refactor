@@ -5,6 +5,7 @@ import { rpc } from "@/lib/supabase";
 import { useSession } from "@/features/auth/session";
 import { providerDiscoveryQuery, areasQuery } from "./queries";
 import { heartbeatKey, useProviderHeartbeat } from "./provider-heartbeat";
+import { broadcastLiveNowChange } from "@/lib/live-now";
 import { MeetingMap } from "./meeting-map";
 import { meetingPointSchema } from "./model";
 import type {
@@ -35,8 +36,12 @@ export function ProviderControls() {
       })) as unknown as ProviderPresence,
     onSuccess: (status) => {
       client.setQueryData(heartbeatKey(session!.user.id), status);
+      void client.invalidateQueries({ queryKey: ["account"] });
+      void client.invalidateQueries({ queryKey: ["catalog"] });
+      void client.invalidateQueries({ queryKey: ["package"] });
       void client.invalidateQueries({ queryKey: ["provider-discovery"] });
       void client.invalidateQueries({ queryKey: ["nearby-live"] });
+      broadcastLiveNowChange();
     },
   });
   if (discovery.isPending) return <Loading />;

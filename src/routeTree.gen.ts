@@ -28,6 +28,7 @@ import { Route as ExperienceIdRouteImport } from './routes/experience.$id'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated.account.index'
 import { Route as AuthenticatedAccountDashboardRouteImport } from './routes/_authenticated.account.dashboard'
 import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated.account.profile'
+import { Route as AuthenticatedAccountReviewsRouteImport } from './routes/_authenticated.account.reviews'
 import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated.account.security'
 import { Route as AuthenticatedAccountSettingsRouteImport } from './routes/_authenticated.account.settings'
 import { Route as AuthenticatedBookingIdRouteImport } from './routes/_authenticated.booking.$id'
@@ -135,6 +136,12 @@ const AuthenticatedAccountProfileRoute =
     path: '/account/profile',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAccountReviewsRoute =
+  AuthenticatedAccountReviewsRouteImport.update({
+    id: '/account/reviews',
+    path: '/account/reviews',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAccountSecurityRoute =
   AuthenticatedAccountSecurityRouteImport.update({
     id: '/account/security',
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/experience/$id': typeof ExperienceIdRoute
   '/account/dashboard': typeof AuthenticatedAccountDashboardRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/account/reviews': typeof AuthenticatedAccountReviewsRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/account/settings': typeof AuthenticatedAccountSettingsRoute
   '/booking/$id': typeof AuthenticatedBookingIdRoute
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/experience/$id': typeof ExperienceIdRoute
   '/account/dashboard': typeof AuthenticatedAccountDashboardRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/account/reviews': typeof AuthenticatedAccountReviewsRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/account/settings': typeof AuthenticatedAccountSettingsRoute
   '/booking/$id': typeof AuthenticatedBookingIdRoute
@@ -267,6 +276,7 @@ export interface FileRoutesById {
   '/experience/$id': typeof ExperienceIdRoute
   '/_authenticated/account/dashboard': typeof AuthenticatedAccountDashboardRoute
   '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/_authenticated/account/reviews': typeof AuthenticatedAccountReviewsRoute
   '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
   '/_authenticated/account/settings': typeof AuthenticatedAccountSettingsRoute
   '/_authenticated/booking/$id': typeof AuthenticatedBookingIdRoute
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/experience/$id'
     | '/account/dashboard'
     | '/account/profile'
+    | '/account/reviews'
     | '/account/security'
     | '/account/settings'
     | '/booking/$id'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/experience/$id'
     | '/account/dashboard'
     | '/account/profile'
+    | '/account/reviews'
     | '/account/security'
     | '/account/settings'
     | '/booking/$id'
@@ -357,6 +369,7 @@ export interface FileRouteTypes {
     | '/experience/$id'
     | '/_authenticated/account/dashboard'
     | '/_authenticated/account/profile'
+    | '/_authenticated/account/reviews'
     | '/_authenticated/account/security'
     | '/_authenticated/account/settings'
     | '/_authenticated/booking/$id'
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/account/reviews': {
+      id: '/_authenticated/account/reviews'
+      path: '/account/reviews'
+      fullPath: '/account/reviews'
+      preLoaderRoute: typeof AuthenticatedAccountReviewsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/account/security': {
       id: '/_authenticated/account/security'
       path: '/account/security'
@@ -592,6 +612,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedAccountDashboardRoute: typeof AuthenticatedAccountDashboardRoute
   AuthenticatedAccountProfileRoute: typeof AuthenticatedAccountProfileRoute
+  AuthenticatedAccountReviewsRoute: typeof AuthenticatedAccountReviewsRoute
   AuthenticatedAccountSecurityRoute: typeof AuthenticatedAccountSecurityRoute
   AuthenticatedAccountSettingsRoute: typeof AuthenticatedAccountSettingsRoute
   AuthenticatedBookingIdRoute: typeof AuthenticatedBookingIdRoute
@@ -611,6 +632,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedAccountDashboardRoute: AuthenticatedAccountDashboardRoute,
   AuthenticatedAccountProfileRoute: AuthenticatedAccountProfileRoute,
+  AuthenticatedAccountReviewsRoute: AuthenticatedAccountReviewsRoute,
   AuthenticatedAccountSecurityRoute: AuthenticatedAccountSecurityRoute,
   AuthenticatedAccountSettingsRoute: AuthenticatedAccountSettingsRoute,
   AuthenticatedBookingIdRoute: AuthenticatedBookingIdRoute,

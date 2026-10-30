@@ -1,7 +1,7 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, type FormEvent } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useLayoutEffect, useRef, type FormEvent } from "react";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Send, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -49,27 +49,58 @@ export function InboxPage({
     retry: false,
   });
   const active = conversation ?? started.data;
+  const scrollRestore = useRef<{ height: number; top: number } | null>(null);
+  type MessageCursor = { createdAt: string; id: string };
+  type MessagePage = {
+    items: ChatMessage[];
+    hasMore: boolean;
+    nextBefore: MessageCursor | null;
+  };
   const threads = useQuery({
     queryKey: ["conversations"],
     queryFn: async () =>
       (await rpc("conversations", {})) as unknown as Conversation[],
     refetchInterval: 5000,
   });
-  const messages = useQuery({
+  const messages = useInfiniteQuery({
     queryKey: ["messages", active],
     enabled: !!active,
-    queryFn: async () =>
-      (await rpc("messages", {
+    initialPageParam: null as MessageCursor | null,
+    queryFn: async ({ pageParam }): Promise<MessagePage> =>
+      (await rpc("message_page", {
         conversation_id: active!,
-      })) as unknown as ChatMessage[],
+        before_created_at: pageParam?.createdAt ?? null,
+        before_id: pageParam?.id ?? null,
+      })) as unknown as MessagePage,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? (lastPage.nextBefore ?? undefined) : undefined,
+  });
+  const newestMessages = useQuery({
+    queryKey: ["message-head", active],
+    enabled: !!active,
+    queryFn: async (): Promise<MessagePage> =>
+      (await rpc("message_page", {
+        conversation_id: active!,
+        before_created_at: null,
+        before_id: null,
+      })) as unknown as MessagePage,
     refetchInterval: 5000,
   });
+  useEffect(() => {
+    const latest = newestMessages.data;
+    if (!active || !latest) return;
+    client.setQueryData<typeof messages.data>(["messages", active], (current) =>
+      current?.pages.length
+        ? { ...current, pages: [latest, ...current.pages.slice(1)] }
+        : current,
+    );
+  }, [active, newestMessages.data, client]);
   const send = useMutation({
     mutationFn: () =>
       rpc("send_message", { conversation_id: active!, body: body.trim() }),
     onSuccess: () => {
       setBody("");
-      client.invalidateQueries({ queryKey: ["messages", active] });
+      client.invalidateQueries({ queryKey: ["message-head", active] });
       client.invalidateQueries({ queryKey: ["conversations"] });
     },
   });
@@ -78,7 +109,29 @@ export function InboxPage({
     if (body.trim() && active) send.mutate();
   }
   const thread = threads.data?.find((t) => t.id === active);
-  const lastMessage = messages.data?.at(-1)?.id;
+  const lastMessage = newestMessages.data?.items.at(-1)?.id;
+  const pageCount = messages.data?.pages.length ?? 0;
+  const seenMessageIds = new Set<string>();
+  const visibleMessages = messages.data?.pages
+    .slice()
+    .reverse()
+    .flatMap((page) => page.items)
+    .filter((message) => {
+      if (seenMessageIds.has(message.id)) return false;
+      seenMessageIds.add(message.id);
+      return true;
+    });
+  useLayoutEffect(() => {
+    const previous = scrollRestore.current;
+    if (!previous) return;
+    const viewport = document.querySelector<HTMLElement>(
+      '[data-slot="message-scroller-viewport"]',
+    );
+    if (viewport) {
+      viewport.scrollTop = previous.top + viewport.scrollHeight - previous.height;
+    }
+    scrollRestore.current = null;
+  }, [pageCount]);
   useEffect(() => {
     if (!active || !lastMessage) return;
     let visible = true;
@@ -210,15 +263,40 @@ export function InboxPage({
                   defaultScrollPosition="end"
                 >
                   <MessageScroller className="h-[400px] min-h-[300px] max-h-[55vh] flex-1">
+                    {messages.hasNextPage && (
+                      <div className="border-b p-3 text-center">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={messages.isFetchingNextPage}
+                          onClick={() => {
+                            const viewport = document.querySelector<HTMLElement>(
+                              '[data-slot="message-scroller-viewport"]',
+                            );
+                            if (viewport) {
+                              scrollRestore.current = {
+                                height: viewport.scrollHeight,
+                                top: viewport.scrollTop,
+                              };
+                            }
+                            void messages.fetchNextPage();
+                          }}
+                        >
+                          {messages.isFetchingNextPage
+                            ? "Loading older messages…"
+                            : "Load older messages"}
+                        </Button>
+                      </div>
+                    )}
                     <MessageScrollerViewport>
                       <MessageScrollerContent className="p-5">
-                        {messages.data.length === 0 ? (
+                        {!visibleMessages?.length ? (
                           <NoResults
                             title="Meet your host"
                             description="Ask about the experience, meeting point, or what to bring."
                           />
                         ) : (
-                          messages.data.map((m) => (
+                          visibleMessages?.map((m) => (
                             <MessageScrollerItem key={m.id}>
                               <Message
                                 align={
