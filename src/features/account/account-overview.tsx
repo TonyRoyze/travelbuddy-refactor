@@ -21,7 +21,6 @@ import { rpc, supabase } from "@/lib/supabase";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
-  CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
