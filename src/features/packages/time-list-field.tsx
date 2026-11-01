@@ -1,5 +1,6 @@
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DeleteButton } from "@/components/custom-ui/delete-button";
+import { TrashIcon } from "@/components/custom-ui/trash-icon";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { TimePicker12 } from "@/components/custom-ui/time-picker";
 
@@ -36,31 +37,43 @@ export function TimeListField({
                 value={time}
                 disabled={disabled}
                 onChange={(next) =>
-                  onChange(times.map((current, i) => (i === index ? next : current)))
+                  onChange(
+                    times.map((current, i) => (i === index ? next : current)),
+                  )
                 }
               />
               {(times.length > 1 || optional) && (
-                <DeleteButton
-                  className="mb-1"
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  aria-label={`Remove ${time} start time from ${label}`}
                   disabled={disabled}
-                  onConfirm={() => onChange(times.filter((_, i) => i !== index))}
-                />
+                  onClick={() => onChange(times.filter((_, i) => i !== index))}
+                >
+                  <TrashIcon aria-hidden="true" />
+                </Button>
               )}
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">Using the usual start times.</p>
+        <p className="text-sm text-muted-foreground">
+          Using the usual start times.
+        </p>
       )}
       {times.length < 24 && (
         <Button
           type="button"
           variant="outline"
           size="sm"
+          className="size-11 self-start p-0 md:w-auto md:px-3"
+          aria-label={`Add start time to ${label}`}
           disabled={disabled}
           onClick={() => onChange([...times, nextTime(times)])}
         >
-          Add start time
+          <Plus aria-hidden="true" className="md:hidden" />
+          <span className="hidden md:inline">Add</span>
         </Button>
       )}
     </Field>

@@ -51,6 +51,15 @@ export function Shell() {
       ? { ...item, to: "/account/dashboard" as const, label: "Dashboard" }
       : item,
   );
+  const mobileNavigation = [
+    ...navigation,
+    { to: "/cart" as const, label: "Cart", icon: ShoppingBag },
+    {
+      to: session ? ("/account" as const) : ("/login" as const),
+      label: session ? "Profile" : "Sign in",
+      icon: UserRound,
+    },
+  ];
   const auth = [
     "/login",
     "/register",
@@ -108,30 +117,21 @@ export function Shell() {
               ))}
             </nav>
           )}
-          {focused ? (
-            <Link
-              to="/"
-              className="flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"
-            >
-              Back to home
-            </Link>
-          ) : (
-            <div className="flex items-center gap-2">
+          {!focused && (
+            <div className="hidden items-center gap-2 md:flex">
               <Link
                 to="/cart"
                 aria-label={`Cart, ${cart.length} experiences`}
-                className={buttonVariants({ variant: "ghost", size: "icon" })}
+                className={buttonVariants({ variant: "ghost" })}
               >
-                <ShoppingBag aria-hidden="true" />
+                <ShoppingBag aria-hidden="true" data-icon="inline-start" />
+                <span>Cart</span>
               </Link>
               <Link
                 to={session ? "/account" : "/login"}
                 search={{}}
                 aria-label={account?.displayName ?? "Sign in"}
-                className={cn(
-                  buttonVariants({ variant: "ghost" }),
-                  "gap-2",
-                )}
+                className={cn(buttonVariants({ variant: "ghost" }), "gap-2")}
               >
                 {account ? (
                   <Avatar04
@@ -163,7 +163,7 @@ export function Shell() {
         <Outlet />
       </main>
       {!auth && (
-        <footer className="mt-12 border-t bg-secondary md:mt-24">
+        <footer className="hidden border-t bg-secondary md:mt-24 md:block">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.4fr_1fr] md:items-center md:gap-16 md:px-8 md:py-14 xl:px-10">
             <div className="flex flex-col gap-5">
               <Brand />
@@ -187,20 +187,46 @@ export function Shell() {
       {!focused && (
         <nav
           aria-label="Mobile navigation"
-          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-card/95 px-2 pt-2 pb-[calc(.5rem+env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden"
         >
-          {navigation.map(({ icon: Icon, ...item }) => (
+          {mobileNavigation.map(({ icon: Icon, ...item }) => (
             <Link
               key={item.to}
               to={item.to}
               search={{}}
-              aria-current={active(item.to) ? "page" : undefined}
+              aria-current={
+                (
+                  item.to === "/account"
+                    ? pathname.startsWith("/account") &&
+                      !pathname.startsWith("/account/dashboard")
+                    : active(item.to)
+                )
+                  ? "page"
+                  : undefined
+              }
               className={cn(
-                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg text-xs font-medium",
-                active(item.to) ? "text-primary" : "text-muted-foreground",
+                "flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-lg text-[10px] font-medium",
+                (
+                  item.to === "/account"
+                    ? pathname.startsWith("/account") &&
+                      !pathname.startsWith("/account/dashboard")
+                    : active(item.to)
+                )
+                  ? "text-primary"
+                  : "text-muted-foreground",
               )}
             >
-              <Icon className="size-6" />
+              <span className="relative">
+                <Icon className="size-5" aria-hidden="true" />
+                {item.to === "/cart" && cart.length > 0 && (
+                  <span
+                    className="absolute -right-2 -top-1 rounded-full bg-primary px-1 text-[9px] text-primary-foreground"
+                    aria-label={`${cart.length} experiences`}
+                  >
+                    {cart.length}
+                  </span>
+                )}
+              </span>
               <span>{item.label}</span>
             </Link>
           ))}

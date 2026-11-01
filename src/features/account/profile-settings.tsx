@@ -1,5 +1,8 @@
+import { ExternalLink } from "lucide-react";
 import { currencies, type DisplayCurrency } from "@/features/currency/model";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
+import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
+import { TagsInput } from "@/components/custom-ui/tags-input";
 import { useState, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -13,8 +16,7 @@ import {
 } from "./profile-model";
 import type { Account } from "./types";
 import { ProfileMedia } from "./profile-media";
-import { ProfileAvatar } from "./profile-avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -34,14 +36,14 @@ export function ProfileSettingsPage() {
   return <Settings key={account.data.id} account={account.data} />;
 }
 function Settings({ account }: { account: Account }) {
+  const [bioExpanded, setBioExpanded] = useState(false);
+  const bio = account.profileDetails.bio.trim();
+  const bioIsLong = bio.length > 120;
   const buddy = account.roles.some(
     (role) => role === "provider" || role === "guide",
   );
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-7">
-      <Link to="/account" className="text-primary">
-        Back to your account
-      </Link>
       <div>
         <h1>{buddy ? "Your Buddy profile" : "Make it easier to meet."}</h1>
         <p className="mt-3 text-muted-foreground">
@@ -51,37 +53,49 @@ function Settings({ account }: { account: Account }) {
         </p>
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="flex flex-col gap-5 rounded-xl bg-secondary p-6 lg:sticky lg:top-24">
-          <ProfileAvatar
-            name={account.displayName}
-            mediaId={account.avatarMediaId}
-            className="size-24"
-          />
-          <div>
-            <h2 className="text-xl">{account.displayName}</h2>
-            <p>{buddy ? "Local buddy" : "Traveller"}</p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Your profile helps people understand who they’ll be exploring with.
-            Only share what you’re comfortable sharing.
-          </p>
+        <aside className="relative flex flex-col gap-4 rounded-xl bg-secondary p-5 lg:sticky lg:top-24">
           {buddy && (
             <Link
               to="/buddy/$id"
               params={{ id: account.id }}
-              className="text-primary"
+              aria-label="View public profile"
+              title="View public profile"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "icon",
+                className: "absolute right-2 top-2",
+              })}
             >
-              View public profile
+              <ExternalLink aria-hidden="true" />
             </Link>
+          )}
+          <div className="flex items-center gap-4 pr-5">
+            <ProfileMedia account={account} kind="photo" />
+            <div>
+              <h2 className="text-xl">{account.displayName}</h2>
+              <p>{buddy ? "Local buddy" : "Traveller"}</p>
+            </div>
+          </div>
+          {bio && (
+            <div>
+              <p className={bioIsLong && !bioExpanded ? "line-clamp-3" : ""}>
+                {bio}
+              </p>
+              {bioIsLong && (
+                <Button
+                  type="button"
+                  variant="link"
+                  className="h-auto px-0 py-1"
+                  aria-expanded={bioExpanded}
+                  onClick={() => setBioExpanded((expanded) => !expanded)}
+                >
+                  {bioExpanded ? "View less" : "View more"}
+                </Button>
+              )}
+            </div>
           )}
         </aside>
         <div className="flex flex-col gap-6">
-          {buddy && (
-            <Link to="/account/packages" className="text-primary">
-              Manage your packages →
-            </Link>
-          )}
-          <ProfileMedia account={account} kind="photo" />
           <ProfileForm account={account} buddy={buddy} />
           {buddy && <ProfileMedia account={account} kind="video" />}
           <DisplaySettings />
@@ -100,7 +114,10 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
     signature: profileSignature(account),
     revision: account.revision,
   }));
-  const [notice, setNotice] = useState("");
+  const [savedDraft, setSavedDraft] = useState(() => ({
+    displayName: account.displayName,
+    profileDetails: account.profileDetails,
+  }));
   const [error, setError] = useState<unknown>();
   const save = useMutation({
     mutationFn: async () => {
@@ -120,6 +137,10 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
         displayName: updated.displayName,
         profileDetails: updated.profileDetails,
       });
+      setSavedDraft({
+        displayName: updated.displayName,
+        profileDetails: updated.profileDetails,
+      });
       setBase({
         signature: profileSignature(updated),
         revision: updated.revision,
@@ -127,7 +148,6 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
       void client.invalidateQueries({
         queryKey: ["buddy-profile", account.id],
       });
-      setNotice("Your profile is saved.");
     },
   });
   const detail = <K extends keyof ProfileDetails>(
@@ -140,7 +160,6 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
     }));
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    setNotice("");
     setError(undefined);
     const parsed = profileSchema.safeParse(draft);
     if (!parsed.success) {
@@ -160,7 +179,12 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
       profileDetails: latest.profileDetails,
     });
     setBase({ signature: profileSignature(latest), revision: latest.revision });
-    setNotice("Saved profile reloaded.");
+    const reloaded = {
+      displayName: latest.displayName,
+      profileDetails: latest.profileDetails,
+    };
+    setDraft(reloaded);
+    setSavedDraft(reloaded);
     save.reset();
     setError(undefined);
   };
@@ -229,24 +253,28 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
               <FieldLabel htmlFor="profile-base">
                 {buddy ? "Your local area" : "Where are you based?"}
               </FieldLabel>
-              <Input
+              <LocationAutocomplete
                 id="profile-base"
                 value={draft.profileDetails.homeBase}
-                onChange={(event) => detail("homeBase", event.target.value)}
-                maxLength={120}
+                onValueChange={(value) => detail("homeBase", value)}
                 placeholder="City or region"
                 disabled={save.isPending}
               />
             </Field>
             <Field>
               <FieldLabel htmlFor="profile-languages">Languages</FieldLabel>
-              <Input
+              <TagsInput
                 id="profile-languages"
-                value={draft.profileDetails.languages}
-                onChange={(event) => detail("languages", event.target.value)}
-                maxLength={160}
-                placeholder="For example, English, Sinhala"
+                value={draft.profileDetails.languages
+                  .split(",")
+                  .map((item) => item.trim())
+                  .filter(Boolean)}
+                onChange={(items) => detail("languages", items.join(", "))}
+                maxTags={12}
+                maxTagLength={40}
+                inputLabel="Add a language"
                 disabled={save.isPending}
+                placeholder="For example, English"
               />
             </Field>
             {buddy ? (
@@ -255,15 +283,20 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
                   <FieldLabel htmlFor="profile-specialties">
                     Specialties
                   </FieldLabel>
-                  <Input
+                  <TagsInput
                     id="profile-specialties"
-                    value={draft.profileDetails.specialties}
-                    onChange={(event) =>
-                      detail("specialties", event.target.value)
+                    value={draft.profileDetails.specialties
+                      .split(",")
+                      .map((item) => item.trim())
+                      .filter(Boolean)}
+                    onChange={(items) =>
+                      detail("specialties", items.join(", "))
                     }
-                    maxLength={240}
-                    placeholder="Food, hiking, culture…"
+                    maxTags={12}
+                    maxTagLength={60}
+                    inputLabel="Add a specialty"
                     disabled={save.isPending}
+                    placeholder="Food, hiking, culture…"
                   />
                 </Field>
                 <Field>
@@ -299,10 +332,7 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
                     id="profile-currency"
                     value={draft.profileDetails.displayCurrency}
                     onValueChange={(value) =>
-                      detail(
-                        "displayCurrency",
-                        value as DisplayCurrency,
-                      )
+                      detail("displayCurrency", value as DisplayCurrency)
                     }
                     disabled={save.isPending}
                     options={currencies.map((currency) => ({
@@ -357,8 +387,13 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
               </Button>
             </div>
           )}
-          {notice && <p role="status">{notice}</p>}
-          <Button type="submit" disabled={save.isPending}>
+          <Button
+            type="submit"
+            disabled={
+              save.isPending ||
+              JSON.stringify(draft) === JSON.stringify(savedDraft)
+            }
+          >
             {save.isPending ? "Saving profile…" : "Save profile"}
           </Button>
         </form>

@@ -97,6 +97,10 @@ export type Database = {
         Returns: Json
       }
       search_suggestions: { Args: { query: string }; Returns: Json }
+      send_chat_message: {
+        Args: { body: string; conversation_id: string; files?: Json; package_id?: string }
+        Returns: string
+      }
       send_message: {
         Args: { body: string; conversation_id: string }
         Returns: string

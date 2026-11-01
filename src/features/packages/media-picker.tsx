@@ -1,9 +1,10 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createSwapy } from "swapy";
 import FileUpload from "@/components/custom-ui/file-upload";
 import { supabase } from "@/lib/supabase";
 import { Media, VideoMedia } from "@/features/catalog/media";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { DeleteButton } from "@/components/custom-ui/delete-button";
 import { Problem } from "@/components/custom-ui/feedback";
 import { mediaUrl } from "./model";
@@ -26,23 +27,35 @@ export function PackageMediaPicker({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<unknown>();
   const containerRef = useRef<HTMLDivElement>(null);
+  const swapyRef = useRef<ReturnType<typeof createSwapy> | null>(null);
   const onChangeRef = useRef(onChange);
-  const idsKey = ids.join("\u0000");
+  const canReorder = kind === "photo" && ids.length > 1;
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
   useEffect(() => {
-    if (kind !== "photo" || !idsKey.includes("\u0000") || !containerRef.current) return;
+    if (!canReorder || !containerRef.current) return;
     const swapy = createSwapy(containerRef.current, {
       manualSwap: true,
-      swapMode: "drop",
-      enabled: !disabled && !busy,
+      swapMode: "hover",
+      animation: "spring",
+      autoScrollOnDrag: true,
     });
+    swapyRef.current = swapy;
     swapy.onSwap((event) => {
       onChangeRef.current(event.newSlotItemMap.asArray.map(({ item }) => item));
     });
-    return () => swapy.destroy();
-  }, [kind, idsKey, disabled, busy]);
+    return () => {
+      swapy.destroy();
+      swapyRef.current = null;
+    };
+  }, [canReorder]);
+  useEffect(() => {
+    swapyRef.current?.enable(!disabled && !busy);
+  }, [canReorder, disabled, busy]);
+  useLayoutEffect(() => {
+    swapyRef.current?.update();
+  }, [ids.length]);
 
   const limit = kind === "photo" ? 6 : 3;
   const validate = (file: File) => {
@@ -111,12 +124,11 @@ export function PackageMediaPicker({
   return (
     <div className="flex flex-col gap-4">
       {kind === "photo" && ids.length > 1 && (
-        <p className="text-sm text-muted-foreground">Drag photos to change their order.</p>
+        <p className="text-sm text-muted-foreground">
+          Drag photos to change their order.
+        </p>
       )}
-      <div
-        ref={containerRef}
-        className="grid gap-4 sm:grid-cols-2"
-      >
+      <div ref={containerRef} className="grid gap-4 sm:grid-cols-2">
         {ids.map((ref, index) => {
           const card = (
             <div className="relative flex h-full flex-col gap-2 rounded-lg border p-3">
@@ -126,7 +138,9 @@ export function PackageMediaPicker({
                     data-swapy-no-drag
                     className="absolute right-5 top-5 z-10"
                     disabled={disabled || busy}
-                    onConfirm={() => onChange(ids.filter((_, i) => i !== index))}
+                    onConfirm={() =>
+                      onChange(ids.filter((_, i) => i !== index))
+                    }
                   />
                   <VideoMedia id={ref} title={`Package video ${index + 1}`} />
                 </>
@@ -134,7 +148,11 @@ export function PackageMediaPicker({
                 <div className="relative">
                   <Media
                     src={ref.includes("/") ? ref : mediaUrl(ref)}
-                    alt={index === 0 ? "Package cover" : `Package photo ${index + 1}`}
+                    alt={
+                      index === 0
+                        ? "Package cover"
+                        : `Package photo ${index + 1}`
+                    }
                     className="aspect-video w-full rounded-lg object-cover"
                   />
                   {index === 0 && (
@@ -142,19 +160,22 @@ export function PackageMediaPicker({
                       Cover photo
                     </span>
                   )}
+                  {index > 0 && (
+                    <span className="absolute left-3 top-3 z-10 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm">
+                      Photo {index + 1}
+                    </span>
+                  )}
                   <DeleteButton
                     data-swapy-no-drag
                     className="absolute right-3 top-3 z-10"
                     disabled={disabled || busy}
-                    onConfirm={() => onChange(ids.filter((_, i) => i !== index))}
+                    onConfirm={() =>
+                      onChange(ids.filter((_, i) => i !== index))
+                    }
                   />
                 </div>
               )}
-              {(kind === "video" || index > 0) && (
-                <p className="text-sm">
-                  {kind === "video" ? `Clip ${index + 1}` : `Photo ${index + 1}`}
-                </p>
-              )}
+              {kind === "video" && <p className="text-sm">Clip {index + 1}</p>}
               {kind === "video" && index > 0 && (
                 <Button
                   type="button"
@@ -164,7 +185,10 @@ export function PackageMediaPicker({
                   disabled={disabled || busy}
                   onClick={() => {
                     const next = [...ids];
-                    [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                    [next[index - 1], next[index]] = [
+                      next[index],
+                      next[index - 1],
+                    ];
                     onChange(next);
                   }}
                 >
@@ -177,7 +201,14 @@ export function PackageMediaPicker({
           if (kind === "video") return <div key={ref}>{card}</div>;
           return (
             <div key={`slot-${index}`} data-swapy-slot={`slot-${index}`}>
-              <div data-swapy-item={ref}>{card}</div>
+              <div
+                key={ref}
+                data-swapy-item={ref}
+                onDragStart={(event) => event.preventDefault()}
+                className="relative touch-none select-none rounded-xl transition-[box-shadow,opacity] duration-300 data-[swapy-dragging]:z-10 data-[swapy-dragging]:opacity-95 data-[swapy-dragging]:shadow-2xl data-[swapy-dragging]:ring-2 data-[swapy-dragging]:ring-primary/40"
+              >
+                {card}
+              </div>
             </div>
           );
         })}
@@ -211,7 +242,7 @@ export function PackageMediaPicker({
       />
       {busy && (
         <div>
-          <progress value={progress} max={100} aria-label="Upload progress" />
+          <Progress value={progress} aria-label="Upload progress" />
           <p role="status">
             {progress === 100
               ? "Checking your upload…"

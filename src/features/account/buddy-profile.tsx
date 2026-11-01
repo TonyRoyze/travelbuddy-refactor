@@ -1,9 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { MapPin, MessageCircle } from "lucide-react";
-import { useSession } from "@/features/auth/session";
-import { accountQuery } from "@/lib/queries";
 import { rpc } from "@/lib/supabase";
 import type { BuddyProfile } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
@@ -12,8 +9,6 @@ import { ExperienceCard } from "@/features/catalog/experience-card";
 import { Loading, NoResults, Problem } from "@/components/custom-ui/feedback";
 import { Button } from "@/components/ui/button";
 export function BuddyProfilePage({ id }: { id: string }) {
-  const { session } = useSession();
-  const own = useQuery({ ...accountQuery(), enabled: !!session });
   const valid = z.uuid().safeParse(id).success;
   const query = useQuery({
     queryKey: ["buddy-profile", id],
@@ -51,19 +46,6 @@ export function BuddyProfilePage({ id }: { id: string }) {
     d = p.profileDetails;
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-9">
-      {own.data?.id === id && (
-        <div className="flex flex-wrap gap-4">
-          <Link to="/account/packages" className="text-primary">
-            Manage my packages
-          </Link>
-          <Link to="/account/profile" className="text-primary">
-            Edit Buddy profile
-          </Link>
-        </div>
-      )}
-      <Link to="/nearby" search={{}} className="text-primary">
-        Explore local hosts
-      </Link>
       <div className="flex flex-wrap items-center gap-6">
         <ProfileAvatar
           name={p.displayName}

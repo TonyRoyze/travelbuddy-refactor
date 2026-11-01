@@ -11,7 +11,7 @@ import type { LiveExperience } from "./types";
 import { cn } from "@/lib/utils";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { SelectCombobox } from "@/components/custom-ui/select-combobox";
+import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
@@ -62,17 +62,12 @@ export function NearbyPage({ filters }: { filters: NearbySearch }) {
       <div className="flex flex-wrap items-end justify-between gap-4 rounded-xl border bg-card p-4 md:p-5">
         <Field className="min-w-56 flex-1 sm:max-w-sm">
           <FieldLabel htmlFor="nearby-area">Town or area</FieldLabel>
-          <SelectCombobox
+          <LocationAutocomplete
+            key={filters.area}
             id="nearby-area"
-            value={filters.area}
-            placeholder="Choose a town or area"
-            options={[
-              ...(filters.area && !towns.includes(filters.area)
-                ? [{ value: filters.area, label: filters.area }]
-                : []),
-              ...towns.map((area) => ({ value: area, label: area })),
-            ]}
-            onValueChange={(area) =>
+            defaultValue={filters.area}
+            suggestions={towns}
+            onChoose={(area) =>
               void navigate({
                 to: "/nearby",
                 search: {

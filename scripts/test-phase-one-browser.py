@@ -204,7 +204,7 @@ with sync_playwright() as p:
             )
             == 0
         )
-        visitor.get_by_role("button", name="Back to booking", exact=True).click()
+        visitor.go_back()
         expect(visitor.locator("#date")).to_have_value(future["date"])
         expect(visitor.locator("#travelers")).to_have_value("2")
         expect(

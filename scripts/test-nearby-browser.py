@@ -97,7 +97,7 @@ with sync_playwright() as p:
         visitor.goto(origin + "/nearby?area=" + fixture["area"].replace(" ", "%20") + "&view=list")
         expect(visitor.locator("main article")).to_have_count(2)
         visitor.get_by_role("link", name="Chat with host", exact=True).first.click()
-        expect(visitor.get_by_role("button", name="Back to booking")).to_be_visible()
+        expect(visitor.get_by_role("heading", name="A good trip starts with a hello.")).to_be_visible()
         assert "packageId=" in visitor.url
         # Closing the final provider context stops heartbeat renewal.
         host_context.close()
