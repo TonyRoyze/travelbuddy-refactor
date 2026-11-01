@@ -36,6 +36,7 @@ import { CartStorageNotice } from "@/features/bookings/cart-page";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Problem, Loading } from "@/components/custom-ui/feedback";
 import { Badge } from "@/components/ui/badge";
+import { ExperienceReviews } from "@/features/reviews/reviews";
 export function ExperiencePage({
   id,
   initial,
@@ -134,8 +135,8 @@ export function ExperiencePage({
         ...chosen,
         time,
       });
-      if (checkout || editing)
-        await navigate({ to: checkout ? "/checkout" : "/cart", search: {} });
+      if (checkout) await navigate({ to: "/checkout", search: { cart: true } });
+      else if (editing) await navigate({ to: "/cart", search: {} });
       else
         setCartNotice(
           "Added to your cart. Places are reserved only after checkout confirmation.",
@@ -267,6 +268,7 @@ export function ExperiencePage({
             <h2>Where you’ll meet</h2>
             <p>{p.meetingPoint}</p>
           </section>
+          <ExperienceReviews packageId={p.id} />
         </div>
         <Card className="row-start-1 self-start lg:sticky lg:top-24 lg:row-auto">
           <CardHeader>
@@ -296,7 +298,10 @@ export function ExperiencePage({
                       time: undefined,
                     })
                   }
-                  options={p.options.map((o, i) => ({ value: String(i), label: o.name }))}
+                  options={p.options.map((o, i) => ({
+                    value: String(i),
+                    label: o.name,
+                  }))}
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
@@ -345,7 +350,9 @@ export function ExperiencePage({
                 <SelectCombobox
                   id="time"
                   value={time ?? ""}
-                  placeholder={availability.isPending ? "Checking times…" : "Choose a time"}
+                  placeholder={
+                    availability.isPending ? "Checking times…" : "Choose a time"
+                  }
                   onValueChange={(value) =>
                     setSelection({ ...selection, time: value })
                   }

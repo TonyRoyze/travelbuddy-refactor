@@ -75,7 +75,7 @@ Buddies now have a dedicated dashboard, profile and complete package editor with
 
 LKR PayHere checkout, verified payment notifications, hold expiry and cancellation refund tracking are implemented. Travelers can save a display-currency preference and see approximate conversions using dated daily rates; settlement remains in LKR. Enable merchant credentials and public callbacks before accepting online payments; optional pay-on-arrival packages work without a gateway. Buddies have a booking/chat dashboard at `/account/dashboard`. Public destination links include generated Facebook preview metadata. See [payment, provider dashboard and destination-link setup](docs/vidura-marketplace-features.md).
 
-Public request creation/replies, saved items, reviews, and secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
+Verified reviews are available for completed, paid or pay-on-arrival bookings. Travelers can submit one review per booking, see their submissions, and browse the latest reviews on a package page; the database enforces eligibility and owns the aggregate rating. Public request creation/replies, saved items, and some secondary pages remain deferred. Existing direct/request conversations and package offers are readable. Ownerless catalog entries cannot initiate provider chat.
 
 ## Validation
 

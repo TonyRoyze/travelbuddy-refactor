@@ -20,7 +20,24 @@ function stop(code = 0) {
   stopping = true;
   for (const child of services) child.kill("SIGTERM");
   server.close(() => process.exit(code));
-  setTimeout(() => process.exit(code), 5000).unref();
+  setTimeout(() => process.exit(code), 40000).unref();
+}
+
+function probe(port, path) {
+  return new Promise((resolve) => {
+    const request = httpRequest(
+      { hostname: "127.0.0.1", port, path, method: "GET" },
+      (response) => {
+        response.resume();
+        resolve(
+          (response.statusCode ?? 500) >= 200 &&
+            (response.statusCode ?? 500) < 300,
+        );
+      },
+    );
+    request.setTimeout(1000, () => request.destroy());
+    request.on("error", () => resolve(false));
+  });
 }
 
 for (const child of services) {
@@ -49,10 +66,24 @@ const contentTypes = {
   ".woff2": "font/woff2",
 };
 
-const server = createServer((req, res) => {
+const server = createServer(async (req, res) => {
   const path = new URL(req.url ?? "/", "http://localhost").pathname;
-  if (path === "/healthz") {
-    res.writeHead(200, { "content-type": "text/plain" }).end("ok");
+  if (path === "/livez" || path === "/healthz") {
+    res
+      .writeHead(stopping ? 503 : 200, { "content-type": "text/plain" })
+      .end(stopping ? "stopping" : "ok");
+    return;
+  }
+  if (path === "/readyz") {
+    const ready =
+      !stopping &&
+      (await Promise.all([
+        probe(5174, "/profile-media/health"),
+        probe(5175, "/payments-api/health"),
+      ]).then((results) => results.every(Boolean)));
+    res
+      .writeHead(ready ? 200 : 503, { "content-type": "text/plain" })
+      .end(ready ? "ready" : "starting");
     return;
   }
 
@@ -69,6 +100,7 @@ const server = createServer((req, res) => {
         upstream.pipe(res);
       },
     );
+    proxy.setTimeout(55000, () => proxy.destroy(new Error("Upstream timed out")));
     proxy.on("error", () => {
       if (!res.headersSent) res.writeHead(502);
       res.end("Application service unavailable");
@@ -77,7 +109,14 @@ const server = createServer((req, res) => {
     return;
   }
 
-  let filePath = normalize(join(root, decodeURIComponent(path)));
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(path);
+  } catch {
+    res.writeHead(400).end("Bad request");
+    return;
+  }
+  let filePath = normalize(join(root, decodedPath));
   if (!filePath.startsWith(`${root}/`) && filePath !== root) {
     res.writeHead(400).end("Bad request");
     return;

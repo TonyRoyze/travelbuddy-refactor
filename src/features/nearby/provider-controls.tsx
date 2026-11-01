@@ -5,6 +5,7 @@ import { rpc } from "@/lib/supabase";
 import { useSession } from "@/features/auth/session";
 import { providerDiscoveryQuery, areasQuery } from "./queries";
 import { heartbeatKey, useProviderHeartbeat } from "./provider-heartbeat";
+import { broadcastLiveNowChange } from "@/lib/live-now";
 import { MeetingMap } from "./meeting-map";
 import { meetingPointSchema } from "./model";
 import type {
@@ -17,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
+import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
 import { Badge } from "@/components/ui/badge";
 import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 export function ProviderControls() {
@@ -35,8 +37,12 @@ export function ProviderControls() {
       })) as unknown as ProviderPresence,
     onSuccess: (status) => {
       client.setQueryData(heartbeatKey(session!.user.id), status);
+      void client.invalidateQueries({ queryKey: ["account"] });
+      void client.invalidateQueries({ queryKey: ["catalog"] });
+      void client.invalidateQueries({ queryKey: ["package"] });
       void client.invalidateQueries({ queryKey: ["provider-discovery"] });
       void client.invalidateQueries({ queryKey: ["nearby-live"] });
+      broadcastLiveNowChange();
     },
   });
   if (discovery.isPending) return <Loading />;
@@ -194,22 +200,16 @@ function LocationEditor({ pack }: { pack: ProviderListing }) {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="meeting-area">Town or area</FieldLabel>
-          <Input
+          <LocationAutocomplete
             id="meeting-area"
             value={area}
-            onChange={(event) => setArea(event.target.value)}
-            list="meeting-areas"
+            onValueChange={setArea}
+            suggestions={areas.data}
             required
             minLength={2}
-            maxLength={120}
             placeholder="Ella"
             disabled={save.isPending}
           />
-          <datalist id="meeting-areas">
-            {areas.data?.map((area) => (
-              <option key={area} value={area} />
-            ))}
-          </datalist>
         </Field>
         <Field>
           <FieldLabel htmlFor="meeting-label">

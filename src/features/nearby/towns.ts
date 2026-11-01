@@ -1,4 +1,6 @@
-// Starter choices stay available even before a host publishes a meeting point.
+import locations from "@/data/sri-lanka/locations.json";
+
+// Curated destinations also retain familiar tourist areas absent from the dump.
 export const sriLankanTowns = [
   "Anuradhapura",
   "Arugam Bay",
@@ -36,7 +38,12 @@ export const sriLankanTowns = [
 ] as const;
 export function discoveryTowns(published: string[] = []) {
   const towns = new Map<string, string>(
-    sriLankanTowns.map((town) => [town.toLowerCase(), town]),
+    [
+      ...sriLankanTowns,
+      ...locations.cities.map((city) => city.name),
+      ...locations.districts.map((district) => district.name),
+      ...locations.provinces.map((province) => `${province.name} Province`),
+    ].map((town) => [town.toLowerCase(), town]),
   );
   for (const value of published) {
     const town = value.trim();

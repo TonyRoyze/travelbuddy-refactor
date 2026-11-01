@@ -7,6 +7,11 @@ metadata:
     app.kubernetes.io/name: travelbuddy
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: travelbuddy
@@ -15,16 +20,33 @@ spec:
       labels:
         app.kubernetes.io/name: travelbuddy
     spec:
+      terminationGracePeriodSeconds: 45
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       # If the GHCR package is private, create this pull Secret in this namespace.
       # imagePullSecrets:
       #   - name: ghcr-pull
       containers:
         - name: app
-          image: ghcr.io/tonyroyze/travelbuddy-refactor:REPLACE_WITH_COMMIT_SHA
+          image: ghcr.io/shalinda/travelbuddy:REPLACE_WITH_COMMIT_SHA
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           env:
             - name: PORT
               value: "8080"
@@ -88,19 +110,35 @@ spec:
                   optional: true
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: /readyz
               port: http
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: /livez
               port: http
-            initialDelaySeconds: 15
             periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /livez
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 24
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 250m
+              memory: 384Mi
+              ephemeral-storage: 128Mi
             limits:
+              cpu: "1"
               memory: 1Gi
+              ephemeral-storage: 512Mi
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi

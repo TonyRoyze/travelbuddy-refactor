@@ -112,3 +112,14 @@
     @apply underline-offset-4 outline-offset-4 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-ring;
   }
 }
+
+@media (width < 48rem) {
+  [data-package-editor-step="0"] > :not(:nth-child(1)),
+  [data-package-editor-step="1"] > :not(:nth-child(2)),
+  [data-package-editor-step="2"] > :not(:nth-child(3)),
+  [data-package-editor-step="3"] > :not(:nth-child(4)),
+  [data-package-editor-step="4"] > :not(:nth-child(5)),
+  [data-package-editor-step="5"] > :not(:nth-child(6)) {
+    display: none;
+  }
+}

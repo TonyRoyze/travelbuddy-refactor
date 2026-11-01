@@ -1,0 +1,2885 @@
+{
+  "provinces": [
+    {
+      "id": 1,
+      "name": "Central",
+      "nameSi": "මධ්‍යම",
+      "nameTa": ""
+    },
+    {
+      "id": 2,
+      "name": "Eastern",
+      "nameSi": "",
+      "nameTa": ""
+    },
+    {
+      "id": 3,
+      "name": "North Central",
+      "nameSi": "",
+      "nameTa": ""
+    },
+    {
+      "id": 4,
+      "name": "Northern",
+      "nameSi": "",
+      "nameTa": ""
+    },
+    {
+      "id": 5,
+      "name": "North Western",
+      "nameSi": "",
+      "nameTa": ""
+    },
+    {
+      "id": 6,
+      "name": "Sabaragamuwa",
+      "nameSi": "සබරගමුව",
+      "nameTa": ""
+    },
+    {
+      "id": 7,
+      "name": "Southern",
+      "nameSi": "",
+      "nameTa": ""
+    },
+    {
+      "id": 8,
+      "name": "Uva",
+      "nameSi": "ඌව",
+      "nameTa": ""
+    },
+    {
+      "id": 9,
+      "name": "Western",
+      "nameSi": "බස්නාහිර",
+      "nameTa": ""
+    }
+  ],
+  "districts": [
+    {
+      "id": 1,
+      "name": "Ampara",
+      "provinceId": 2,
+      "nameSi": "අම්පාර",
+      "nameTa": "அம்பாறை"
+    },
+    {
+      "id": 2,
+      "name": "Anuradhapura",
+      "provinceId": 3,
+      "nameSi": "අනුරාධපුරය",
+      "nameTa": "அனுராதபுரம்"
+    },
+    {
+      "id": 3,
+      "name": "Badulla",
+      "provinceId": 8,
+      "nameSi": "බදුල්ල",
+      "nameTa": "பதுளை"
+    },
+    {
+      "id": 4,
+      "name": "Batticaloa",
+      "provinceId": 2,
+      "nameSi": "මඩකලපුව",
+      "nameTa": "மட்டக்களப்பு"
+    },
+    {
+      "id": 5,
+      "name": "Colombo",
+      "provinceId": 9,
+      "nameSi": "කොළඹ",
+      "nameTa": "கொழும்பு"
+    },
+    {
+      "id": 6,
+      "name": "Galle",
+      "provinceId": 7,
+      "nameSi": "ගාල්ල",
+      "nameTa": "காலி"
+    },
+    {
+      "id": 7,
+      "name": "Gampaha",
+      "provinceId": 9,
+      "nameSi": "ගම්පහ",
+      "nameTa": "கம்பஹா"
+    },
+    {
+      "id": 8,
+      "name": "Hambanthota",
+      "provinceId": 7,
+      "nameSi": "හම්බන්තොට",
+      "nameTa": "அம்பாந்தோட்டை"
+    },
+    {
+      "id": 9,
+      "name": "Jaffna",
+      "provinceId": 4,
+      "nameSi": "යාපනය",
+      "nameTa": "யாழ்ப்பாணம்"
+    },
+    {
+      "id": 10,
+      "name": "Kaluthara",
+      "provinceId": 9,
+      "nameSi": "කළුතර",
+      "nameTa": "களுத்துறை"
+    },
+    {
+      "id": 11,
+      "name": "Kandy",
+      "provinceId": 1,
+      "nameSi": "මහනුවර",
+      "nameTa": "கண்டி"
+    },
+    {
+      "id": 12,
+      "name": "Kegalle",
+      "provinceId": 6,
+      "nameSi": "කෑගල්ල",
+      "nameTa": "கேகாலை"
+    },
+    {
+      "id": 13,
+      "name": "Kilinochchi",
+      "provinceId": 4,
+      "nameSi": "කිලිනොච්චිය",
+      "nameTa": "கிளிநொச்சி"
+    },
+    {
+      "id": 14,
+      "name": "Kurunegala",
+      "provinceId": 5,
+      "nameSi": "කුරුනෑගල",
+      "nameTa": "குருணாகல்"
+    },
+    {
+      "id": 15,
+      "name": "Mannar",
+      "provinceId": 4,
+      "nameSi": "මන්නාරම",
+      "nameTa": "மன்னார்"
+    },
+    {
+      "id": 16,
+      "name": "Matale",
+      "provinceId": 1,
+      "nameSi": "මාතලේ",
+      "nameTa": "மாத்தளை"
+    },
+    {
+      "id": 17,
+      "name": "Matara",
+      "provinceId": 7,
+      "nameSi": "මාතර",
+      "nameTa": "மாத்தறை"
+    },
+    {
+      "id": 18,
+      "name": "Monaragala",
+      "provinceId": 8,
+      "nameSi": "මොණරාගල",
+      "nameTa": "மொணராகலை"
+    },
+    {
+      "id": 19,
+      "name": "Mullaitivu",
+      "provinceId": 4,
+      "nameSi": "මුලතිව්",
+      "nameTa": "முல்லைத்தீவு"
+    },
+    {
+      "id": 20,
+      "name": "Nuwara Eliya",
+      "provinceId": 1,
+      "nameSi": "නුවර එළිය",
+      "nameTa": "நுவரேலியா"
+    },
+    {
+      "id": 21,
+      "name": "Polonnaruwa",
+      "provinceId": 3,
+      "nameSi": "පොලොන්නරුව",
+      "nameTa": "பொலன்னறுவை"
+    },
+    {
+      "id": 22,
+      "name": "Puttalam",
+      "provinceId": 5,
+      "nameSi": "පුත්තලම",
+      "nameTa": "புத்தளம்"
+    },
+    {
+      "id": 23,
+      "name": "Ratnapura",
+      "provinceId": 6,
+      "nameSi": "රත්නපුර",
+      "nameTa": "இரத்தினபுரி"
+    },
+    {
+      "id": 24,
+      "name": "Trincomalee",
+      "provinceId": 2,
+      "nameSi": "ත්‍රිකුණාමලය",
+      "nameTa": "திருகோணமலை"
+    },
+    {
+      "id": 25,
+      "name": "Vavuniya",
+      "provinceId": 4,
+      "nameSi": "වව්නියාව",
+      "nameTa": "வவுனியா"
+    }
+  ],
+  "cities": [
+    {
+      "id": 1,
+      "name": "Delthota",
+      "nameSi": "දෙල්තොට",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 2,
+      "name": "Doluwa",
+      "nameSi": "දොලුව",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 3,
+      "name": "Gagawata Korale",
+      "nameSi": "ගඟවට කෝරළේ",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 4,
+      "name": "Ganga Ihala Korale",
+      "nameSi": "ගඟ ඉහල කෝරළේ",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 5,
+      "name": "Harispattuwa",
+      "nameSi": "හාරිස්පත්තුව",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 6,
+      "name": "Hatharaliyadda",
+      "nameSi": "හතරලියද්ද",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 7,
+      "name": "Kundasale",
+      "nameSi": "කුන්ඩසාලේ",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 8,
+      "name": "Medadumbara",
+      "nameSi": "මැදඳුම්බර",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 9,
+      "name": "Minipe",
+      "nameSi": "මිනිපේ",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 10,
+      "name": "Panvila",
+      "nameSi": "පන්විල",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 11,
+      "name": "Pasbage Korale",
+      "nameSi": "පස්බාගේ කෝරළේ",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 12,
+      "name": "Pathadumbara",
+      "nameSi": "පාතඳුම්බර",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 13,
+      "name": "Pathahewaheta",
+      "nameSi": "පාතහේවාවැට",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 14,
+      "name": "Poojapitiya",
+      "nameSi": "පූජාපිටිය",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 15,
+      "name": "Thumpane",
+      "nameSi": "තුම්පනේ",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 16,
+      "name": "Udadumbara",
+      "nameSi": "උඩඳුම්බර",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 17,
+      "name": "Udapalatha",
+      "nameSi": "උඩපලාත",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 18,
+      "name": "Udunuwara",
+      "nameSi": "උඩුනුවර",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 19,
+      "name": "Yatinuwara",
+      "nameSi": "යටිනුවර",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 20,
+      "name": "Dambulla",
+      "nameSi": "දඹුල්ල",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 21,
+      "name": "Galewela",
+      "nameSi": "ගලේවෙල",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 22,
+      "name": "Laggala-Pallegama",
+      "nameSi": "ලග්ගල-පල්ලේගම",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 23,
+      "name": "Matale",
+      "nameSi": "මාතලේ",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 24,
+      "name": "Naula",
+      "nameSi": "නාවුල",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 25,
+      "name": "Pallepola",
+      "nameSi": "පල්ලේපොළ",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 26,
+      "name": "Rattota",
+      "nameSi": "රත්තොට",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 27,
+      "name": "Ukuwela",
+      "nameSi": "උකුවෙල",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 28,
+      "name": "Wilgamuwa",
+      "nameSi": "විල්ගමුව",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 29,
+      "name": "Yatawatta",
+      "nameSi": "යටවත්ත",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 30,
+      "name": "Hanguranketha",
+      "nameSi": "හඟුරන්කෙත",
+      "nameTa": "",
+      "districtId": 20,
+      "provinceId": 1
+    },
+    {
+      "id": 31,
+      "name": "Kothmale",
+      "nameSi": "කොත්මලේ",
+      "nameTa": "",
+      "districtId": 20,
+      "provinceId": 1
+    },
+    {
+      "id": 32,
+      "name": "Nuwara Eliya",
+      "nameSi": "නුවරඑලිය",
+      "nameTa": "",
+      "districtId": 20,
+      "provinceId": 1
+    },
+    {
+      "id": 33,
+      "name": "Walapane",
+      "nameSi": "වලපනේ",
+      "nameTa": "",
+      "districtId": 20,
+      "provinceId": 1
+    },
+    {
+      "id": 34,
+      "name": "Ambagamuwa",
+      "nameSi": "අඹගමුව",
+      "nameTa": "",
+      "districtId": 20,
+      "provinceId": 1
+    },
+    {
+      "id": 35,
+      "name": "Ambanganga Korale",
+      "nameSi": "අඹන්ගඟ කෝරලේ",
+      "nameTa": "",
+      "districtId": 16,
+      "provinceId": 1
+    },
+    {
+      "id": 36,
+      "name": "Akurana",
+      "nameSi": "අකුරන",
+      "nameTa": "",
+      "districtId": 11,
+      "provinceId": 1
+    },
+    {
+      "id": 37,
+      "name": "Akkaraipattu",
+      "nameSi": "අක්කරෛයිපත්තු",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 38,
+      "name": "Alayadiwembu",
+      "nameSi": "අලයාඩිවෙම්බු",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 39,
+      "name": "Ampara",
+      "nameSi": "අම්පාර",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 40,
+      "name": "Damana",
+      "nameSi": "දමන",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 41,
+      "name": "Dehiattakandiya",
+      "nameSi": "දෙහිඅත්තකණ්ඩිය",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 42,
+      "name": "Eragama",
+      "nameSi": "එර්ගම",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 43,
+      "name": "Kalmunai Muslim",
+      "nameSi": "කල්මුනෛ මුස්ලිම්",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 44,
+      "name": "Kalmunai Tamil",
+      "nameSi": "කල්මුනෛ දෙමළ",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 45,
+      "name": "Karaitivu",
+      "nameSi": "කරයිතිවු",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 46,
+      "name": "Lahugala",
+      "nameSi": "ලාහුගල",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 47,
+      "name": "Mahaoya",
+      "nameSi": "මහඔය",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 48,
+      "name": "Navithanveli",
+      "nameSi": "නවිතන්වේලී",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 49,
+      "name": "Ninthavur",
+      "nameSi": "නින්තවූර්",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 50,
+      "name": "Padiyathalawa",
+      "nameSi": "පදියතලාව",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 51,
+      "name": "Pothuvil",
+      "nameSi": "පොතුවිල්",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 52,
+      "name": "Sainthamarathu",
+      "nameSi": "සයින්දමරදු",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 53,
+      "name": "Samanthurai",
+      "nameSi": "සමන්තුරේ",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 54,
+      "name": "Thirukkovil",
+      "nameSi": "තිරුක්කෝවිල්",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 55,
+      "name": "Uhana",
+      "nameSi": "උහන",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 56,
+      "name": "Addalachchenai",
+      "nameSi": "අඩ්ඩලාච්චෙන්නයි",
+      "nameTa": "",
+      "districtId": 1,
+      "provinceId": 2
+    },
+    {
+      "id": 57,
+      "name": "Galnewa",
+      "nameSi": "ගල්නෑව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 58,
+      "name": "Galenbindunuwewa",
+      "nameSi": "ගලෙන්බිඳුනුවැව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 59,
+      "name": "Horowpothana",
+      "nameSi": "හොරොව්පතාන",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 60,
+      "name": "Ipalogama",
+      "nameSi": "ඉපලෝගම",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 61,
+      "name": "Kahatagasdigiliya",
+      "nameSi": "කහටගස්දිගිලිය",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 62,
+      "name": "Kebithigollewa",
+      "nameSi": "කැබිතිගොල්ලෑව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 63,
+      "name": "Kekirawa",
+      "nameSi": "කැකිරාව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 64,
+      "name": "Mahavilachchiya",
+      "nameSi": "මහවිලච්චිය",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 65,
+      "name": "Medawachchiya",
+      "nameSi": "මැදවච්චිය",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 66,
+      "name": "Mihinthale",
+      "nameSi": "මිහින්තලේ",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 67,
+      "name": "Nachchadoowa",
+      "nameSi": "නාච්චාදූව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 68,
+      "name": "Nochchiyagama",
+      "nameSi": "නොච්චියාගම",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 69,
+      "name": "Nuwaragam Palatha Central",
+      "nameSi": "නුවරගම් පලාත මැද",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 70,
+      "name": "Nuwaragam Palatha East",
+      "nameSi": "නුවරගම් පලාත නැගෙනහිර",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 71,
+      "name": "Padaviya",
+      "nameSi": "පදවිය",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 72,
+      "name": "Palagala",
+      "nameSi": "පලාගල",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 73,
+      "name": "Palugaswewa",
+      "nameSi": "පළුගස්වැව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 74,
+      "name": "Rajanganaya",
+      "nameSi": "රාජංගනය",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 75,
+      "name": "Rambewa",
+      "nameSi": "රඹෑව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 76,
+      "name": "Thalawa",
+      "nameSi": "තලාව",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 77,
+      "name": "Thambuttegama",
+      "nameSi": "තඹුත්තේගම",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 78,
+      "name": "Thirappane",
+      "nameSi": "තිරිප්පනේ",
+      "nameTa": "",
+      "districtId": 2,
+      "provinceId": 3
+    },
+    {
+      "id": 79,
+      "name": "Dimbulagala",
+      "nameSi": "දිඹුලාගල",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 80,
+      "name": "Elahera",
+      "nameSi": "ඇලහැර",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 81,
+      "name": "Hingurakgoda",
+      "nameSi": "හිංගුරක්ගොඩ",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 82,
+      "name": "Lankapura",
+      "nameSi": "ලංකාපුර",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 83,
+      "name": "Medirigiriya",
+      "nameSi": "මැදිරිගිරිය",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 84,
+      "name": "Thamankaduwa",
+      "nameSi": "තමන්කඩුව",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 85,
+      "name": "Welikanda",
+      "nameSi": "වැලිකන්ද",
+      "nameTa": "",
+      "districtId": 21,
+      "provinceId": 3
+    },
+    {
+      "id": 86,
+      "name": "Aranayaka",
+      "nameSi": "අරණායක",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 87,
+      "name": "Bulathkohupitiya",
+      "nameSi": "බුලත්කොහුපිටිය",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 88,
+      "name": "Dehiovita",
+      "nameSi": "දෙහිඕවිට",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 89,
+      "name": "Deraniyagala",
+      "nameSi": "දැරණියගල",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 90,
+      "name": "Galigamuwa",
+      "nameSi": "ගලිගමුව",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 91,
+      "name": "Kegalle",
+      "nameSi": "කෑගල්ල",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 92,
+      "name": "Mawanella",
+      "nameSi": "මාවනැල්ල",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 93,
+      "name": "Rambukkana",
+      "nameSi": "රඹුක්කන",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 94,
+      "name": "Ruwanwella",
+      "nameSi": "රුවන්වැල්ල",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 95,
+      "name": "Warakapola",
+      "nameSi": "වරකාපොල",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 96,
+      "name": "Yatiyanthota",
+      "nameSi": "යටියන්තොට",
+      "nameTa": "",
+      "districtId": 12,
+      "provinceId": 6
+    },
+    {
+      "id": 97,
+      "name": "Ayagama",
+      "nameSi": "අයගම",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 98,
+      "name": "Balangoda",
+      "nameSi": "බලන්ගොඩ",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 99,
+      "name": "Eheliyagoda",
+      "nameSi": "ඇහැලියගොඩ",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 100,
+      "name": "Elapattha",
+      "nameSi": "ඇලපත්ත",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 101,
+      "name": "Embilipitiya",
+      "nameSi": "ඇඹිලිපිටිය",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 102,
+      "name": "Godakawela",
+      "nameSi": "ගොඩකවෙල",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 103,
+      "name": "Imbulpe",
+      "nameSi": "ඉඹුල්පේ",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 104,
+      "name": "Kahawatta",
+      "nameSi": "කහවත්ත",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 105,
+      "name": "Kalawana",
+      "nameSi": "කලවාන",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 106,
+      "name": "Kiriella",
+      "nameSi": "කිරිඇල්ල",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 107,
+      "name": "Kolonna",
+      "nameSi": "කොලොන්නා",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 108,
+      "name": "Kuruvita",
+      "nameSi": "කුරුවිට",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 109,
+      "name": "Nivithigala",
+      "nameSi": "නිවිතිගල",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 110,
+      "name": "Opanayaka",
+      "nameSi": "ඔපනායක",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 111,
+      "name": "Pelmadulla",
+      "nameSi": "පැල්මඩුල්ල",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 112,
+      "name": "Ratnapura",
+      "nameSi": "රත්නපුර",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 113,
+      "name": "Weligepola",
+      "nameSi": "වැලිපොළ",
+      "nameTa": "",
+      "districtId": 23,
+      "provinceId": 6
+    },
+    {
+      "id": 114,
+      "name": "Alawwa",
+      "nameSi": "අලව්ව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 115,
+      "name": "Ambanpola",
+      "nameSi": "අඹන්පොල",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 116,
+      "name": "Bamunakotuwa",
+      "nameSi": "බමුණුකොටුව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 117,
+      "name": "Bingiriya",
+      "nameSi": "බිංගිරිය",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 118,
+      "name": "Ehetuwewa",
+      "nameSi": "ඇහැටුවැව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 119,
+      "name": "Galgamuwa",
+      "nameSi": "ගල්ගමුව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 120,
+      "name": "Ganewatta",
+      "nameSi": "ගනේවත්ත",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 121,
+      "name": "Giribawa",
+      "nameSi": "ගිරිබාව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 122,
+      "name": "Ibbagamuwa",
+      "nameSi": "ඉබ්බාගමුව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 123,
+      "name": "Katupotha",
+      "nameSi": "කටුපොත",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 124,
+      "name": "Kobeigane",
+      "nameSi": "කොබෙයිගනේ",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 125,
+      "name": "Kotavehera",
+      "nameSi": "කොටවෙහෙර",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 126,
+      "name": "Kuliyapitiya East",
+      "nameSi": "කුලියාපිටිය නැගෙනහිර",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 127,
+      "name": "Kuliyapitiya West",
+      "nameSi": "කුලියාපිටිය බටහිර",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 128,
+      "name": "Kurunegala",
+      "nameSi": "කුරුණෑගල",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 129,
+      "name": "Mahawa",
+      "nameSi": "මහව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 130,
+      "name": "Mallawapitiya",
+      "nameSi": "මල්ලවපිටිය",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 131,
+      "name": "Maspotha",
+      "nameSi": "මස්පොත",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 132,
+      "name": "Mawathagama",
+      "nameSi": "මාවතගම",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 133,
+      "name": "Narammala",
+      "nameSi": "නාරම්මල",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 134,
+      "name": "Nikaweratiya",
+      "nameSi": "නිකවැරටිය",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 135,
+      "name": "Panduwasnuwara",
+      "nameSi": "පඩුවස්ණුවර",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 136,
+      "name": "Pannala",
+      "nameSi": "පන්නල",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 137,
+      "name": "Polgahawela",
+      "nameSi": "පොල්ගහවෙල",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 138,
+      "name": "Polpithigama",
+      "nameSi": "පොල්පිතිගම",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 139,
+      "name": "Rasnayakapura",
+      "nameSi": "රස්නායකපුර",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 140,
+      "name": "Rideegama",
+      "nameSi": "රිදීගම",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 141,
+      "name": "Udubaddawa",
+      "nameSi": "උඩුබද්දාව",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 142,
+      "name": "Wariyapola",
+      "nameSi": "වාරියපොල",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 143,
+      "name": "Weerambugedara",
+      "nameSi": "වීරම්බුගෙදර",
+      "nameTa": "",
+      "districtId": 14,
+      "provinceId": 5
+    },
+    {
+      "id": 144,
+      "name": "Akmeemana",
+      "nameSi": "අක්මීමන",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 145,
+      "name": "Ambalangoda",
+      "nameSi": "අම්බලන්ගොඩ",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 146,
+      "name": "Baddegama",
+      "nameSi": "බද්දේගම",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 147,
+      "name": "Balapitiya",
+      "nameSi": "බලපිටිය",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 148,
+      "name": "Benthota",
+      "nameSi": "බෙන්තොට",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 149,
+      "name": "Bope-Poddala",
+      "nameSi": "බෝපෙ-පෝද්දල",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 150,
+      "name": "Elpitiya",
+      "nameSi": "ඇල්පිටිය",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 151,
+      "name": "Galle",
+      "nameSi": "ගාල්ල",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 152,
+      "name": "Gonapinuwala",
+      "nameSi": "ගෝනපිනුවල",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 153,
+      "name": "Habaraduwa",
+      "nameSi": "හබරාදූව",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 154,
+      "name": "Hikkaduwa",
+      "nameSi": "හික්කඩුව",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 155,
+      "name": "Imaduwa",
+      "nameSi": "ඉමදූව",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 156,
+      "name": "Karandeniya",
+      "nameSi": "කරන්දෙණිය",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 157,
+      "name": "Nagoda",
+      "nameSi": "නාගොඩ",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 158,
+      "name": "Neluwa",
+      "nameSi": "නෙළුව",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 159,
+      "name": "Niyagama",
+      "nameSi": "නියාගම",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 160,
+      "name": "Thawalama",
+      "nameSi": "තවලම",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 161,
+      "name": "Welivitiya-Divithura",
+      "nameSi": "වැලිවිටිය-දිවිතුර",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 162,
+      "name": "Yakkalamulla",
+      "nameSi": "යක්කලමුල්ල",
+      "nameTa": "",
+      "districtId": 6,
+      "provinceId": 7
+    },
+    {
+      "id": 163,
+      "name": "Ambalantota",
+      "nameSi": "අම්බලන්තොට",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 164,
+      "name": "Angunakolapelessa",
+      "nameSi": "අඟුණකොලපැලැස්ස",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 165,
+      "name": "Beliatta",
+      "nameSi": "බෙලිඅත්ත",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 166,
+      "name": "Hambantota",
+      "nameSi": "හම්බන්තොට",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 167,
+      "name": "Katuwana",
+      "nameSi": "කටුවන",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 168,
+      "name": "Lunugamvehera",
+      "nameSi": "ලුණුගම්වෙහෙර",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 169,
+      "name": "Okewela",
+      "nameSi": "ඕකෙවෙල",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 170,
+      "name": "Sooriyawewa",
+      "nameSi": "සූරියවැව",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 171,
+      "name": "Tangalle",
+      "nameSi": "තංගල්ල",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 172,
+      "name": "Thissamaharama",
+      "nameSi": "තිස්සමහාරාමය",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 173,
+      "name": "Walasmulla",
+      "nameSi": "වලස්මුල්ල",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 174,
+      "name": "Weeraketiya",
+      "nameSi": "වීරකැටිය",
+      "nameTa": "",
+      "districtId": 8,
+      "provinceId": 7
+    },
+    {
+      "id": 175,
+      "name": "Akuressa",
+      "nameSi": "අකුරැස්ස",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 176,
+      "name": "Athuraliya",
+      "nameSi": "අතුරලිය",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 177,
+      "name": "Devinuwara",
+      "nameSi": "දෙවිනුවර",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 178,
+      "name": "Dickwella",
+      "nameSi": "දික්වැල්ල",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 179,
+      "name": "Hakmana",
+      "nameSi": "හක්මන",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 180,
+      "name": "Kamburupitiya",
+      "nameSi": "කඹුරුපිටිය",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 181,
+      "name": "Kirinda",
+      "nameSi": "කිරින්ද",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 182,
+      "name": "Puhulwella",
+      "nameSi": "පුහුල්වැල්ල",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 183,
+      "name": "Kotapola",
+      "nameSi": "කොටපොල",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 184,
+      "name": "Malimbada",
+      "nameSi": "මාලිම්බඩ",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 185,
+      "name": "Matara",
+      "nameSi": "මාතර",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 186,
+      "name": "Mulatiyana",
+      "nameSi": "මුලටියන",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 187,
+      "name": "Pasgoda",
+      "nameSi": "පස්ගොඩ",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 188,
+      "name": "Pitabeddara",
+      "nameSi": "පිටබැද්දර",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 189,
+      "name": "Thihagoda",
+      "nameSi": "තිහගොඩ",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 190,
+      "name": "Weligama",
+      "nameSi": "වැලිගම",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 191,
+      "name": "Welipitiya",
+      "nameSi": "වැලිපිටිය",
+      "nameTa": "",
+      "districtId": 17,
+      "provinceId": 7
+    },
+    {
+      "id": 192,
+      "name": "Anamaduwa",
+      "nameSi": "ආණමඩුව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 193,
+      "name": "Arachchikattuwa",
+      "nameSi": "ආරච්චිකට්ටුව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 194,
+      "name": "Chilaw",
+      "nameSi": "හලාවත",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 195,
+      "name": "Dankotuwa",
+      "nameSi": "දංකොටුව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 196,
+      "name": "Kalpitiya",
+      "nameSi": "කල්පිටිය",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 197,
+      "name": "Karuwalagaswewa",
+      "nameSi": "කරුවලගස්වැව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 198,
+      "name": "Madampe",
+      "nameSi": "මාදම්පේ",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 199,
+      "name": "Mahakumbukkadawala",
+      "nameSi": "මහකුඹුක්කඩවල",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 200,
+      "name": "Mahawewa",
+      "nameSi": "මහවැව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 201,
+      "name": "Mundalama",
+      "nameSi": "මුන්දලම",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 202,
+      "name": "Nattandiya",
+      "nameSi": "නාත්තන්ඩිය",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 203,
+      "name": "Nawagattegama",
+      "nameSi": "නවගත්තේගම",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 204,
+      "name": "Pallama",
+      "nameSi": "පල්ලම",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 205,
+      "name": "Puttalam",
+      "nameSi": "පුත්තලම",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 206,
+      "name": "Vanathavilluwa",
+      "nameSi": "වනාතවිල්ලුව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 207,
+      "name": "Wennappuwa",
+      "nameSi": "වෙන්නප්පුව",
+      "nameTa": "",
+      "districtId": 22,
+      "provinceId": 5
+    },
+    {
+      "id": 208,
+      "name": "Badulla",
+      "nameSi": "බදුල්ල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 209,
+      "name": "Bandarawela",
+      "nameSi": "බණ්ඩාරවෙල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 210,
+      "name": "Ella",
+      "nameSi": "ඇල්ල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 211,
+      "name": "Haldummulla",
+      "nameSi": "හල්දුම්මුල්ල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 212,
+      "name": "Hali-Ela",
+      "nameSi": "හාලිඇල්ල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 213,
+      "name": "Haputale",
+      "nameSi": "හපුතලේ",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 214,
+      "name": "Kandaketiya",
+      "nameSi": "කන්දෙකැටිය",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 215,
+      "name": "Lunugala",
+      "nameSi": "ලුනුගල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 216,
+      "name": "Mahiyanganaya",
+      "nameSi": "මහියංගනය",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 217,
+      "name": "Meegahakivula",
+      "nameSi": "මීගහාකිවුල",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 218,
+      "name": "Passara",
+      "nameSi": "පස්සර",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 219,
+      "name": "Rideemaliyadda",
+      "nameSi": "රිදීමාලියද්ද",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 220,
+      "name": "Soranathota",
+      "nameSi": "සොරන්තොට",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 221,
+      "name": "Uva-Paranagama",
+      "nameSi": "ඌව පරනගම",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 222,
+      "name": "Welimada",
+      "nameSi": "වැළිමඩ",
+      "nameTa": "",
+      "districtId": 3,
+      "provinceId": 8
+    },
+    {
+      "id": 223,
+      "name": "Badalkumbura",
+      "nameSi": "බඩල්කුඹුර",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 224,
+      "name": "Bibile",
+      "nameSi": "බිබිලේ",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 225,
+      "name": "Buttala",
+      "nameSi": "බුත්තල",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 226,
+      "name": "Katharagama",
+      "nameSi": "කතරගම",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 227,
+      "name": "Madulla",
+      "nameSi": "මඩුල්ල",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 228,
+      "name": "Medagama",
+      "nameSi": "මැදගම",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 229,
+      "name": "Sevanagala",
+      "nameSi": "සෙවනගල",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 230,
+      "name": "Siyambalanduwa",
+      "nameSi": "සියඹලාණ්ඩුව",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 231,
+      "name": "Thanamalwila",
+      "nameSi": "තණමල්විල",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 232,
+      "name": "Wellawaya",
+      "nameSi": "වැල්ලවාය",
+      "nameTa": "",
+      "districtId": 18,
+      "provinceId": 8
+    },
+    {
+      "id": 233,
+      "name": "Colombo",
+      "nameSi": "කොළඹ",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 234,
+      "name": "Dehiwala",
+      "nameSi": "දෙහිවල",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 235,
+      "name": "Homagama",
+      "nameSi": "හෝමාගම",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 236,
+      "name": "Kaduwela",
+      "nameSi": "කඩුවෙල",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 237,
+      "name": "Kesbewa",
+      "nameSi": "කැස්බෑව",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 238,
+      "name": "Kolonnawa",
+      "nameSi": "කොලොන්නාව",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 239,
+      "name": "Kotte",
+      "nameSi": "කෝට්ටේ",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 240,
+      "name": "Maharagama",
+      "nameSi": "මහරගම",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 241,
+      "name": "Moratuwa",
+      "nameSi": "මොරටුව",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 242,
+      "name": "Padukka",
+      "nameSi": "පාදුක්ක",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 243,
+      "name": "Ratmalana",
+      "nameSi": "රත්මලාන",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 244,
+      "name": "Seethawaka",
+      "nameSi": "සීතාවක",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 245,
+      "name": "Thimbirigasyaya",
+      "nameSi": "තිඹිරිගස්‍ යාය",
+      "nameTa": "",
+      "districtId": 5,
+      "provinceId": 9
+    },
+    {
+      "id": 246,
+      "name": "Attanagalla",
+      "nameSi": "අත්තනගල්ල",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 247,
+      "name": "Biyagama",
+      "nameSi": "බියගම",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 248,
+      "name": "Divulapitiya",
+      "nameSi": "දිවුලපිටිය",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 249,
+      "name": "Dompe",
+      "nameSi": "දොම්පෙ",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 250,
+      "name": "Gampaha",
+      "nameSi": "ගම්පහ",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 251,
+      "name": "Ja-Ela",
+      "nameSi": "ජා ඇල",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 252,
+      "name": "Katana",
+      "nameSi": "කටාන",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 253,
+      "name": "Kelaniya",
+      "nameSi": "කැලණිය",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 254,
+      "name": "Mahara",
+      "nameSi": "මහර",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 255,
+      "name": "Minuwangoda",
+      "nameSi": "මිනුවන්ගොඩ",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 256,
+      "name": "Mirigama",
+      "nameSi": "මීරිගම",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 257,
+      "name": "Negomb",
+      "nameSi": "මීගමුව",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 258,
+      "name": "Wattala",
+      "nameSi": "වත්තල",
+      "nameTa": "",
+      "districtId": 7,
+      "provinceId": 9
+    },
+    {
+      "id": 259,
+      "name": "Vavuniya",
+      "nameSi": "වව්නියාව",
+      "nameTa": "",
+      "districtId": 25,
+      "provinceId": 4
+    },
+    {
+      "id": 260,
+      "name": "Vavuniya North",
+      "nameSi": "වව්නියාව උතුර",
+      "nameTa": "",
+      "districtId": 25,
+      "provinceId": 4
+    },
+    {
+      "id": 261,
+      "name": "Vavuniya South",
+      "nameSi": "වව්නියාව දකුණ",
+      "nameTa": "",
+      "districtId": 25,
+      "provinceId": 4
+    },
+    {
+      "id": 262,
+      "name": "Vengalacheddikulam",
+      "nameSi": "වෙන්ගලාචෙඩ්ඩිකුලම්",
+      "nameTa": "",
+      "districtId": 25,
+      "provinceId": 4
+    },
+    {
+      "id": 263,
+      "name": "Manthai East",
+      "nameSi": "මන්තායි නැගෙනහිර",
+      "nameTa": "",
+      "districtId": 19,
+      "provinceId": 4
+    },
+    {
+      "id": 264,
+      "name": "Maritimepattu",
+      "nameSi": "මරිතිමේපත්තු",
+      "nameTa": "",
+      "districtId": 19,
+      "provinceId": 4
+    },
+    {
+      "id": 265,
+      "name": "Oddusuddan",
+      "nameSi": "ඔඩුසුදාන්",
+      "nameTa": "",
+      "districtId": 19,
+      "provinceId": 4
+    },
+    {
+      "id": 266,
+      "name": "Puthukudiyiruppu",
+      "nameSi": "පුදුකුඩිරුප්පු",
+      "nameTa": "",
+      "districtId": 19,
+      "provinceId": 4
+    },
+    {
+      "id": 267,
+      "name": "Thunukkai",
+      "nameSi": "තුනුක්කායි",
+      "nameTa": "",
+      "districtId": 19,
+      "provinceId": 4
+    },
+    {
+      "id": 268,
+      "name": "Welioya",
+      "nameSi": "වැලිඔය",
+      "nameTa": "",
+      "districtId": 19,
+      "provinceId": 4
+    },
+    {
+      "id": 269,
+      "name": "Madhu",
+      "nameSi": "මඩු",
+      "nameTa": "",
+      "districtId": 15,
+      "provinceId": 4
+    },
+    {
+      "id": 270,
+      "name": "Mannar",
+      "nameSi": "මන්නාරම",
+      "nameTa": "",
+      "districtId": 15,
+      "provinceId": 4
+    },
+    {
+      "id": 271,
+      "name": "Manthai West",
+      "nameSi": "මන්තායි බස්නාහිර",
+      "nameTa": "",
+      "districtId": 15,
+      "provinceId": 4
+    },
+    {
+      "id": 272,
+      "name": "Musalai",
+      "nameSi": "මුසාලයි",
+      "nameTa": "",
+      "districtId": 15,
+      "provinceId": 4
+    },
+    {
+      "id": 273,
+      "name": "Nanaddan",
+      "nameSi": "නනාද්දන්",
+      "nameTa": "",
+      "districtId": 15,
+      "provinceId": 4
+    },
+    {
+      "id": 274,
+      "name": "Kandavalai",
+      "nameSi": "කන්ඩාවලෛ",
+      "nameTa": "",
+      "districtId": 13,
+      "provinceId": 4
+    },
+    {
+      "id": 275,
+      "name": "Karachchi",
+      "nameSi": "කරච්චි",
+      "nameTa": "",
+      "districtId": 13,
+      "provinceId": 4
+    },
+    {
+      "id": 276,
+      "name": "Pachchilaipalli",
+      "nameSi": "පච්චිලායිපල්ලි",
+      "nameTa": "",
+      "districtId": 13,
+      "provinceId": 4
+    },
+    {
+      "id": 277,
+      "name": "Poonakary",
+      "nameSi": "පූනාකරි",
+      "nameTa": "",
+      "districtId": 13,
+      "provinceId": 4
+    },
+    {
+      "id": 278,
+      "name": "Delft",
+      "nameSi": "ඩෙල්ෆ්",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 279,
+      "name": "Island North",
+      "nameSi": "උතුරු දූපත",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 280,
+      "name": "Island South",
+      "nameSi": "දකුණු දූපත",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 281,
+      "name": "Jaffna",
+      "nameSi": "යාපනය",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 282,
+      "name": "Karainagar",
+      "nameSi": "කරයිනගර්",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 283,
+      "name": "Nallur",
+      "nameSi": "නල්ලූර්",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 284,
+      "name": "Thenmaradchi",
+      "nameSi": "තෙන්මරඩ්චි",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 285,
+      "name": "Vadamaradchi East",
+      "nameSi": "වඩමරඩ්චි නැගෙනහිර",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 286,
+      "name": "Vadamaradchi North",
+      "nameSi": "වඩමරඩ්චි උතුර",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 287,
+      "name": "Vadamaradchi South-West",
+      "nameSi": "වඩමරඩ්චි  නිරිතදිග",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 288,
+      "name": "Valikamam East",
+      "nameSi": "වලිකාමම් නැගෙනහිර",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 289,
+      "name": "Valikamam North",
+      "nameSi": "වලිකාමම් උතුර",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 290,
+      "name": "Valikamam South",
+      "nameSi": "වලිකාමම් දකුන",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 291,
+      "name": "Valikamam South-West",
+      "nameSi": "වලිකාමම් නිරිතදිග",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 292,
+      "name": "Valikamam West",
+      "nameSi": "වලිකාමම් බස්නාහිර",
+      "nameTa": "",
+      "districtId": 9,
+      "provinceId": 4
+    },
+    {
+      "id": 293,
+      "name": "Eravur Pattu",
+      "nameSi": "එරාවුර් පත්තු",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 294,
+      "name": "Eravur Town",
+      "nameSi": "එරාවුර් නගරය",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 295,
+      "name": "Kattankudy",
+      "nameSi": "කාත්තන්කුඩි",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 296,
+      "name": "Koralai Pattu",
+      "nameSi": "කෝරලෛ පත්තු",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 297,
+      "name": "Koralai Pattu Central",
+      "nameSi": "කෝරලෛ පත්තු මධ්‍යම",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 298,
+      "name": "Koralai Pattu North",
+      "nameSi": "කෝරලෛ පත්තු උතුර",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 299,
+      "name": "Koralai Pattu South",
+      "nameSi": "කෝරලෛ පත්තු දකුණ",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 300,
+      "name": "Koralai Pattu West",
+      "nameSi": "කෝරලෛ පත්තු බස්නාහිර",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 301,
+      "name": "Manmunai North",
+      "nameSi": "මන්මුනායි උතුර",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 302,
+      "name": "Manmunai Pattu",
+      "nameSi": "මන්මුනායි පත්තු",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 303,
+      "name": "Manmunai S. and Eruvil Pattu",
+      "nameSi": "මන්මුනායි  S. and එරුවිල් පත්තු",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 304,
+      "name": "Manmunai South West",
+      "nameSi": "මන්මුනායි  නිරිතදිග",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 305,
+      "name": "Manmunai West",
+      "nameSi": "මන්මුනායි  බස්නාහිර",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 306,
+      "name": "Porativu Pattu",
+      "nameSi": "පොරතිව් පත්තු",
+      "nameTa": "",
+      "districtId": 4,
+      "provinceId": 2
+    },
+    {
+      "id": 307,
+      "name": "Gomarankadawala",
+      "nameSi": "ගොමරන්කඩවල",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 308,
+      "name": "Kantalai",
+      "nameSi": "කන්තලේ",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 309,
+      "name": "Kinniya",
+      "nameSi": "කින්නියා",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 310,
+      "name": "Kuchchaveli",
+      "nameSi": "කුච්චාවේලි",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 311,
+      "name": "Morawewa",
+      "nameSi": "මොරවැව",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 312,
+      "name": "Muttur",
+      "nameSi": "මුත්තුර්",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 313,
+      "name": "Padavi Sri Pura",
+      "nameSi": "පදවි ශ්‍රී පුර",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 314,
+      "name": "Seruvila",
+      "nameSi": "සේරුවිල",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 315,
+      "name": "Thambalagamuwa",
+      "nameSi": "තඹලාගමුව",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 316,
+      "name": "Trincomalee",
+      "nameSi": "ත්‍රිකුණාමලය",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 317,
+      "name": "Verugal",
+      "nameSi": "වෙරුගල්",
+      "nameTa": "",
+      "districtId": 24,
+      "provinceId": 2
+    },
+    {
+      "id": 318,
+      "name": "Agalawatta",
+      "nameSi": "අගලවත්ත",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 319,
+      "name": "Bandaragama",
+      "nameSi": "බණ්ඩාරගම",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 320,
+      "name": "Beruwala",
+      "nameSi": "බේරුවල",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 321,
+      "name": "Bulathsinhala",
+      "nameSi": "බුලත්සිංහල",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 322,
+      "name": "Dodangoda",
+      "nameSi": "දෝදන්ගොඩ",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 323,
+      "name": "Horana",
+      "nameSi": "හොරණ",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 324,
+      "name": "Ingiriya",
+      "nameSi": "ඉංගිරිය",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 325,
+      "name": "Kalutara",
+      "nameSi": "කළුතර",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 326,
+      "name": "Madurawela",
+      "nameSi": "මදුරවෙල",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 327,
+      "name": "Mathugama",
+      "nameSi": "මතුගම",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 328,
+      "name": "Millaniya",
+      "nameSi": "මිල්ලනිය",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 329,
+      "name": "Palindanuwara",
+      "nameSi": "පාලින්දනුවර",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 330,
+      "name": "Panadura",
+      "nameSi": "පානදුර",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    },
+    {
+      "id": 331,
+      "name": "Walallavita",
+      "nameSi": "වැලිවත්ත",
+      "nameTa": "",
+      "districtId": 10,
+      "provinceId": 9
+    }
+  ]
+}

@@ -7,11 +7,40 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  publish:
+  checks:
     runs-on: ubuntu-latest
+    env:
+      PUBLIC_SITE_URL: https://travelbuddy.example.invalid
+      VITE_SUPABASE_URL: https://supabase.example.invalid
+      VITE_SUPABASE_PUBLISHABLE_KEY: ci-public-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Type check
+        run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
+      - name: Unit tests
+        run: pnpm test
+      - name: Production build
+        run: pnpm build
+
+  publish:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 

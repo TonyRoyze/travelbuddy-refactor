@@ -25,6 +25,7 @@ import { ExperienceCard } from "./experience-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
+import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Card,
@@ -392,11 +393,10 @@ export function CatalogPage({
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="destination">Destination</FieldLabel>
-                    <Input
+                    <LocationAutocomplete
                       id="destination"
                       name="destination"
                       defaultValue={parsed.destination}
-                      maxLength={120}
                     />
                   </Field>
                   <Field>

@@ -25,14 +25,29 @@ export function EditorSection({
   status?: ReactNode;
 }) {
   return (
-    <Card id={id} className={status ? "relative" : undefined}>
-      {status && <div className="absolute left-4 top-4 z-10">{status}</div>}
-      <CardHeader className={`flex flex-col items-start justify-between gap-3 space-y-0 pb-3 ${status ? "pt-8" : ""} sm:flex-row sm:gap-4`}>
+    <Card
+      id={id}
+      aria-label={title}
+      className={status ? "relative" : undefined}
+    >
+      {status && (
+        <div className="mx-4 md:absolute md:left-4 md:top-4 md:z-10 md:mx-0">
+          {status}
+        </div>
+      )}
+      <CardHeader
+        className={`hidden flex-col items-start justify-between gap-3 pb-3 md:flex ${status ? "md:pt-8" : ""} sm:flex-row sm:gap-4`}
+      >
         <div className="min-w-0">
           <CardTitle>{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </div>
-        {action && (status ? <div className="absolute right-4 top-2 z-10">{action}</div> : action)}
+        {action &&
+          (status ? (
+            <div className="absolute right-4 top-2 z-10">{action}</div>
+          ) : (
+            action
+          ))}
       </CardHeader>
       <CardContent className="flex flex-col gap-4">{children}</CardContent>
     </Card>

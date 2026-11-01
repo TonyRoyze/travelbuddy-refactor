@@ -13,7 +13,7 @@ Use Node 22.12 or newer and pnpm 11. From the repository root:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm dev            # Vite :5173 and profile upload service :5174
+pnpm dev            # Vite :5173, plus configured upload :5174 and payment :5175 services
 pnpm typecheck
 pnpm lint
 pnpm test
@@ -24,6 +24,8 @@ pnpm db:types       # regenerate Supabase API types
 The root frontend reads `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` from `.env.local`. Only browser-safe values belong there. Database administration credentials stay on the Supabase host or in a private operator environment.
 
 Profile uploads also require FFmpeg/ffprobe and the server-only `.env.media.local`; see [profile service setup](profile-parity.md).
+
+`pnpm dev` skips backend services that are missing their required Supabase settings, so you can run the frontend independently. Profile uploads and payments are unavailable while their services are skipped. To enable them, copy `.env.media.example` to `.env.media.local` and `.env.payments.example` to `.env.payments.local`, then fill in the real server-only values. Payments can also use Supabase settings from `.env.media.local`. Restart `pnpm dev` after configuring them. Running `pnpm media:serve` or `pnpm payments:serve` directly still requires the corresponding configuration.
 
 To run the previous app, install and start it from `legacy/`:
 
