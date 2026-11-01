@@ -40,6 +40,7 @@ const searchBoolean = z.preprocess(
   z.boolean(),
 );
 export const searchSchema = z.object({
+  travelers: z.coerce.number().int().min(1).max(12).optional().catch(undefined),
   country: z.string().trim().max(120).catch(""),
   q: z.string().trim().max(120).catch(""),
   category: z.string().max(80).catch(""),

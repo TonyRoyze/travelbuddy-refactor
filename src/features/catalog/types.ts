@@ -20,6 +20,12 @@ export interface Experience {
   included: string[];
   notIncluded: string[];
   meetingPoint: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+    label: string;
+    area: string;
+  } | null;
   canChat?: boolean;
   liveNow?: boolean;
   providerId?: string | null;

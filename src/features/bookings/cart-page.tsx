@@ -1,7 +1,7 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, Trash2, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -35,28 +35,32 @@ export function CartStorageNotice() {
     </Alert>
   ) : null;
 }
+
 export function CartPage() {
   const { items, remove } = useCart();
   return (
-    <section className="flex flex-col gap-6">
-      <div>
-        <h1>Your next discoveries.</h1>
-        <p className="mt-3 text-muted-foreground">
-          Review your dates and travelers before checkout. Places are reserved
-          only when you confirm.
+    <section className="flex flex-col gap-6 max-w-4xl mx-auto pb-16">
+      <div className="border-b border-border/80 pb-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+          Shopping Cart
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Review your experience dates and traveler count before proceeding to checkout.
         </p>
       </div>
+
       <CartStorageNotice />
+
       {!items.length ? (
-        <>
+        <div className="flex flex-col items-center gap-4 py-12 text-center">
           <NoResults
-            title="Your cart is ready for an adventure"
-            description="Choose an experience and add a date and time."
+            title="Your cart is empty"
+            description="Explore authentic tours, activities, and guides across Sri Lanka."
           />
-          <Link to="/search" search={{}} className={buttonVariants()}>
-            Explore experiences
+          <Link to="/search" search={{}} className={buttonVariants({ size: "lg" })}>
+            Explore Experiences
           </Link>
-        </>
+        </div>
       ) : (
         <>
           <div className="flex flex-col gap-5">
@@ -68,7 +72,8 @@ export function CartPage() {
               />
             ))}
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-4">
+
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border/80 pt-6 mt-2">
             <Link
               to="/search"
               search={{}}
@@ -76,20 +81,25 @@ export function CartPage() {
             >
               Keep exploring
             </Link>
-            <Link to="/checkout" search={{}} className={buttonVariants()}>
-              Continue to checkout · {items.length}{" "}
-              {items.length === 1 ? "experience" : "experiences"}
+            <Link to="/checkout" search={{}} className={buttonVariants({ size: "lg" })}>
+              Continue to Checkout ({items.length}{" "}
+              {items.length === 1 ? "experience" : "experiences"})
+              <ArrowRight className="size-4 ml-1" />
             </Link>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Checkout checks current prices and availability for every booking.
-            Choose online payment or pay on arrival where your Buddy offers it.
-          </p>
+
+          <div className="flex items-center gap-2 p-4 rounded-xl bg-muted/40 text-xs text-muted-foreground border border-border/60">
+            <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
+            <span>
+              Real-time availability is verified at checkout. Choose instant online payment or pay on arrival where available.
+            </span>
+          </div>
         </>
       )}
     </section>
   );
 }
+
 function CartEntry({
   item,
   onRemove,
@@ -100,69 +110,75 @@ function CartEntry({
   const query = useQuery(packageQuery(item.experienceId));
   if (query.isPending) return <Loading />;
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{query.data?.title ?? "Experience unavailable"}</CardTitle>
-        <CardDescription>
-          {item.date} at {item.time} · Sri Lanka time · {item.travelers}{" "}
-          travelers
+    <Card className="rounded-2xl border border-border/80 shadow-xs overflow-hidden">
+      <CardHeader className="bg-muted/20 border-b border-border/60 pb-3">
+        <CardTitle className="text-lg font-bold text-foreground">
+          {query.data?.title ?? "Experience unavailable"}
+        </CardTitle>
+        <CardDescription className="text-xs">
+          Date: <strong>{item.date}</strong> at <strong>{item.time}</strong> (Sri Lanka time) · <strong>{item.travelers}</strong> traveler{item.travelers === 1 ? "" : "s"}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         {query.data ? (
           <BookingSummary item={{ ...item, experience: query.data }} />
         ) : (
-          <p role="alert">
-            This experience could not be loaded. Remove it or try again before
-            checkout.
+          <p role="alert" className="text-sm text-destructive">
+            This experience could not be loaded. Remove it or try again before checkout.
           </p>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-3">
+      <CardFooter className="flex flex-wrap gap-3 border-t border-border/60 bg-muted/10 py-3">
         <Link
           to="/experience/$id"
           params={{ id: item.experienceId }}
           search={bookingSearch(item, true)}
-          className={buttonVariants({ variant: "outline" })}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           Edit booking
         </Link>
-        <Button variant="ghost" onClick={onRemove}>
-          <Trash2 data-icon="inline-start" />
+        <Button variant="ghost" size="sm" onClick={onRemove} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Trash2 className="size-3.5 mr-1" />
           Remove
         </Button>
       </CardFooter>
     </Card>
   );
 }
+
 export function BookingSummary({ item }: { item: ReviewedItem }) {
   const money = useMoney();
   const { experience } = item;
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-      <div className="shrink-0 [&>img]:aspect-video [&>img]:w-full [&>img]:rounded-lg [&>img]:object-cover sm:[&>img]:w-40">
-        <Media src={experience.image} alt={experience.title} />
+      <div className="shrink-0 w-full sm:w-36 aspect-[4/3] rounded-xl overflow-hidden bg-muted">
+        <Media src={experience.image} alt={experience.title} className="size-full object-cover" />
       </div>
-      <div className="flex flex-col gap-2">
-        <h3>{experience.title}</h3>
-        <p>
-          {experience.options[item.option]?.name ??
-            "Option no longer available"}
+      <div className="flex flex-col gap-1.5 flex-1">
+        <h3 className="text-base font-bold text-foreground">{experience.title}</h3>
+        <p className="text-xs text-muted-foreground font-medium">
+          Option: <span className="text-foreground">{experience.options[item.option]?.name ?? "Standard Option"}</span>
         </p>
-        <p>
-          {item.date} at {item.time} · Sri Lanka time
-        </p>
-        <p>{item.travelers} travelers</p>
-        <strong>
-          {experience.options[item.option]
-            ? money(itemTotal(item), experience.currency ?? "LKR")
-            : "Choose another option"}
-        </strong>
-        <BookingPolicy
-          experience={experience}
-          date={item.date}
-          time={item.time}
-        />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>{item.date} at {item.time}</span>
+          <span>·</span>
+          <span>{item.travelers} traveler{item.travelers === 1 ? "" : "s"}</span>
+        </div>
+        <div className="pt-1">
+          <span className="text-xs text-muted-foreground">Total: </span>
+          <strong className="text-base font-extrabold text-foreground">
+            {experience.options[item.option]
+              ? money(itemTotal(item), experience.currency ?? "LKR")
+              : "Option unavailable"}
+          </strong>
+        </div>
+        <div className="pt-2 text-xs">
+          <BookingPolicy
+            experience={experience}
+            date={item.date}
+            time={item.time}
+          />
+        </div>
         {experience.canChat ? (
           <Link
             to="/inbox"
@@ -170,13 +186,13 @@ export function BookingSummary({ item }: { item: ReviewedItem }) {
               packageId: item.experienceId,
               returnTo: bookingReturn(item, true),
             }}
-            className="inline-flex min-h-11 items-center gap-2 text-primary"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mt-1"
           >
-            <MessageCircle className="size-4" />
+            <MessageCircle className="size-3.5" />
             Chat with provider
           </Link>
         ) : (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground mt-1">
             Provider chat unavailable
           </span>
         )}

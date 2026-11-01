@@ -38,7 +38,7 @@ function Settings({ account }: { account: Account }) {
     (role) => role === "provider" || role === "guide",
   );
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-7">
+    <section className="profile-workspace mx-auto flex max-w-6xl flex-col gap-7">
       <Link to="/account" className="text-primary">
         Back to your account
       </Link>
@@ -51,7 +51,7 @@ function Settings({ account }: { account: Account }) {
         </p>
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="flex flex-col gap-5 rounded-xl bg-secondary p-6 lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-5 rounded-lg border bg-card p-6 lg:sticky lg:top-28">
           <ProfileAvatar
             name={account.displayName}
             mediaId={account.avatarMediaId}
@@ -299,10 +299,7 @@ function ProfileForm({ account, buddy }: { account: Account; buddy: boolean }) {
                     id="profile-currency"
                     value={draft.profileDetails.displayCurrency}
                     onValueChange={(value) =>
-                      detail(
-                        "displayCurrency",
-                        value as DisplayCurrency,
-                      )
+                      detail("displayCurrency", value as DisplayCurrency)
                     }
                     disabled={save.isPending}
                     options={currencies.map((currency) => ({

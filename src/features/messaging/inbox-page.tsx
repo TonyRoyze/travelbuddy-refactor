@@ -1,7 +1,18 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useLayoutEffect, useRef, type FormEvent } from "react";
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type FormEvent,
+} from "react";
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Send, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -89,10 +100,12 @@ export function InboxPage({
   useEffect(() => {
     const latest = newestMessages.data;
     if (!active || !latest) return;
-    client.setQueryData<typeof messages.data>(["messages", active], (current) =>
-      current?.pages.length
-        ? { ...current, pages: [latest, ...current.pages.slice(1)] }
-        : current,
+    client.setQueryData<typeof messages.data>(
+      ["messages", active],
+      (current) =>
+        current?.pages.length
+          ? { ...current, pages: [latest, ...current.pages.slice(1)] }
+          : current,
     );
   }, [active, newestMessages.data, client]);
   const send = useMutation({
@@ -128,7 +141,8 @@ export function InboxPage({
       '[data-slot="message-scroller-viewport"]',
     );
     if (viewport) {
-      viewport.scrollTop = previous.top + viewport.scrollHeight - previous.height;
+      viewport.scrollTop =
+        previous.top + viewport.scrollHeight - previous.height;
     }
     scrollRestore.current = null;
   }, [pageCount]);
@@ -176,10 +190,10 @@ export function InboxPage({
         )}
       </div>
       {started.error && <Problem error={started.error} />}
-      <div className="grid min-h-[560px] overflow-hidden rounded-xl border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="conversation-workspace grid min-h-[560px] overflow-hidden rounded-lg border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside
           className={cn(
-            "border-r py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
+            "border-r bg-muted/25 py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
             active && "hidden md:block",
           )}
         >
@@ -270,9 +284,10 @@ export function InboxPage({
                           variant="outline"
                           disabled={messages.isFetchingNextPage}
                           onClick={() => {
-                            const viewport = document.querySelector<HTMLElement>(
-                              '[data-slot="message-scroller-viewport"]',
-                            );
+                            const viewport =
+                              document.querySelector<HTMLElement>(
+                                '[data-slot="message-scroller-viewport"]',
+                              );
                             if (viewport) {
                               scrollRestore.current = {
                                 height: viewport.scrollHeight,
@@ -347,7 +362,7 @@ export function InboxPage({
               )}
               {send.error && <Problem error={send.error} />}
               <form
-                className="flex items-end gap-3 border-t p-4 [&>div]:flex-1 [&_textarea]:min-h-14"
+                className="flex items-end gap-3 border-t bg-background/60 p-4 [&>div]:flex-1 [&_textarea]:min-h-14"
                 onSubmit={submit}
               >
                 <FieldGroup>

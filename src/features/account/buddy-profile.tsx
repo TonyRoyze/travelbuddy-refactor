@@ -61,10 +61,7 @@ export function BuddyProfilePage({ id }: { id: string }) {
           </Link>
         </div>
       )}
-      <Link to="/nearby" search={{}} className="text-primary">
-        Explore local hosts
-      </Link>
-      <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-wrap items-center gap-6 border-b pb-8">
         <ProfileAvatar
           name={p.displayName}
           mediaId={p.avatarMediaId}
@@ -72,7 +69,9 @@ export function BuddyProfilePage({ id }: { id: string }) {
         />
         <div className="flex flex-col gap-3">
           <p className="text-sm text-muted-foreground">Your local buddy</p>
-          <h1>{p.displayName}</h1>
+          <h1 className="editorial-title text-5xl md:text-7xl">
+            {p.displayName}
+          </h1>
           <div className="flex flex-wrap gap-5 text-sm">
             {d.homeBase && (
               <p className="inline-flex items-center gap-2">
@@ -117,7 +116,9 @@ export function BuddyProfilePage({ id }: { id: string }) {
         </section>
       )}
       <section className="flex flex-col gap-5">
-        <h2>Explore with {p.displayName}</h2>
+        <h2 className="editorial-title text-4xl md:text-5xl">
+          Explore with {p.displayName}
+        </h2>
         {p.packages.length ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {p.packages.map((p) => (

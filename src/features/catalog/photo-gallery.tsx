@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Grid2X2 } from "lucide-react";
 import { Media } from "./media";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,19 +27,19 @@ export function PhotoGallery({
     <>
       <div
         className={cn(
-          "my-6 grid grid-cols-1 gap-3",
-          photos.length === 2 && "sm:grid-cols-[2fr_1fr]",
-          photos.length > 2 && "sm:grid-cols-[2fr_1fr_1fr]",
+          "experience-photo-grid",
+          photos.length === 1 && "experience-photo-grid-single",
+          photos.length === 2 && "experience-photo-grid-pair",
         )}
       >
-        {photos.slice(0, 3).map((src, i) => (
+        {photos.slice(0, 4).map((src, i) => (
           <Button
             key={src}
             type="button"
             variant="ghost"
             aria-label={`Open experience photo ${i + 1}`}
             className={cn(
-              "relative h-64 overflow-hidden rounded-xl p-0 sm:h-[400px]",
+              "relative h-full w-full overflow-hidden rounded-none p-0",
               i > 0 && "hidden sm:block",
             )}
             onClick={() => {
@@ -53,8 +53,8 @@ export function PhotoGallery({
               className="size-full object-cover"
             />
             {i === 0 && (
-              <span className="absolute bottom-4 left-4 rounded-lg bg-card px-3 py-2 text-sm text-foreground">
-                View photos · {photos.length}
+              <span className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-card px-4 py-2 text-xs font-semibold text-foreground shadow-sm">
+                <Grid2X2 className="size-4" /> All {photos.length} photos
               </span>
             )}
           </Button>

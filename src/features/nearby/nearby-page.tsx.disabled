@@ -59,7 +59,7 @@ export function NearbyPage({ filters }: { filters: NearbySearch }) {
           their experiences’ meeting or pickup points.
         </p>
       </div>
-      <div className="flex flex-wrap items-end justify-between gap-4 rounded-xl border bg-card p-4 md:p-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 rounded-md border-y bg-transparent py-5">
         <Field className="min-w-56 flex-1 sm:max-w-sm">
           <FieldLabel htmlFor="nearby-area">Town or area</FieldLabel>
           <SelectCombobox
@@ -197,7 +197,7 @@ export function NearbyPage({ filters }: { filters: NearbySearch }) {
                 )}
               >
                 {selected && filters.view === "map" && (
-                  <div className="rounded-xl border-2 border-primary bg-secondary p-4">
+                  <div className="rounded-md border border-primary bg-secondary/40 p-4">
                     <p className="mb-2 text-sm">Selected meeting point</p>
                     <ResultCard item={selected} />
                   </div>
@@ -252,7 +252,7 @@ function ResultCard({
       <Media
         src={p.image}
         alt={p.title}
-        className="aspect-[16/9] w-full rounded-lg object-cover"
+        className="aspect-[4/3] w-full rounded-sm object-cover"
       />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Badge variant="secondary">Online · accepting requests</Badge>

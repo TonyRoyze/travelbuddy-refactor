@@ -26,7 +26,7 @@ export function BuddyPackagesPage() {
 function PackageList() {
   const query = useQuery(buddyPackagesQuery());
   return (
-    <section className="flex flex-col gap-7">
+    <section className="flex flex-col gap-8">
       <Link to="/account" className="text-primary">
         Buddy dashboard
       </Link>
@@ -67,7 +67,7 @@ function PackageList() {
                       : "/brand/buddy-mark.svg"
                   }
                   alt={input.title}
-                  className="aspect-video w-full object-cover"
+                  className="aspect-[4/3] w-full object-cover"
                 />
               </Link>
               <CardHeader>

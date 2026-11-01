@@ -98,7 +98,9 @@ function DashboardContent() {
                 <Card key={label}>
                   <CardHeader>
                     <CardDescription>{label}</CardDescription>
-                    <CardTitle>{value}</CardTitle>
+                    <CardTitle className="text-3xl font-medium tabular-nums">
+                      {value}
+                    </CardTitle>
                   </CardHeader>
                 </Card>
               ))}
@@ -126,7 +128,12 @@ function DashboardContent() {
                         id="booking-status"
                         name="status"
                         defaultValue={filters.status}
-                        options={["All", "Upcoming", "Completed", "Cancelled"].map((s) => ({ value: s, label: s }))}
+                        options={[
+                          "All",
+                          "Upcoming",
+                          "Completed",
+                          "Cancelled",
+                        ].map((s) => ({ value: s, label: s }))}
                       />
                     </Field>
                     <Field>

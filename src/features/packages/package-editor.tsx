@@ -172,7 +172,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
     }
   };
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-6">
+    <section className="package-workspace mx-auto flex max-w-6xl flex-col gap-6">
       <Link to="/account/packages" className="text-primary">
         My packages
       </Link>
@@ -210,9 +210,11 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                   type="submit"
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-2xl bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  className="h-12 w-12 rounded-md bg-muted text-muted-foreground hover:bg-secondary/80"
                   disabled={blocked}
-                  aria-label={save.isPending ? "Saving changes" : "Save changes"}
+                  aria-label={
+                    save.isPending ? "Saving changes" : "Save changes"
+                  }
                   title={save.isPending ? "Saving…" : "Save changes"}
                 >
                   <Save aria-hidden="true" />
@@ -372,9 +374,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                   <TimeListField
                     label={`Option ${index + 1} start times`}
                     times={option.times}
-                    onChange={(times) =>
-                      updateOption(index, { times })
-                    }
+                    onChange={(times) => updateOption(index, { times })}
                   />
                 </div>
               ))}
@@ -543,7 +543,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               )}
             </EditorSection>
           </fieldset>
-          <div className="mt-4 flex flex-col gap-3 rounded-xl border bg-card p-3">
+          <div className="mt-4 flex flex-col gap-4 rounded-lg border bg-card p-5">
             <p className="text-sm" role="status">
               {blocked
                 ? "Wait for saving and uploads to finish…"
@@ -581,7 +581,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
             </div>
           </div>
         </form>
-        <aside className="flex flex-col gap-5 rounded-xl bg-secondary p-5 lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-5 rounded-lg border bg-card p-6 lg:sticky lg:top-28">
           <h2 className="text-xl">{input.title || "Your next experience"}</h2>
           <p>
             {input.destination || "Add a destination"} · {input.durationMinutes}{" "}

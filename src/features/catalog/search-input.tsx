@@ -62,7 +62,7 @@ export function CatalogSearchInput({
       >
         <AutocompleteInputGroup
           render={<InputGroup />}
-          className="h-16 w-full rounded-lg bg-card p-2 shadow-sm"
+          className="h-16 w-full rounded-md bg-card p-2 shadow-none"
         >
           <AutocompleteInput
             id="q"

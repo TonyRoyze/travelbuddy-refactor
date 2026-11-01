@@ -57,4 +57,13 @@ describe("navigation and booking inputs", () => {
       sort: "recommended",
     });
   });
+  it("preserves a valid guest count in search links and rejects invalid counts", () => {
+    expect(
+      searchSchema.parse({ travelers: "4", date: "2026-11-01" }),
+    ).toMatchObject({ travelers: 4, date: "2026-11-01" });
+    for (const travelers of [0, 13, 2.5, "invalid"]) {
+      expect(searchSchema.parse({ travelers }).travelers).toBeUndefined();
+    }
+    expect(searchSchema.parse({}).travelers).toBeUndefined();
+  });
 });
