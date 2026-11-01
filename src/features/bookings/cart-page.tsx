@@ -1,7 +1,8 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { TrashIcon } from "@/components/custom-ui/trash-icon";
 import { packageQuery } from "@/lib/queries";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -76,7 +77,11 @@ export function CartPage() {
             >
               Keep exploring
             </Link>
-            <Link to="/checkout" search={{}} className={buttonVariants()}>
+            <Link
+              to="/checkout"
+              search={{ cart: true }}
+              className={buttonVariants()}
+            >
               Continue to checkout · {items.length}{" "}
               {items.length === 1 ? "experience" : "experiences"}
             </Link>
@@ -128,7 +133,7 @@ function CartEntry({
           Edit booking
         </Link>
         <Button variant="ghost" onClick={onRemove}>
-          <Trash2 data-icon="inline-start" />
+          <TrashIcon data-icon="inline-start" />
           Remove
         </Button>
       </CardFooter>
@@ -140,7 +145,7 @@ export function BookingSummary({ item }: { item: ReviewedItem }) {
   const { experience } = item;
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-      <div className="shrink-0 [&>img]:aspect-video [&>img]:w-full [&>img]:rounded-lg [&>img]:object-cover sm:[&>img]:w-40">
+      <div className="shrink-0 [&>span]:aspect-video [&>span]:w-full [&>span]:rounded-lg sm:[&>span]:w-40 [&>span>img]:size-full [&>span>img]:object-cover">
         <Media src={experience.image} alt={experience.title} />
       </div>
       <div className="flex flex-col gap-2">

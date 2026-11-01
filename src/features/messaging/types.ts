@@ -1,3 +1,9 @@
+export type MessageAttachment = {
+  path: string;
+  name: string;
+  type: string;
+  size: number;
+};
 export interface Conversation {
   unread?: number;
   id: string;
@@ -12,7 +18,9 @@ export interface ChatMessage {
   senderId: string;
   body: string;
   createdAt: string;
+  attachments?: MessageAttachment[];
   package: {
+    id?: string;
     title: string;
     description: string;
     price: number;

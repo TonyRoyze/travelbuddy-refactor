@@ -13,6 +13,9 @@ import {
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
+import { discoveryTowns } from "@/features/nearby/towns";
+
+const locations = discoveryTowns();
 export type SearchSuggestion = {
   value: string;
   kind: "destination" | "country" | "category" | "package";
@@ -40,7 +43,25 @@ export function CatalogSearchInput({
     staleTime: 30000,
     retry: false,
   });
-  const items = value.trim() === debounced ? (suggestions.data ?? []) : [];
+  const localItems: SearchSuggestion[] =
+    value.trim().length >= 2
+      ? locations
+          .filter((location) =>
+            location.toLowerCase().includes(value.trim().toLowerCase()),
+          )
+          .slice(0, 12)
+          .map((location) => ({ value: location, kind: "destination" }))
+      : [];
+  const remoteItems =
+    value.trim() === debounced ? (suggestions.data ?? []) : [];
+  const items = [...remoteItems, ...localItems].filter(
+    (item, index, all) =>
+      all.findIndex(
+        (other) =>
+          other.kind === item.kind &&
+          other.value.toLowerCase() === item.value.toLowerCase(),
+      ) === index,
+  );
   return (
     <Field>
       <FieldLabel htmlFor="q" className="sr-only">
@@ -93,7 +114,7 @@ export function CatalogSearchInput({
           </AutocompleteList>
         </AutocompleteContent>
       </Autocomplete>
-      {suggestions.error && value.trim().length >= 2 && (
+      {suggestions.error && !items.length && value.trim().length >= 2 && (
         <p className="text-xs text-muted-foreground">
           Suggestions are unavailable. You can still search by typing a place or
           experience.

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { accountQuery } from "@/lib/queries";
 import { Loading, Problem, NoResults } from "@/components/custom-ui/feedback";
-import { Link } from "@tanstack/react-router";
 export function BuddyGate({ children }: { children: ReactNode }) {
   const account = useQuery(accountQuery());
   if (account.isPending) return <Loading />;
@@ -14,9 +13,6 @@ export function BuddyGate({ children }: { children: ReactNode }) {
           title="Packages are for Buddy accounts"
           description="Sign in with a Buddy or Guide account to manage experiences."
         />
-        <Link to="/account" className="text-primary">
-          Back to your account
-        </Link>
       </div>
     );
   return children;

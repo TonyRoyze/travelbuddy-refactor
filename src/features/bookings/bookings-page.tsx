@@ -197,7 +197,7 @@ export function BookingsPage({
         ) : (
           rows.map((b) => (
             <article
-              className="grid gap-5 rounded-xl border bg-card p-5 sm:grid-cols-[180px_1fr] md:gap-8 md:p-6 [&>img]:aspect-[4/3] [&>img]:w-full [&>img]:rounded-lg [&>img]:object-cover [&_h2]:text-xl [&_h2]:leading-snug"
+              className="grid gap-5 rounded-xl border bg-card p-5 sm:grid-cols-[180px_1fr] md:gap-8 md:p-6 [&>span]:aspect-[4/3] [&>span]:w-full [&>span]:rounded-lg [&>span]:object-cover [&>span>img]:size-full [&>span>img]:object-cover [&_h2]:text-xl [&_h2]:leading-snug"
               key={b.id}
             >
               <Media src={b.experience.image} alt={b.experience.title} />

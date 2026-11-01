@@ -15,7 +15,6 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Problem } from "@/components/custom-ui/feedback";
 import { LoginForm } from "@/components/sections/login-form";
@@ -130,32 +129,32 @@ export function AuthPage({
       <LoginForm
         className="min-h-[min(820px,calc(100dvh-8rem))]"
         aside={
-        <section className="relative isolate flex min-h-52 flex-col justify-end overflow-hidden bg-hero px-6 py-7 text-hero-foreground sm:min-h-60 sm:px-9 sm:py-9 md:min-h-[min(820px,calc(100dvh-8rem))] md:px-12 md:py-12">
-          <img
-            src="https://images.unsplash.com/photo-1711100358840-ce6fd71c31b3?auto=format&fit=crop&w=1600&q=90"
-            alt="Sigiriya rising above the green landscape of Sri Lanka"
-            className="absolute inset-0 -z-20 size-full object-cover"
-          />
-          <div className="absolute inset-0 -z-10 bg-linear-to-t from-[#071e19]/95 via-[#071e19]/30 to-[#071e19]/10" />
-          <div className="flex flex-col items-start gap-4 sm:gap-6">
+          <section className="relative isolate flex min-h-52 flex-col justify-end overflow-hidden bg-hero px-6 py-7 text-hero-foreground sm:min-h-60 sm:px-9 sm:py-9 md:min-h-[min(820px,calc(100dvh-8rem))] md:px-12 md:py-12">
             <img
-              src="/brand/buddy-mark-inverse.svg"
-              alt=""
-              className="size-10 sm:size-14"
+              src="https://images.unsplash.com/photo-1711100358840-ce6fd71c31b3?auto=format&fit=crop&w=1600&q=90"
+              alt="Sigiriya rising above the green landscape of Sri Lanka"
+              className="absolute inset-0 -z-20 size-full object-cover"
             />
-            <h2 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl md:text-4xl">
-              Good company.
-              <br />
-              Great discoveries.
-            </h2>
-            <p className="max-w-sm text-sm leading-relaxed text-white/85 sm:text-base">
-              A little curiosity can lead somewhere wonderful.
+            <div className="absolute inset-0 -z-10 bg-linear-to-t from-[#071e19]/95 via-[#071e19]/30 to-[#071e19]/10" />
+            <div className="flex flex-col items-start gap-4 sm:gap-6">
+              <img
+                src="/brand/buddy-mark-inverse.svg"
+                alt=""
+                className="size-10 sm:size-14"
+              />
+              <h2 className="text-2xl leading-tight font-semibold tracking-tight sm:text-3xl md:text-4xl">
+                Good company.
+                <br />
+                Great discoveries.
+              </h2>
+              <p className="max-w-sm text-sm leading-relaxed text-white/85 sm:text-base">
+                A little curiosity can lead somewhere wonderful.
+              </p>
+            </div>
+            <p className="mt-6 hidden text-xs text-white/75 sm:block md:mt-12">
+              TravelBuddy · Your next story starts here.
             </p>
-          </div>
-          <p className="mt-6 hidden text-xs text-white/75 sm:block md:mt-12">
-            TravelBuddy · Your next story starts here.
-          </p>
-        </section>
+          </section>
         }
       >
         <section className="flex items-center justify-center px-6 py-10 sm:px-10 md:px-12 lg:px-16">
@@ -379,11 +378,6 @@ export function AuthPage({
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex flex-wrap justify-between gap-3">
-          <Link to="/login" search={{ returnTo: target }}>
-            Back to sign in
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );

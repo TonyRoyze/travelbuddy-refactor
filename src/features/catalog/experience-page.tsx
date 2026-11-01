@@ -135,8 +135,8 @@ export function ExperiencePage({
         ...chosen,
         time,
       });
-      if (checkout || editing)
-        await navigate({ to: checkout ? "/checkout" : "/cart", search: {} });
+      if (checkout) await navigate({ to: "/checkout", search: { cart: true } });
+      else if (editing) await navigate({ to: "/cart", search: {} });
       else
         setCartNotice(
           "Added to your cart. Places are reserved only after checkout confirmation.",
@@ -298,7 +298,10 @@ export function ExperiencePage({
                       time: undefined,
                     })
                   }
-                  options={p.options.map((o, i) => ({ value: String(i), label: o.name }))}
+                  options={p.options.map((o, i) => ({
+                    value: String(i),
+                    label: o.name,
+                  }))}
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
@@ -347,7 +350,9 @@ export function ExperiencePage({
                 <SelectCombobox
                   id="time"
                   value={time ?? ""}
-                  placeholder={availability.isPending ? "Checking times…" : "Choose a time"}
+                  placeholder={
+                    availability.isPending ? "Checking times…" : "Choose a time"
+                  }
                   onValueChange={(value) =>
                     setSelection({ ...selection, time: value })
                   }

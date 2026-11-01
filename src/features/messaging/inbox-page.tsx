@@ -1,17 +1,16 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useLayoutEffect, useRef, type FormEvent } from "react";
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Send, ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
-import { safeReturn } from "@/lib/validation";
 import type { Conversation, ChatMessage } from "./types";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { MessageComposer } from "./message-composer";
+import { MessageAttachment } from "./message-attachment";
 import {
   Message,
   MessageContent,
@@ -37,7 +36,6 @@ export function InboxPage({
   returnTo?: string;
 }) {
   const money = useMoney();
-  const [body, setBody] = useState("");
   const navigate = useNavigate();
   const client = useQueryClient();
   const account = useQuery(accountQuery());
@@ -86,28 +84,6 @@ export function InboxPage({
       })) as unknown as MessagePage,
     refetchInterval: 5000,
   });
-  useEffect(() => {
-    const latest = newestMessages.data;
-    if (!active || !latest) return;
-    client.setQueryData<typeof messages.data>(["messages", active], (current) =>
-      current?.pages.length
-        ? { ...current, pages: [latest, ...current.pages.slice(1)] }
-        : current,
-    );
-  }, [active, newestMessages.data, client]);
-  const send = useMutation({
-    mutationFn: () =>
-      rpc("send_message", { conversation_id: active!, body: body.trim() }),
-    onSuccess: () => {
-      setBody("");
-      client.invalidateQueries({ queryKey: ["message-head", active] });
-      client.invalidateQueries({ queryKey: ["conversations"] });
-    },
-  });
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    if (body.trim() && active) send.mutate();
-  }
   const thread = threads.data?.find((t) => t.id === active);
   const lastMessage = newestMessages.data?.items.at(-1)?.id;
   const pageCount = messages.data?.pages.length ?? 0;
@@ -163,17 +139,6 @@ export function InboxPage({
           <h1>A good trip starts with a hello.</h1>
           <p>Talk to your host before making it a plan.</p>
         </div>
-        {returnTo && (
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<a href={safeReturn(returnTo)} />}
-          >
-            {returnTo.startsWith("/account")
-              ? "Back to dashboard"
-              : "Back to booking"}
-          </Button>
-        )}
       </div>
       {started.error && <Problem error={started.error} />}
       <div className="grid min-h-[560px] overflow-hidden rounded-xl border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
@@ -247,8 +212,14 @@ export function InboxPage({
                     to="/experience/$id"
                     params={{ id: thread.packageId }}
                     search={{}}
+                    aria-label="View experience"
+                    title="View experience"
+                    className={buttonVariants({
+                      variant: "ghost",
+                      size: "icon",
+                    })}
                   >
-                    View experience
+                    <ExternalLink aria-hidden="true" />
                   </Link>
                 )}
               </header>
@@ -297,7 +268,7 @@ export function InboxPage({
                           />
                         ) : (
                           visibleMessages?.map((m) => (
-                            <MessageScrollerItem key={m.id}>
+                            <MessageScrollerItem key={m.id} messageId={m.id}>
                               <Message
                                 align={
                                   m.senderId === account.data?.id
@@ -307,6 +278,11 @@ export function InboxPage({
                               >
                                 <MessageContent>
                                   <Bubble
+                                    align={
+                                      m.senderId === account.data?.id
+                                        ? "end"
+                                        : "start"
+                                    }
                                     variant={
                                       m.senderId === account.data?.id
                                         ? "default"
@@ -319,7 +295,22 @@ export function InboxPage({
                                       </p>
                                       {m.package && (
                                         <div className="mt-3 flex flex-col gap-2">
-                                          <strong>{m.package.title}</strong>
+                                          {m.package.id ? (
+                                            <Link
+                                              to="/experience/$id"
+                                              params={{ id: m.package.id }}
+                                              search={{}}
+                                              className="inline-flex items-center gap-2 font-semibold"
+                                            >
+                                              {m.package.title}
+                                              <ExternalLink
+                                                className="size-4"
+                                                aria-hidden="true"
+                                              />
+                                            </Link>
+                                          ) : (
+                                            <strong>{m.package.title}</strong>
+                                          )}
                                           <p>
                                             {money(
                                               m.package.price,
@@ -331,6 +322,16 @@ export function InboxPage({
                                       )}
                                     </BubbleContent>
                                   </Bubble>
+                                  {!!m.attachments?.length && (
+                                    <div className="flex max-w-full flex-wrap gap-2">
+                                      {m.attachments.map((file) => (
+                                        <MessageAttachment
+                                          key={file.path}
+                                          file={file}
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
                                   <MessageFooter>
                                     {new Date(m.createdAt).toLocaleString()}
                                   </MessageFooter>
@@ -345,31 +346,15 @@ export function InboxPage({
                   </MessageScroller>
                 </MessageScrollerProvider>
               )}
-              {send.error && <Problem error={send.error} />}
-              <form
-                className="flex items-end gap-3 border-t p-4 [&>div]:flex-1 [&_textarea]:min-h-14"
-                onSubmit={submit}
-              >
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel className="sr-only" htmlFor="message">
-                      Your message
-                    </FieldLabel>
-                    <Textarea
-                      id="message"
-                      placeholder="Ask your host a question…"
-                      value={body}
-                      onChange={(e) => setBody(e.target.value)}
-                      maxLength={1000}
-                      required
-                    />
-                  </Field>
-                </FieldGroup>
-                <Button type="submit" disabled={send.isPending || !body.trim()}>
-                  <Send data-icon="inline-start" />
-                  {send.isPending ? "Sending…" : "Send"}
-                </Button>
-              </form>
+              <MessageComposer
+                key={active}
+                conversationId={active}
+                buddy={
+                  !!account.data?.roles.some(
+                    (role) => role === "provider" || role === "guide",
+                  )
+                }
+              />
             </>
           )}
         </div>
