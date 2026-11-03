@@ -8,7 +8,6 @@ import {
   Sparkles,
   Trees,
   Waves,
-  Map,
   SlidersHorizontal,
 } from "lucide-react";
 import { useMoney } from "@/features/currency/currency-provider";
@@ -401,10 +400,6 @@ export function CatalogPage({
           )}
         </aside>
       </div>
-      <Button className="catalog-show-map" onClick={() => setMapOpen(true)}>
-        <Map />
-        Show map
-      </Button>
     </section>
   );
 }
