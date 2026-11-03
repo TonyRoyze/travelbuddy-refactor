@@ -287,7 +287,9 @@ export function ExperiencePage({
           <CardContent className="flex flex-col gap-5">
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="option">Experience option</FieldLabel>
+                <FieldLabel className="sr-only" htmlFor="option">
+                  Experience option
+                </FieldLabel>
                 <SelectCombobox
                   id="option"
                   value={String(option)}
