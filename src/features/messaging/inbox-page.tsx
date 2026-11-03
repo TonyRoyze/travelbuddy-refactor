@@ -1,9 +1,15 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  LockKeyhole,
+  MessageCircleMore,
+  Search,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
@@ -35,6 +41,7 @@ export function InboxPage({
   packageId?: string;
   returnTo?: string;
 }) {
+  const [searchTerm, setSearchTerm] = useState("");
   const money = useMoney();
   const navigate = useNavigate();
   const client = useQueryClient();
@@ -85,6 +92,11 @@ export function InboxPage({
     refetchInterval: 5000,
   });
   const thread = threads.data?.find((t) => t.id === active);
+  const filteredThreads = (threads.data ?? []).filter((item) =>
+    [item.name, item.packageTitle, item.preview]
+      .filter(Boolean)
+      .some((value) => value!.toLocaleLowerCase().includes(searchTerm.trim().toLocaleLowerCase())),
+  );
   const lastMessage = newestMessages.data?.items.at(-1)?.id;
   const pageCount = messages.data?.pages.length ?? 0;
   const seenMessageIds = new Set<string>();
@@ -134,22 +146,37 @@ export function InboxPage({
     };
   }, [active, lastMessage, client]);
   return (
-    <section>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-5 [&_h1]:mb-3 [&_p]:text-muted-foreground">
+    <section className="messages-page">
+      <div className="messages-heading">
         <div>
-          <h1>A good trip starts with a hello.</h1>
-          <p>Talk to your host before making it a plan.</p>
+          <p className="messages-eyebrow">TRAVELBUDDY MESSAGES</p>
+          <h1>Messages</h1>
+          <p>Keep your plans and conversations together.</p>
         </div>
+        <span className="messages-private"><LockKeyhole aria-hidden="true" /> Private conversations</span>
       </div>
       {started.error && <Problem error={started.error} />}
-      <div className="conversation-workspace grid min-h-[560px] overflow-hidden rounded-lg border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="conversation-workspace chat-shell grid min-h-[560px] overflow-hidden rounded-lg border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside
           className={cn(
-            "border-r bg-muted/25 py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
+            "chat-sidebar border-r bg-muted/25 py-5",
             active && "hidden md:block",
           )}
         >
-          <h2>Your conversations</h2>
+          <div className="chat-sidebar-heading">
+            <h2>Chats</h2>
+            {!!threads.data?.length && <span>{threads.data.length}</span>}
+          </div>
+          <label className="chat-search">
+            <Search aria-hidden="true" />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search conversations"
+              aria-label="Search conversations"
+            />
+          </label>
           {threads.isPending ? (
             <Loading />
           ) : threads.error ? (
@@ -159,13 +186,15 @@ export function InboxPage({
               title="Say hello"
               description="Open an experience and choose Chat with provider."
             />
+          ) : !filteredThreads.length ? (
+            <p className="chat-search-empty">No conversations match that search.</p>
           ) : (
-            <nav aria-label="Conversations">
-              {threads.data.map((t) => (
-                <Button
+            <nav className="chat-thread-list" aria-label="Conversations">
+              {filteredThreads.map((t) => (
+                <button
                   key={t.id}
-                  variant={t.id === active ? "secondary" : "ghost"}
-                  className="h-auto w-full flex-col items-start gap-1 rounded-none px-5 py-4 text-left whitespace-normal [&_span]:text-xs [&_span]:text-muted-foreground [&_p]:max-w-full [&_p]:truncate [&_p]:text-sm"
+                  type="button"
+                  className={cn("chat-thread", t.id === active && "is-active")}
                   aria-current={t.id === active ? "true" : undefined}
                   onClick={() =>
                     navigate({
@@ -174,29 +203,37 @@ export function InboxPage({
                     })
                   }
                 >
-                  <strong>{t.name}</strong>
-                  {!!t.unread && <Badge>{t.unread} unread</Badge>}
-                  <span>{t.packageTitle ?? "Private conversation"}</span>
-                  <p>{t.preview ?? "Start a conversation"}</p>
-                </Button>
+                  <span className="chat-avatar" aria-hidden="true">{t.name.trim().slice(0, 1).toLocaleUpperCase()}</span>
+                  <span className="chat-thread-copy">
+                    <span className="chat-thread-topline">
+                      <strong>{t.name}</strong>
+                      <time dateTime={t.updatedAt}>{formatThreadTime(t.updatedAt)}</time>
+                    </span>
+                    <span className="chat-thread-topic">{t.packageTitle ?? "Private conversation"}</span>
+                    <span className="chat-thread-bottomline">
+                      <span>{t.preview ?? "Start a conversation"}</span>
+                      {!!t.unread && <Badge>{t.unread}</Badge>}
+                    </span>
+                  </span>
+                </button>
               ))}
             </nav>
           )}
         </aside>
-        <div
-          className={cn("flex min-w-0 flex-col", !active && "hidden md:flex")}
-        >
+        <div className={cn("chat-panel flex min-w-0 flex-col", !active && "hidden md:flex")}>
           {!active ? (
-            <NoResults
-              title="A local connection starts here"
-              description="Choose a conversation or find a host on an experience page."
-            />
+            <div className="chat-welcome">
+              <span><MessageCircleMore aria-hidden="true" /></span>
+              <h2>Your conversations, all in one place</h2>
+              <p>Choose a chat to pick up where your trip plans left off.</p>
+            </div>
           ) : (
             <>
-              <header className="flex items-center gap-3 border-b px-4 py-3 [&_h2]:text-base [&_p]:text-xs [&_p]:text-muted-foreground [&>a]:ml-auto [&>a]:text-xs [&>a]:font-semibold [&>a]:text-primary">
+              <header className="chat-header flex items-center gap-3 border-b px-4 py-3">
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="chat-back"
                   aria-label="All conversations"
                   onClick={() =>
                     navigate({ to: "/inbox", search: { returnTo } })
@@ -204,9 +241,10 @@ export function InboxPage({
                 >
                   <ArrowLeft />
                 </Button>
-                <div>
+                <span className="chat-avatar chat-header-avatar" aria-hidden="true">{(thread?.name ?? "T").trim().slice(0, 1).toLocaleUpperCase()}</span>
+                <div className="chat-header-copy">
                   <h2>{thread?.name ?? "Your provider"}</h2>
-                  <p>{thread?.packageTitle ?? "Private conversation"}</p>
+                  <p>{thread?.packageTitle ?? "TravelBuddy conversation"}</p>
                 </div>
                 {thread?.packageId && (
                   <Link
@@ -221,6 +259,7 @@ export function InboxPage({
                     })}
                   >
                     <ExternalLink aria-hidden="true" />
+                    <span>View experience</span>
                   </Link>
                 )}
               </header>
@@ -234,7 +273,7 @@ export function InboxPage({
                   autoScroll
                   defaultScrollPosition="end"
                 >
-                  <MessageScroller className="h-[400px] min-h-[300px] max-h-[55vh] flex-1">
+                  <MessageScroller className="chat-scroll h-[400px] min-h-[300px] max-h-[55vh] flex-1">
                     {messages.hasNextPage && (
                       <div className="border-b p-3 text-center">
                         <Button
@@ -262,7 +301,7 @@ export function InboxPage({
                       </div>
                     )}
                     <MessageScrollerViewport>
-                      <MessageScrollerContent className="p-5">
+                      <MessageScrollerContent className="chat-messages p-5">
                         {!visibleMessages?.length ? (
                           <NoResults
                             title="Meet your host"
@@ -363,4 +402,17 @@ export function InboxPage({
       </div>
     </section>
   );
+}
+
+function formatThreadTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const today = new Date();
+  if (date.toDateString() === today.toDateString()) {
+    return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+  if (date.getFullYear() === today.getFullYear()) {
+    return date.toLocaleDateString([], { month: "short", day: "numeric" });
+  }
+  return date.toLocaleDateString([], { year: "2-digit", month: "numeric", day: "numeric" });
 }
