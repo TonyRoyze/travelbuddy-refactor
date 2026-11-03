@@ -81,10 +81,13 @@ export function CartPage() {
             >
               Keep exploring
             </Link>
-            <Link to="/checkout" search={{}} className={buttonVariants({ size: "lg" })}>
-              Continue to Checkout ({items.length}{" "}
-              {items.length === 1 ? "experience" : "experiences"})
-              <ArrowRight className="size-4 ml-1" />
+            <Link
+              to="/checkout"
+              search={{ cart: true }}
+              className={buttonVariants()}
+            >
+              Continue to checkout · {items.length}{" "}
+              {items.length === 1 ? "experience" : "experiences"}
             </Link>
           </div>
 
@@ -151,8 +154,8 @@ export function BookingSummary({ item }: { item: ReviewedItem }) {
   const { experience } = item;
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-      <div className="shrink-0 w-full sm:w-36 aspect-[4/3] rounded-xl overflow-hidden bg-muted">
-        <Media src={experience.image} alt={experience.title} className="size-full object-cover" />
+      <div className="shrink-0 [&>span]:aspect-video [&>span]:w-full [&>span]:rounded-lg sm:[&>span]:w-40 [&>span>img]:size-full [&>span>img]:object-cover">
+        <Media src={experience.image} alt={experience.title} />
       </div>
       <div className="flex flex-col gap-1.5 flex-1">
         <h3 className="text-base font-bold text-foreground">{experience.title}</h3>

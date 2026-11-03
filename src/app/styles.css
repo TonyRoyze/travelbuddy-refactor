@@ -1901,3 +1901,13 @@
 .filter-clear { padding:.6rem 0; font-size:.95rem; font-weight:600; text-decoration:underline; text-underline-offset:.2rem; }
 .filter-modal-footer > button:last-child { border-radius:.9rem; min-width:11rem; }
 @media(max-width:600px) { .catalog-filter-dialog[data-slot="dialog-content"] { width:calc(100vw - 1rem); max-height:92dvh; height:92dvh; border-radius:1.5rem; } .filter-modal-body { padding:0 1.15rem; } .filter-modal-footer { padding:1rem 1.15rem; } .filter-category-options { gap:.5rem; } .filter-details-grid { grid-template-columns:1fr; } .filter-price-fields { gap:.5rem; } .filter-price-fields label > div { padding-inline:.6rem; } }
+@media (width < 48rem) {
+  [data-package-editor-step="0"] > :not(:nth-child(1)),
+  [data-package-editor-step="1"] > :not(:nth-child(2)),
+  [data-package-editor-step="2"] > :not(:nth-child(3)),
+  [data-package-editor-step="3"] > :not(:nth-child(4)),
+  [data-package-editor-step="4"] > :not(:nth-child(5)),
+  [data-package-editor-step="5"] > :not(:nth-child(6)) {
+    display: none;
+  }
+}

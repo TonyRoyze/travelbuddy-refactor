@@ -253,9 +253,6 @@ function CheckoutContent({
   );
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-6">
-      <Link to="/cart" className="text-primary">
-        Back to your cart
-      </Link>
       <div>
         <h1>{review ? "Review & Confirm Booking" : "Traveler Information"}</h1>
         <p className="mt-3 text-muted-foreground">

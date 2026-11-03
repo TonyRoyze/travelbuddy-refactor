@@ -22,10 +22,9 @@ import { ExperienceCard } from "./experience-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
-import { Field, FieldLabel } from "@/components/ui/field";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-
-
+import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 const MeetingMap = lazy(() =>
@@ -280,7 +279,7 @@ export function CatalogPage({
               <p>Experience price per person, in LKR.</p>
               <div className="filter-price-fields">
                 <label><span>Minimum</span><div><small>LKR</small><Input aria-label="Minimum price in LKR" name="minPrice" type="number" min="0" step="any" placeholder="Any" defaultValue={defaults.minPrice} /></div></label>
-                <span aria-hidden="true">—</span>
+                <span aria-hidden="true">ï¿½</span>
                 <label><span>Maximum</span><div><small>LKR</small><Input aria-label="Maximum price in LKR" name="maxPrice" type="number" min="0" step="any" placeholder="Any" defaultValue={defaults.maxPrice} /></div></label>
               </div>
             </section>
@@ -294,7 +293,7 @@ export function CatalogPage({
             <section className="filter-section">
               <h3>Where and when</h3>
               <div className="filter-details-grid">
-                <Field><FieldLabel htmlFor="destination">Destination</FieldLabel><Input id="destination" name="destination" placeholder="Any destination" defaultValue={defaults.destination} maxLength={120} /></Field>
+                <Field><FieldLabel htmlFor="destination">Destination</FieldLabel><LocationAutocomplete id="destination" name="destination" placeholder="Any destination" defaultValue={defaults.destination} /></Field>
                 <Field><FieldLabel htmlFor="search-date">Experience date</FieldLabel><Input id="search-date" name="date" type="date" min={today()} max={addDays(today(),180)} defaultValue={defaults.date} /></Field>
               </div>
             </section>

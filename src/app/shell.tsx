@@ -61,6 +61,15 @@ export function Shell() {
       ? { ...item, to: "/account/dashboard" as const, label: "Dashboard" }
       : item,
   );
+  const mobileNavigation = [
+    ...navigation,
+    { to: "/cart" as const, label: "Cart", icon: ShoppingBag },
+    {
+      to: session ? ("/account" as const) : ("/login" as const),
+      label: session ? "Profile" : "Sign in",
+      icon: UserRound,
+    },
+  ];
   const auth = [
     "/login",
     "/register",

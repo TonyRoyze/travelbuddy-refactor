@@ -15,7 +15,6 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Problem } from "@/components/custom-ui/feedback";
 import { LoginForm } from "@/components/sections/login-form";
@@ -379,11 +378,6 @@ export function AuthPage({
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex flex-wrap justify-between gap-3">
-          <Link to="/login" search={{ returnTo: target }}>
-            Back to sign in
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );

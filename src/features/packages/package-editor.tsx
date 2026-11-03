@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
+import { Save } from "lucide-react";
 import { Link, useNavigate, useBlocker } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rpc } from "@/lib/supabase";
@@ -16,10 +17,19 @@ import { EditorField, EditorSection } from "./fields";
 import { PackageMediaPicker } from "./media-picker";
 import { ScheduleEditor } from "./schedule-editor";
 import { TimeListField } from "./time-list-field";
+import { DurationPicker } from "@/components/custom-ui/duration-picker";
+import { TagsInput } from "@/components/custom-ui/tags-input";
+import { Stepper } from "@/components/custom-ui/stepper";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { DeleteButton } from "@/components/custom-ui/delete-button";
+import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+} from "@/components/ui/field";
 import {
   Combobox,
   ComboboxContent,
@@ -28,7 +38,8 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import { Badge } from "@/components/ui/badge";
-import { Save } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+
 import { Loading, Problem } from "@/components/custom-ui/feedback";
 export function BuddyPackageEditor({ id }: { id?: string }) {
   return (
@@ -75,6 +86,21 @@ function Editor({ saved }: { saved?: EditorPackage }) {
   const client = useQueryClient(),
     navigate = useNavigate();
   const [published, setPublished] = useState(saved?.input.published ?? false);
+  const [step, setStep] = useState(0);
+  const steps = [
+    "The experience",
+    "Photos and clips",
+    "Price and availability",
+    "Operating schedule",
+    "Practical details",
+    "Itinerary",
+  ];
+  function goToStep(next: number) {
+    setStep(next);
+    document
+      .getElementById("package-editor-progress")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   function change<K extends keyof PackageEditorData>(
     key: K,
     value: PackageEditorData[K],
@@ -179,7 +205,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1>{saved ? "Edit your experience" : "Create your experience"}</h1>
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-3 hidden text-muted-foreground md:block">
             Give travellers a clear picture, from the first hello to the last
             stop.
           </p>
@@ -187,6 +213,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
         <form
+          noValidate
           className="min-w-0"
           onSubmit={(event) => {
             event.preventDefault();
@@ -194,7 +221,22 @@ function Editor({ saved }: { saved?: EditorPackage }) {
             save.mutate(published);
           }}
         >
-          <fieldset disabled={blocked} className="flex min-w-0 flex-col gap-6">
+          <div
+            id="package-editor-progress"
+            className="mb-4 flex scroll-mt-24 flex-col gap-3 md:hidden"
+          >
+            <Stepper
+              steps={steps}
+              value={step}
+              onValueChange={goToStep}
+              disabled={blocked}
+            />
+          </div>
+          <fieldset
+            data-package-editor-step={step}
+            disabled={blocked}
+            className="flex min-w-0 flex-col gap-6"
+          >
             <EditorSection
               id="package-story"
               title="The experience"
@@ -229,12 +271,16 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                 required
               />
               <FieldGroup className="grid gap-5 sm:grid-cols-2">
-                <EditorField
-                  label="Destination"
-                  value={input.destination}
-                  onChange={(v) => change("destination", v)}
-                  maxLength={120}
-                />
+                <Field>
+                  <FieldLabel htmlFor="package-destination">
+                    Destination
+                  </FieldLabel>
+                  <LocationAutocomplete
+                    id="package-destination"
+                    value={input.destination}
+                    onValueChange={(value) => change("destination", value)}
+                  />
+                </Field>
                 <EditorField
                   label="Country"
                   value={input.country}
@@ -272,15 +318,26 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                     </ComboboxContent>
                   </Combobox>
                 </Field>
-                <EditorField
-                  label="Duration in minutes"
-                  type="number"
-                  min={15}
-                  max={10080}
-                  step={1}
-                  value={input.durationMinutes}
-                  onChange={(v) => change("durationMinutes", Number(v))}
-                />
+                <Field className="min-w-0">
+                  <FieldTitle>Duration</FieldTitle>
+                  <DurationPicker
+                    aria-label="Package duration"
+                    role="group"
+                    value={{
+                      hours: Math.floor(input.durationMinutes / 60),
+                      minutes: input.durationMinutes % 60,
+                    }}
+                    maxHours={168}
+                    maxMinutes={59}
+                    className="justify-start"
+                    onChange={({ hours, minutes }) =>
+                      change(
+                        "durationMinutes",
+                        Math.min(10080, hours * 60 + minutes),
+                      )
+                    }
+                  />
+                </Field>
               </FieldGroup>
               <EditorField
                 label="Tell the story"
@@ -289,13 +346,25 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                 onChange={(v) => change("description", v)}
                 maxLength={5000}
               />
-              <EditorField
-                label="Highlights"
-                multiline
-                value={input.highlights.join("\n")}
-                onChange={(v) => change("highlights", v.split("\n"))}
-                description="One highlight per line, up to 12."
-              />
+              <Field>
+                <FieldLabel htmlFor="package-highlights-input">
+                  Highlights
+                </FieldLabel>
+                <TagsInput
+                  id="package-highlights-input"
+                  value={input.highlights}
+                  onChange={(highlights) => change("highlights", highlights)}
+                  maxTags={12}
+                  maxTagLength={240}
+                  describedBy="package-highlights-hint"
+                />
+                <p
+                  id="package-highlights-hint"
+                  className="text-xs text-muted-foreground"
+                >
+                  Press Enter or comma after each highlight. Up to 12.
+                </p>
+              </Field>
             </EditorSection>
             <EditorSection
               id="package-media"
@@ -325,58 +394,59 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               description="Prices are LKR per person. Start times use Sri Lanka time."
             >
               {input.options.map((option, index) => (
-                <div
-                  key={index}
-                  className="relative flex flex-col gap-4 rounded-lg border p-4"
-                >
-                  {input.options.length > 1 && (
-                    <DeleteButton
-                      className="absolute right-4 top-4 z-10"
-                      onConfirm={() =>
-                        change(
-                          "options",
-                          input.options.filter((_, i) => i !== index),
-                        )
-                      }
-                    />
-                  )}
-                  <h3>Option {index + 1}</h3>
-                  <EditorField
-                    label={`Option ${index + 1} name`}
-                    value={option.name}
-                    maxLength={120}
-                    onChange={(v) => updateOption(index, { name: v })}
-                  />
-                  <FieldGroup className="grid gap-5 sm:grid-cols-2">
+                <Fragment key={index}>
+                  {index > 0 && <Separator className="my-2" />}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex min-h-12 items-center justify-between gap-3">
+                      <h3>Option {index + 1}</h3>
+                      {input.options.length > 1 && (
+                        <DeleteButton
+                          onConfirm={() =>
+                            change(
+                              "options",
+                              input.options.filter((_, i) => i !== index),
+                            )
+                          }
+                        />
+                      )}
+                    </div>
                     <EditorField
-                      label={`Option ${index + 1} price (LKR)`}
-                      type="number"
-                      min={0}
-                      max={10000000}
-                      step={0.01}
-                      value={option.price}
-                      onChange={(v) =>
-                        updateOption(index, { price: Number(v) })
-                      }
+                      label={`Option ${index + 1} name`}
+                      value={option.name}
+                      maxLength={120}
+                      onChange={(v) => updateOption(index, { name: v })}
                     />
-                    <EditorField
-                      label={`Option ${index + 1} maximum travellers`}
-                      type="number"
-                      min={1}
-                      max={12}
-                      step={1}
-                      value={option.capacity}
-                      onChange={(v) =>
-                        updateOption(index, { capacity: Number(v) })
-                      }
+                    <FieldGroup className="grid gap-5 sm:grid-cols-2">
+                      <EditorField
+                        label={`Option ${index + 1} price (LKR)`}
+                        type="number"
+                        min={0}
+                        max={10000000}
+                        step={0.01}
+                        value={option.price}
+                        onChange={(v) =>
+                          updateOption(index, { price: Number(v) })
+                        }
+                      />
+                      <EditorField
+                        label={`Option ${index + 1} maximum travellers`}
+                        type="number"
+                        min={1}
+                        max={12}
+                        step={1}
+                        value={option.capacity}
+                        onChange={(v) =>
+                          updateOption(index, { capacity: Number(v) })
+                        }
+                      />
+                    </FieldGroup>
+                    <TimeListField
+                      label={`Option ${index + 1} start times`}
+                      times={option.times}
+                      onChange={(times) => updateOption(index, { times })}
                     />
-                  </FieldGroup>
-                  <TimeListField
-                    label={`Option ${index + 1} start times`}
-                    times={option.times}
-                    onChange={(times) => updateOption(index, { times })}
-                  />
-                </div>
+                  </div>
+                </Fragment>
               ))}
               {input.options.length < 8 && (
                 <Button
@@ -543,8 +613,48 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               )}
             </EditorSection>
           </fieldset>
-          <div className="mt-4 flex flex-col gap-4 rounded-lg border bg-card p-5">
-            <p className="text-sm" role="status">
+          <div className="mt-5 flex flex-col gap-3">
+            <div className="flex items-center justify-end gap-3">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  disabled={blocked || !dirty}
+                >
+                  {save.isPending ? "Saving…" : dirty ? "Save" : "Saved"}
+                </Button>
+                {step < steps.length - 1 && (
+                  <Button
+                    type="button"
+                    className="md:hidden"
+                    disabled={blocked}
+                    onClick={() => goToStep(step + 1)}
+                  >
+                    Continue
+                  </Button>
+                )}
+              </div>
+              <div
+                className={
+                  step === steps.length - 1
+                    ? "flex justify-end"
+                    : "hidden md:flex md:justify-end"
+                }
+              >
+                <Button
+                  type="button"
+                  variant={published ? "outline" : "default"}
+                  disabled={blocked}
+                  onClick={() => {
+                    setError(undefined);
+                    save.mutate(!published);
+                  }}
+                >
+                  {published ? "Unpublish" : "Publish experience"}
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground" role="status">
               {blocked
                 ? "Wait for saving and uploads to finish…"
                 : dirty
@@ -567,18 +677,6 @@ function Editor({ saved }: { saved?: EditorPackage }) {
               </div>
             )}
             {notice && <p role="status">{notice}</p>}
-            <div className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                disabled={blocked}
-                onClick={() => {
-                  setError(undefined);
-                  save.mutate(!published);
-                }}
-              >
-                {published ? "Unpublish package" : "Publish package"}
-              </Button>
-            </div>
           </div>
         </form>
         <aside className="flex flex-col gap-5 rounded-lg border bg-card p-6 lg:sticky lg:top-28">

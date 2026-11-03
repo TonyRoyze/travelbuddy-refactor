@@ -10,6 +10,8 @@ import {
   UserRound,
   Package,
   Star,
+  LogOut,
+  Pencil,
 } from "lucide-react";
 import type { Account } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
@@ -19,7 +21,6 @@ import { rpc, supabase } from "@/lib/supabase";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
-  CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
@@ -40,11 +41,15 @@ export function SignOutButton() {
   return (
     <div className="flex flex-col gap-3">
       <Button
-        variant="outline"
+        variant="destructive"
+        size="sm"
+        aria-label={logout.isPending ? "Signing out" : "Sign out"}
+        title={logout.isPending ? "Signing out…" : "Sign out"}
         disabled={logout.isPending}
         onClick={() => logout.mutate()}
       >
-        {logout.isPending ? "Signing out…" : "Sign out"}
+        <LogOut aria-hidden="true" />
+        Sign out
       </Button>
       {logout.error && <Problem error={logout.error} />}
     </div>
@@ -138,43 +143,53 @@ export function AccountOverview({ account: a }: { account: Account }) {
         </p>
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
-        <Card>
-          <CardHeader>
-            <ProfileAvatar
-              name={a.displayName}
-              mediaId={a.avatarMediaId}
-              className="mb-3 size-24"
-            />
-            <CardTitle>{a.displayName}</CardTitle>
-            <CardDescription className="break-all">{a.email}</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-wrap gap-2">
-              {a.roles.map((role) => (
-                <Badge key={role} variant="secondary">
-                  {role === "provider"
-                    ? "Buddy"
-                    : role === "traveler"
-                      ? "Traveller"
-                      : role}
-                </Badge>
-              ))}
+        <Card className="w-full max-w-full">
+          <CardContent className="flex items-center gap-4">
+            <div className="relative shrink-0">
+              <ProfileAvatar
+                name={a.displayName}
+                mediaId={a.avatarMediaId}
+                className="size-20"
+              />
+              <Badge
+                className="absolute left-1 top-1 border-2 border-white"
+                variant="secondary"
+                aria-label={buddy ? "Buddy" : "Traveller"}
+                title={buddy ? "Buddy" : "Traveller"}
+              >
+                {buddy ? "B" : "T"}
+              </Badge>
             </div>
-            {a.profileDetails.homeBase && <p>{a.profileDetails.homeBase}</p>}
+            <div className="flex min-w-0 flex-col gap-1">
+              <CardTitle>{a.displayName}</CardTitle>
+              <CardDescription className="break-all">{a.email}</CardDescription>
+              {a.profileDetails.homeBase && (
+                <p className="text-sm text-muted-foreground">
+                  {a.profileDetails.homeBase}
+                </p>
+              )}
+            </div>
+          </CardContent>
+          <CardContent className="grid w-full grid-cols-3 gap-2 pt-0 [&>*]:w-full">
             <Link
               to={buddy ? "/account/profile" : "/account/settings"}
-              className={buttonVariants({ variant: "outline" })}
+              aria-label="Edit profile"
+              title="Edit profile"
+              className={buttonVariants({ variant: "default", size: "sm" })}
             >
-              {buddy ? "Edit Buddy profile" : "Edit profile"}
+              <Pencil data-icon="inline-start" />
+              Edit
             </Link>
             {buddy && (
               <Link
                 to="/buddy/$id"
                 params={{ id: a.id }}
-                className="inline-flex min-h-11 items-center gap-2 text-primary"
+                aria-label="View public profile"
+                title="View public profile"
+                className={buttonVariants({ variant: "default", size: "sm" })}
               >
-                <UserRound className="size-4" />
-                View public profile
+                <UserRound data-icon="inline-start" />
+                View
               </Link>
             )}
             <SignOutButton />

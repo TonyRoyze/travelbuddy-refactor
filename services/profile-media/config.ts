@@ -2,7 +2,7 @@ export async function checkUploadProject(
   browser: { url: string; key: string },
   server: { url: string; key: string },
 ) {
-  if (browser.url === server.url || browser.key === server.key) return;
+  if (browser.url === server.url && browser.key === server.key) return;
   // Different public/internal URLs can legitimately reach the same instance.
   // Ask the server gateway whether it accepts the browser's public API key.
   let response: Response;
@@ -20,4 +20,12 @@ export async function checkUploadProject(
     throw new Error(
       `Uploads use ${new URL(server.url).origin}, but the browser uses ${new URL(browser.url).origin} and its API key is rejected by the upload instance. Configure .env.media.local with credentials for the browser's Supabase instance, then restart pnpm dev.`,
     );
+  if (browser.key !== server.key) {
+    const serverResponse = await fetch(new URL("/auth/v1/settings", server.url), {
+      headers: { apikey: server.key },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!serverResponse.ok)
+      throw new Error("The upload service API key is rejected. Configure SUPABASE_PUBLISHABLE_KEY in .env.media.local for the browser's Supabase instance, then restart pnpm dev.");
+  }
 }

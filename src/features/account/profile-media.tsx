@@ -1,4 +1,10 @@
-import { useId, useState } from "react";
+import { Camera } from "lucide-react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { useId, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase, rpc } from "@/lib/supabase";
 import { validateProfileFile } from "./profile-model";
@@ -25,6 +31,9 @@ export function ProfileMedia({
 }) {
   const client = useQueryClient(),
     id = useId();
+  const libraryInput = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<unknown>(),
     [notice, setNotice] = useState("");
@@ -101,113 +110,162 @@ export function ProfileMedia({
       upload.mutate(file);
     }
   };
+  if (kind === "photo") {
+    const selectPhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.currentTarget.files?.[0];
+      event.currentTarget.value = "";
+      setPhotoMenuOpen(false);
+      choose(file);
+    };
+    return (
+      <div
+        className="flex shrink-0 flex-col items-center gap-2"
+        aria-busy={pending}
+      >
+        <input
+          ref={libraryInput}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          aria-label="Select profile photo from library"
+          className="hidden"
+          disabled={pending}
+          onChange={selectPhoto}
+        />
+        <input
+          ref={cameraInput}
+          type="file"
+          accept="image/*"
+          capture="user"
+          aria-label="Take a profile photo"
+          className="hidden"
+          disabled={pending}
+          onChange={selectPhoto}
+        />
+        <div className="relative mb-2 size-24">
+          <ProfileAvatar
+            name={account.displayName}
+            mediaId={account.avatarMediaId}
+            className="size-24 border-4 border-card"
+          />
+          <Popover open={photoMenuOpen} onOpenChange={setPhotoMenuOpen}>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute left-1/2 top-18 z-10 w-18 h-8 -translate-x-1/2 justify-around rounded-full border-0 bg-card shadow-sm"
+                  disabled={pending}
+                />
+              }
+            >
+              <Camera data-icon="inline-start" />
+              {pending ? "Saving…" : account.avatarMediaId ? "Edit" : "Add"}
+            </PopoverTrigger>
+            <PopoverContent className="w-64 rounded-2xl p-3" sideOffset={10}>
+              <Button
+                variant="secondary"
+                className="w-full rounded-full"
+                onClick={() => libraryInput.current?.click()}
+              >
+                Select from library
+              </Button>
+              <Button
+                variant="secondary"
+                className="w-full rounded-full"
+                onClick={() => cameraInput.current?.click()}
+              >
+                Take a photo
+              </Button>
+              {account.avatarMediaId && (
+                <Button
+                  variant="destructive"
+                  className="w-full rounded-full"
+                  onClick={() => {
+                    setPhotoMenuOpen(false);
+                    change.mutate([]);
+                  }}
+                >
+                  Remove photo
+                </Button>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+        {(error || upload.error || change.error) && (
+          <Problem error={error ?? upload.error ?? change.error} />
+        )}
+        {notice && (
+          <p role="status" className="text-center text-sm">
+            {notice}
+          </p>
+        )}
+      </div>
+    );
+  }
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {kind === "photo"
-            ? "Your profile photo"
-            : "Meet your buddy, on video."}
-        </CardTitle>
+        <CardTitle>Meet your buddy, on video.</CardTitle>
         <CardDescription>
-          {kind === "photo"
-            ? "Choose a photo that makes it easy to recognise you. JPEG, PNG or WebP, up to 5 MB."
-            : "Introduce yourself or share a glimpse of the places you know. Up to three MP4/WebM clips, 60 seconds and 25 MB each."}
+          Introduce yourself or share a glimpse of the places you know. Up to
+          three MP4/WebM clips, 60 seconds and 25 MB each.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
-        {kind === "photo" ? (
-          <div className="flex flex-wrap items-center gap-5">
-            <ProfileAvatar
-              name={account.displayName}
-              mediaId={account.avatarMediaId}
-            />
-            {account.avatarMediaId && (
-              <Button
-                variant="outline"
-                disabled={pending}
-                onClick={() => change.mutate([])}
-              >
-                Remove photo
-              </Button>
-            )}
-          </div>
-        ) : (
-          clips.length > 0 && (
-            <div className="grid gap-5 sm:grid-cols-2">
-              {clips.map((clip, index) => (
-                <div key={clip} className="flex flex-col gap-3">
-                  <VideoMedia
-                    id={clip}
-                    title={`Introduction video ${index + 1}`}
-                  />
-                  <div className="flex flex-wrap gap-2">
+        {clips.length > 0 && (
+          <div className="grid gap-5 sm:grid-cols-2">
+            {clips.map((clip, index) => (
+              <div key={clip} className="flex flex-col gap-3">
+                <VideoMedia
+                  id={clip}
+                  title={`Introduction video ${index + 1}`}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={pending}
+                    onClick={() =>
+                      change.mutate(clips.filter((value) => value !== clip))
+                    }
+                  >
+                    Remove clip {index + 1}
+                  </Button>
+                  {index > 0 && (
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       disabled={pending}
-                      onClick={() =>
-                        change.mutate(clips.filter((value) => value !== clip))
-                      }
+                      onClick={() => {
+                        const next = [...clips];
+                        [next[index - 1], next[index]] = [
+                          next[index],
+                          next[index - 1],
+                        ];
+                        change.mutate(next);
+                      }}
                     >
-                      Remove clip {index + 1}
+                      Move earlier
                     </Button>
-                    {index > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={pending}
-                        onClick={() => {
-                          const next = [...clips];
-                          [next[index - 1], next[index]] = [
-                            next[index],
-                            next[index - 1],
-                          ];
-                          change.mutate(next);
-                        }}
-                      >
-                        Move earlier
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )
+              </div>
+            ))}
+          </div>
         )}
         <Field data-disabled={pending}>
           <FieldLabel htmlFor={id}>
-            {pending
-              ? "Saving…"
-              : kind === "photo"
-                ? account.avatarMediaId
-                  ? "Replace photo"
-                  : "Upload photo"
-                : "Upload introduction video"}
+            {pending ? "Saving…" : "Upload introduction video"}
           </FieldLabel>
           <FileUpload
             id={id}
             files={files}
             multiple={false}
-            accept={
-              kind === "photo"
-                ? "image/jpeg,image/png,image/webp"
-                : "video/mp4,video/webm"
-            }
+            accept="video/mp4,video/webm"
             busy={upload.isPending}
-            disabled={pending || (kind === "video" && clips.length >= 3)}
-            label={
-              kind === "photo"
-                ? account.avatarMediaId
-                  ? "Replace photo"
-                  : "Upload photo"
-                : "Upload introduction video"
-            }
-            description={
-              kind === "photo"
-                ? "JPEG, PNG or WebP · Up to 5 MB. Your photo saves automatically."
-                : "MP4 or WebM · Up to 25 MB and 60 seconds. Each clip saves automatically."
-            }
+            disabled={pending || clips.length >= 3}
+            label="Upload introduction video"
+            description="MP4 or WebM · Up to 25 MB and 60 seconds. Each clip saves automatically."
             validateFile={(file) => validateProfileFile(file, kind)}
             onReject={(message) => {
               setError(new Error(message));
@@ -221,7 +279,7 @@ export function ProfileMedia({
             }}
           />
         </Field>
-        {kind === "video" && clips.length >= 3 && (
+        {clips.length >= 3 && (
           <p className="text-sm text-muted-foreground">
             Remove a clip to add another.
           </p>

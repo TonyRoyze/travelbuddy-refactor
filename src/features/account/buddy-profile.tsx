@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { MapPin, MessageCircle } from "lucide-react";
-import { useSession } from "@/features/auth/session";
-import { accountQuery } from "@/lib/queries";
+import { Link } from "@tanstack/react-router";
 import { rpc } from "@/lib/supabase";
+import { accountQuery } from "@/lib/queries";
 import type { BuddyProfile } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { VideoMedia } from "@/features/catalog/media";
@@ -12,8 +11,7 @@ import { ExperienceCard } from "@/features/catalog/experience-card";
 import { Loading, NoResults, Problem } from "@/components/custom-ui/feedback";
 import { Button } from "@/components/ui/button";
 export function BuddyProfilePage({ id }: { id: string }) {
-  const { session } = useSession();
-  const own = useQuery({ ...accountQuery(), enabled: !!session });
+  const own = useQuery(accountQuery());
   const valid = z.uuid().safeParse(id).success;
   const query = useQuery({
     queryKey: ["buddy-profile", id],

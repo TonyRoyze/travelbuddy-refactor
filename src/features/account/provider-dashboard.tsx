@@ -9,6 +9,7 @@ import { BuddyGate } from "@/features/packages/buddy-gate";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
+import { DatePicker } from "@/components/custom-ui/date-picker";
 import { FieldGroup, Field, FieldLabel } from "@/components/ui/field";
 import {
   Card,
@@ -59,9 +60,6 @@ function DashboardContent() {
   });
   return (
     <section className="flex flex-col gap-6">
-      <Link to="/account" className="text-primary">
-        Your account
-      </Link>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1>Bookings &amp; conversations</h1>
@@ -69,12 +67,6 @@ function DashboardContent() {
             Welcome your guests, check their plans and keep in touch.
           </p>
         </div>
-        <Link
-          to="/account/packages"
-          className={buttonVariants({ variant: "outline" })}
-        >
-          Manage packages
-        </Link>
       </div>
       {query.error && <Problem error={query.error} />}
       {chat.error && <Problem error={chat.error} />}
@@ -140,7 +132,11 @@ function DashboardContent() {
                       <FieldLabel htmlFor="booking-date">
                         Experience date
                       </FieldLabel>
-                      <Input id="booking-date" name="date" type="date" />
+                      <DatePicker
+                        id="booking-date"
+                        name="date"
+                        defaultValue={filters.date}
+                      />
                     </Field>
                     <Field>
                       <FieldLabel htmlFor="booking-search">
