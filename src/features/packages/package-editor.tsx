@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
+import { Save } from "lucide-react";
 import { Link, useNavigate, useBlocker } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rpc } from "@/lib/supabase";
@@ -197,7 +198,10 @@ function Editor({ saved }: { saved?: EditorPackage }) {
     }
   };
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-6">
+    <section className="package-workspace mx-auto flex max-w-6xl flex-col gap-6">
+      <Link to="/account/packages" className="text-primary">
+        My packages
+      </Link>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1>{saved ? "Edit your experience" : "Create your experience"}</h1>
@@ -242,6 +246,21 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                   {published ? "Published" : "Draft"}
                   {dirty ? " · Unsaved changes" : ""}
                 </Badge>
+              }
+              action={
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  size="icon"
+                  className="h-12 w-12 rounded-md bg-muted text-muted-foreground hover:bg-secondary/80"
+                  disabled={blocked}
+                  aria-label={
+                    save.isPending ? "Saving changes" : "Save changes"
+                  }
+                  title={save.isPending ? "Saving…" : "Save changes"}
+                >
+                  <Save aria-hidden="true" />
+                </Button>
               }
             >
               <EditorField
@@ -635,6 +654,13 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                 </Button>
               </div>
             </div>
+            <p className="text-sm text-muted-foreground" role="status">
+              {blocked
+                ? "Wait for saving and uploads to finish…"
+                : dirty
+                  ? "You have unsaved changes."
+                  : "Your package is up to date."}
+            </p>
             {(save.error || !!error) && (
               <div className="flex flex-col gap-3">
                 <Problem error={error ?? save.error} />
@@ -653,7 +679,7 @@ function Editor({ saved }: { saved?: EditorPackage }) {
             {notice && <p role="status">{notice}</p>}
           </div>
         </form>
-        <aside className="hidden flex-col gap-5 rounded-xl bg-secondary p-5 md:flex lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-5 rounded-lg border bg-card p-6 lg:sticky lg:top-28">
           <h2 className="text-xl">{input.title || "Your next experience"}</h2>
           <p>
             {input.destination || "Add a destination"} · {input.durationMinutes}{" "}

@@ -12,3 +12,4 @@ test-results/
 .supabase/
 supabase/.temp/
 /docs/ui-component-inventory.md
+/prompt for ui/

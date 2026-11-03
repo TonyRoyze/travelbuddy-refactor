@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { MapPin, MessageCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { rpc } from "@/lib/supabase";
+import { accountQuery } from "@/lib/queries";
 import type { BuddyProfile } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { VideoMedia } from "@/features/catalog/media";
@@ -9,6 +11,7 @@ import { ExperienceCard } from "@/features/catalog/experience-card";
 import { Loading, NoResults, Problem } from "@/components/custom-ui/feedback";
 import { Button } from "@/components/ui/button";
 export function BuddyProfilePage({ id }: { id: string }) {
+  const own = useQuery(accountQuery());
   const valid = z.uuid().safeParse(id).success;
   const query = useQuery({
     queryKey: ["buddy-profile", id],
@@ -46,7 +49,17 @@ export function BuddyProfilePage({ id }: { id: string }) {
     d = p.profileDetails;
   return (
     <section className="mx-auto flex max-w-6xl flex-col gap-9">
-      <div className="flex flex-wrap items-center gap-6">
+      {own.data?.id === id && (
+        <div className="flex flex-wrap gap-4">
+          <Link to="/account/packages" className="text-primary">
+            Manage my packages
+          </Link>
+          <Link to="/account/profile" className="text-primary">
+            Edit Buddy profile
+          </Link>
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-6 border-b pb-8">
         <ProfileAvatar
           name={p.displayName}
           mediaId={p.avatarMediaId}
@@ -54,7 +67,9 @@ export function BuddyProfilePage({ id }: { id: string }) {
         />
         <div className="flex flex-col gap-3">
           <p className="text-sm text-muted-foreground">Your local buddy</p>
-          <h1>{p.displayName}</h1>
+          <h1 className="editorial-title text-5xl md:text-7xl">
+            {p.displayName}
+          </h1>
           <div className="flex flex-wrap gap-5 text-sm">
             {d.homeBase && (
               <p className="inline-flex items-center gap-2">
@@ -99,7 +114,9 @@ export function BuddyProfilePage({ id }: { id: string }) {
         </section>
       )}
       <section className="flex flex-col gap-5">
-        <h2>Explore with {p.displayName}</h2>
+        <h2 className="editorial-title text-4xl md:text-5xl">
+          Explore with {p.displayName}
+        </h2>
         {p.packages.length ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {p.packages.map((p) => (

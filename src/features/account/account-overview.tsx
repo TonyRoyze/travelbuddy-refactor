@@ -133,7 +133,7 @@ export function AccountOverview({ account: a }: { account: Account }) {
     : travellerLinks;
 
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-8">
+    <section className="account-workspace mx-auto flex max-w-6xl flex-col gap-8">
       <div>
         <h1>Hello, {a.displayName.trim().split(/\s+/)[0]}.</h1>
         <p className="mt-3 text-muted-foreground">

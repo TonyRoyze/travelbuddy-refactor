@@ -115,7 +115,7 @@ export function PaymentPage({
           .reduce((sum, b) => sum + b.total, 0)
       : 0;
   return (
-    <section className="mx-auto flex max-w-3xl flex-col gap-6">
+    <section className="mx-auto flex max-w-3xl flex-col gap-8">
       <h1>
         {allCancelled
           ? "Reservations cancelled"
@@ -168,7 +168,10 @@ export function PaymentPage({
             </p>
           )}
           {pay.bookings.map((b) => (
-            <div key={b.id} className="flex flex-col gap-1">
+            <div
+              key={b.id}
+              className="flex flex-col gap-2 border-b pb-4 last:border-0"
+            >
               <strong>{b.experience.title}</strong>
               <p>
                 {b.date} at {b.time} · {b.travelers} guests · {b.reference}

@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { rpc } from "@/lib/supabase";
 import { useSession } from "@/features/auth/session";
 import { providerDiscoveryQuery, areasQuery } from "./queries";
@@ -119,9 +118,6 @@ export function ProviderControls() {
           <LocationEditor key={pack.id} pack={pack} />
         </>
       )}
-      <Link to="/nearby" search={{}} className="text-primary">
-        View live discovery
-      </Link>
     </section>
   );
 }

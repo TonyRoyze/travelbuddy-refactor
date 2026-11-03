@@ -16,6 +16,7 @@ import {
 } from "./profile-model";
 import type { Account } from "./types";
 import { ProfileMedia } from "./profile-media";
+import { ProfileAvatar } from "./profile-avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +44,10 @@ function Settings({ account }: { account: Account }) {
     (role) => role === "provider" || role === "guide",
   );
   return (
-    <section className="mx-auto flex max-w-6xl flex-col gap-7">
+    <section className="profile-workspace mx-auto flex max-w-6xl flex-col gap-7">
+      <Link to="/account" className="text-primary">
+        Back to your account
+      </Link>
       <div>
         <h1>{buddy ? "Your Buddy profile" : "Make it easier to meet."}</h1>
         <p className="mt-3 text-muted-foreground">
@@ -53,7 +57,20 @@ function Settings({ account }: { account: Account }) {
         </p>
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="relative flex flex-col gap-4 rounded-xl bg-secondary p-5 lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-5 rounded-lg border bg-card p-6 lg:sticky lg:top-28">
+          <ProfileAvatar
+            name={account.displayName}
+            mediaId={account.avatarMediaId}
+            className="size-24"
+          />
+          <div>
+            <h2 className="text-xl">{account.displayName}</h2>
+            <p>{buddy ? "Local buddy" : "Traveller"}</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Your profile helps people understand who they’ll be exploring with.
+            Only share what you’re comfortable sharing.
+          </p>
           {buddy && (
             <Link
               to="/buddy/$id"

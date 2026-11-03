@@ -82,13 +82,14 @@ export function BookingsPage({
     cancelled: accountBookings.filter((b) => b.status === "Cancelled").length,
   };
   const normalizedSearch = search.trim().toLocaleLowerCase();
-  const rows = (historyMode
-    ? accountBookings.filter((b) =>
-        historyFilter === "all"
-          ? true
-          : b.status.toLocaleLowerCase() === historyFilter,
-      )
-    : accountBookings
+  const rows = (
+    historyMode
+      ? accountBookings.filter((b) =>
+          historyFilter === "all"
+            ? true
+            : b.status.toLocaleLowerCase() === historyFilter,
+        )
+      : accountBookings
   )
     .filter((b) =>
       !normalizedSearch
@@ -135,16 +136,14 @@ export function BookingsPage({
       {historyMode && (
         <div className="mb-8 flex flex-col gap-5">
           <div className="grid gap-3 sm:grid-cols-3">
-            {(["upcoming", "completed", "cancelled"] as const).map(
-              (status) => (
-                <div key={status} className="rounded-xl border bg-card p-4">
-                  <p className="text-sm capitalize text-muted-foreground">
-                    {status} bookings
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold">{counts[status]}</p>
-                </div>
-              ),
-            )}
+            {(["upcoming", "completed", "cancelled"] as const).map((status) => (
+              <div key={status} className="rounded-md border bg-card p-5">
+                <p className="text-sm capitalize text-muted-foreground">
+                  {status} bookings
+                </p>
+                <p className="mt-1 text-2xl font-semibold">{counts[status]}</p>
+              </div>
+            ))}
           </div>
           <Input
             aria-label="Search booking history"
@@ -258,10 +257,7 @@ export function BookingsPage({
                 )}
                 <div className="flex flex-wrap gap-3">
                   {historyMode && b.status === "Completed" && (
-                    <Link
-                      to="/account/reviews"
-                      className="text-primary"
-                    >
+                    <Link to="/account/reviews" className="text-primary">
                       Write or manage reviews
                     </Link>
                   )}

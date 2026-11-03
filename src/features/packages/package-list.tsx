@@ -30,7 +30,10 @@ function PackageList() {
   const query = useQuery(buddyPackagesQuery());
   const [view, setView] = useState<"grid" | "list">("grid");
   return (
-    <section className="flex flex-col gap-7">
+    <section className="flex flex-col gap-8">
+      <Link to="/account" className="text-primary">
+        Buddy dashboard
+      </Link>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1>My packages</h1>
@@ -213,7 +216,7 @@ function PackageList() {
                       : "/brand/buddy-mark.svg"
                   }
                   alt={input.title}
-                  className="aspect-video w-full object-cover"
+                  className="aspect-[4/3] w-full object-cover"
                 />
               </Link>
               <div className="contents">

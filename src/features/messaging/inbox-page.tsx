@@ -104,7 +104,8 @@ export function InboxPage({
       '[data-slot="message-scroller-viewport"]',
     );
     if (viewport) {
-      viewport.scrollTop = previous.top + viewport.scrollHeight - previous.height;
+      viewport.scrollTop =
+        previous.top + viewport.scrollHeight - previous.height;
     }
     scrollRestore.current = null;
   }, [pageCount]);
@@ -141,10 +142,10 @@ export function InboxPage({
         </div>
       </div>
       {started.error && <Problem error={started.error} />}
-      <div className="grid min-h-[560px] overflow-hidden rounded-xl border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="conversation-workspace grid min-h-[560px] overflow-hidden rounded-lg border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside
           className={cn(
-            "border-r py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
+            "border-r bg-muted/25 py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
             active && "hidden md:block",
           )}
         >
@@ -241,9 +242,10 @@ export function InboxPage({
                           variant="outline"
                           disabled={messages.isFetchingNextPage}
                           onClick={() => {
-                            const viewport = document.querySelector<HTMLElement>(
-                              '[data-slot="message-scroller-viewport"]',
-                            );
+                            const viewport =
+                              document.querySelector<HTMLElement>(
+                                '[data-slot="message-scroller-viewport"]',
+                              );
                             if (viewport) {
                               scrollRestore.current = {
                                 height: viewport.scrollHeight,

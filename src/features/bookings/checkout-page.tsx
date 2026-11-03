@@ -254,7 +254,7 @@ function CheckoutContent({
   return (
     <section className="mx-auto flex max-w-5xl flex-col gap-6">
       <div>
-        <h1>{review ? "One last look." : "Who’s coming along?"}</h1>
+        <h1>{review ? "Review & Confirm Booking" : "Traveler Information"}</h1>
         <p className="mt-3 text-muted-foreground">
           {review
             ? "Review the current prices, dates and policies before confirming."
@@ -262,7 +262,7 @@ function CheckoutContent({
         </p>
       </div>
       <CartStorageNotice />
-      <div className="grid items-start gap-6 lg:grid-cols-[1.1fr_1fr]">
+      <div className="grid items-start gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -435,7 +435,7 @@ function CheckoutContent({
               </div>
             ))}
           </CardContent>
-          <CardFooter className="flex items-center justify-between">
+          <CardFooter className="flex items-center justify-between gap-4 bg-muted/40 text-lg tabular-nums">
             <span>Total charged · LKR</span>
             <strong>
               {validOptions

@@ -9,6 +9,7 @@ export type MapPoint = {
   latitude: number;
   longitude: number;
   label: string;
+  price?: string;
 };
 export function MeetingMap({
   points,
@@ -16,12 +17,14 @@ export function MeetingMap({
   onSelect,
   onPick,
   className,
+  markerStyle = "meeting",
 }: {
   points: MapPoint[];
   selected?: string;
   onSelect?: (id: string) => void;
   onPick?: (latitude: number, longitude: number) => void;
   className?: string;
+  markerStyle?: "meeting" | "price";
 }) {
   const element = useRef<HTMLDivElement>(null);
   const map = useRef<Leaflet.Map | null>(null);
@@ -108,20 +111,34 @@ export function MeetingMap({
       const point = group.find((point) => point.id === selected) ?? group[0];
       const pin = document.createElement("span");
       pin.textContent =
-        group.length > 1 ? `${group.length} experiences` : "Meet here";
+        markerStyle === "price"
+          ? `${point.price ?? point.label}${group.length > 1 ? ` (+${group.length - 1})` : ""}`
+          : group.length > 1
+            ? `${group.length} experiences`
+            : "Meet here";
       pin.className = cn(
-        "inline-flex h-10 items-center whitespace-nowrap rounded-full border-2 px-3 font-sans text-sm font-semibold shadow-sm",
+        markerStyle === "price"
+          ? "catalog-price-pin"
+          : "inline-flex h-10 items-center whitespace-nowrap rounded-full border-2 px-3 font-sans text-sm font-semibold shadow-sm",
         group.some((point) => point.id === selected)
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-primary bg-card text-foreground",
+          ? markerStyle === "price"
+            ? "catalog-price-pin-active"
+            : "border-primary bg-primary text-primary-foreground"
+          : markerStyle === "price"
+            ? ""
+            : "border-primary bg-card text-foreground",
       );
       const marker = L.marker([point.latitude, point.longitude], {
         icon: L.divIcon({
           className: "",
           html: pin,
-          iconSize: [group.length > 1 ? 130 : 100, 40],
-          iconAnchor: [50, 40],
+          iconSize:
+            markerStyle === "price"
+              ? [0, 0]
+              : [group.length > 1 ? 130 : 100, 40],
+          iconAnchor: markerStyle === "price" ? [0, 0] : [50, 40],
         }),
+        zIndexOffset: group.some((point) => point.id === selected) ? 1000 : 0,
         title: group.map((point) => point.label).join(", "),
         keyboard: true,
       }).addTo(markers);
@@ -156,7 +173,7 @@ export function MeetingMap({
       !instance.getBounds().contains([chosen.latitude, chosen.longitude])
     )
       instance.panTo([chosen.latitude, chosen.longitude], { animate: false });
-  }, [stablePoints, selected, ready]);
+  }, [stablePoints, selected, ready, markerStyle]);
   return (
     <div
       className={cn(
@@ -170,7 +187,9 @@ export function MeetingMap({
         aria-label={
           onPick
             ? "Choose the experience meeting point on the map"
-            : "Online providers’ experience meeting points"
+            : markerStyle === "price"
+              ? "Search results map with experience prices"
+              : "Online providers’ experience meeting points"
         }
         className="h-full min-h-80 w-full"
       />

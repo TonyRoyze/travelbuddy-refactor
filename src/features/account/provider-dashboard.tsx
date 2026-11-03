@@ -90,7 +90,9 @@ function DashboardContent() {
                 <Card key={label}>
                   <CardHeader>
                     <CardDescription>{label}</CardDescription>
-                    <CardTitle>{value}</CardTitle>
+                    <CardTitle className="text-3xl font-medium tabular-nums">
+                      {value}
+                    </CardTitle>
                   </CardHeader>
                 </Card>
               ))}
