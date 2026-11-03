@@ -1,6 +1,6 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { Link } from "@tanstack/react-router";
-import { MapPin, Star, CheckCircle2, Clock } from "lucide-react";
+import { MapPin, Star, CheckCircle2, Clock, ArrowUpRight } from "lucide-react";
 import type { Experience } from "./types";
 import { Media } from "./media";
 
@@ -15,7 +15,7 @@ export function ExperienceCard({
 }) {
   const money = useMoney();
   return (
-    <div className="group flex flex-col rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs hover:shadow-md transition-all duration-200">
+    <article className="experience-card group flex flex-col rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs hover:shadow-md transition-all duration-200">
       {/* Photo with badges */}
       <Link
         to="/experience/$id"
@@ -34,7 +34,7 @@ export function ExperienceCard({
         {/* Floating top badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10 pointer-events-none">
           {p.liveNow && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs">
+            <span className="experience-live-pill inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs">
               <span className="size-1.5 rounded-full bg-white animate-pulse" />
               Live Now
             </span>
@@ -48,9 +48,9 @@ export function ExperienceCard({
       </Link>
 
       {/* Card Body */}
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className="experience-card-body flex flex-1 flex-col p-4 sm:p-5">
         {/* Location & Category */}
-        <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground mb-1.5">
+        <div className="experience-card-location flex items-center gap-1 text-xs font-medium text-muted-foreground mb-1.5">
           <MapPin className="size-3.5 shrink-0 text-primary" />
           <span>{p.destination}</span>
           <span>·</span>
@@ -58,7 +58,7 @@ export function ExperienceCard({
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-semibold text-foreground leading-snug line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+        <h3 className="experience-card-title text-base font-semibold text-foreground leading-snug line-clamp-2 mb-2 group-hover:text-primary transition-colors">
           <Link
             to="/experience/$id"
             params={{ id: p.id }}
@@ -72,7 +72,7 @@ export function ExperienceCard({
         </h3>
 
         {/* Rating and Duration */}
-        <div className="flex items-center gap-1.5 text-xs text-foreground mb-2">
+        <div className="experience-card-meta flex items-center gap-1.5 text-xs text-foreground mb-2">
           <div className="flex items-center gap-1 font-bold">
             <Star className="size-3.5 fill-amber-400 text-amber-400" />
             <span>{p.rating.toFixed(1)}</span>
@@ -94,16 +94,25 @@ export function ExperienceCard({
         )}
 
         {/* Price footer */}
-        <div className="mt-auto pt-3 border-t border-border/60 flex items-baseline justify-between">
-          <span className="text-xs text-muted-foreground">From</span>
-          <div className="text-right">
+        <div className="experience-card-footer mt-auto pt-3 border-t border-border/60 flex items-center justify-between gap-3">
+          <div className="experience-card-price">
+            <span className="text-xs text-muted-foreground">From</span>
             <span className="text-lg font-bold text-foreground">
               {money(p.price, p.currency ?? "LKR")}
             </span>
             <span className="text-xs text-muted-foreground font-normal"> / person</span>
           </div>
+          <Link
+            to="/experience/$id"
+            params={{ id: p.id }}
+            search={{ ...(date ? { date } : {}), ...(travelers ? { travelers } : {}) }}
+            className="experience-card-action"
+            aria-label={`Explore ${p.title}`}
+          >
+            Explore <ArrowUpRight aria-hidden="true" />
+          </Link>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

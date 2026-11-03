@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Minus, Plus, Search } from "lucide-react";
+import { Minus, Plus, Search, UsersRound } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +42,7 @@ export function GuestSelector({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const anchor = useRef<HTMLDivElement>(null);
+  const anchor = useRef<HTMLButtonElement>(null);
   const [animalInfo, setAnimalInfo] = useState(false);
   const people = value.adults + value.children + value.infants;
   const summary = [
@@ -54,16 +54,16 @@ export function GuestSelector({
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
       <div
-        ref={anchor}
         className="home-guest-segment"
         data-open={open || undefined}
       >
         <PopoverTrigger
+          ref={anchor}
           type="button"
           className="home-guest-trigger"
           aria-label={`Who: ${summary || "Add guests"}`}
         >
-          <span>Who</span>
+          <span className="home-search-label"><UsersRound aria-hidden="true" /> Who</span>
           <span className="home-guest-summary">{summary || "Add guests"}</span>
         </PopoverTrigger>
         <button
@@ -77,11 +77,14 @@ export function GuestSelector({
       </div>
       <PopoverContent
         anchor={anchor}
-        align="end"
-        sideOffset={16}
+        align="center"
+        sideOffset={12}
         className="home-guest-popover"
       >
-        <PopoverTitle className="sr-only">Choose your guests</PopoverTitle>
+        <div className="home-guest-popover-heading">
+          <PopoverTitle className="home-guest-popover-title">Who’s joining?</PopoverTitle>
+          <p>Choose your group size</p>
+        </div>
         {rows.map(({ key, label, description }) => (
           <div key={key} className="home-guest-row">
             <div>

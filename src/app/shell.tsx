@@ -37,7 +37,7 @@ export function Brand() {
       aria-label="TravelBuddy home"
       className="inline-flex shrink-0 items-center gap-2.5 font-bold tracking-tight text-foreground transition-opacity hover:opacity-95"
     >
-      <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
+      <span className="brand-mark flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
         <Compass className="size-5" />
       </span>
       <span className="text-xl font-bold tracking-tight md:text-2xl">
@@ -95,7 +95,7 @@ export function Shell() {
       </a>
 
       {/* Primary Sticky Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md transition-colors">
+      <header className="site-header sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md transition-colors">
         <div className="mx-auto flex h-16 max-w-[1340px] items-center justify-between gap-4 px-4 sm:px-6 md:h-20 lg:px-8">
           <Brand />
 
@@ -178,12 +178,11 @@ export function Shell() {
                   <Avatar04
                     name={account.displayName}
                     mediaId={account.avatarMediaId}
-                    subtitle="Account"
                   />
                 ) : (
                   <UserRound className="size-4 text-muted-foreground" />
                 )}
-                <span>{account ? account.displayName : "Sign in"}</span>
+                {!account && <span>Sign in</span>}
               </Link>
             </div>
           )}

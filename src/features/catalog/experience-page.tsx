@@ -6,22 +6,35 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { BookingPolicy } from "@/features/bookings/policy";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
-  MapPin,
   Clock,
   Star,
   CheckCircle2,
-  XCircle,
   MessageCircle,
   ArrowRight,
   ShieldCheck,
   Languages,
   ChevronRight,
   Zap,
+  Share2,
+  Bath,
+  Bus,
+  Camera,
+  Car,
+  Coffee,
+  Footprints,
+  Mountain,
+  Sparkles,
+  Ticket,
+  Utensils,
+  UserRound,
+  Wifi,
+  Waves,
+  ShoppingBag,
 } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
 import { useLiveNowUpdates } from "@/lib/live-now";
@@ -42,6 +55,30 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Problem, Loading } from "@/components/custom-ui/feedback";
 import { Badge } from "@/components/ui/badge";
 import { ExperienceReviews } from "@/features/reviews/reviews";
+
+const MeetingMap = lazy(() =>
+  import("@/features/nearby/meeting-map").then((module) => ({
+    default: module.MeetingMap,
+  })),
+);
+
+function amenityIcon(label: string) {
+  const value = label.toLowerCase();
+  if (/wi-?fi|internet|network/.test(value)) return Wifi;
+  if (/bath|shower|toilet|restroom/.test(value)) return Bath;
+  if (/food|meal|lunch|dinner|snack|breakfast/.test(value)) return Utensils;
+  if (/bus|shuttle|transfer|transport|airport/.test(value)) return Bus;
+  if (/parking|car|vehicle/.test(value)) return Car;
+  if (/coffee|tea|drink|beverage|water/.test(value)) return Coffee;
+  if (/photo|camera|photograph/.test(value)) return Camera;
+  if (/ticket|entry|admission|entrance/.test(value)) return Ticket;
+  if (/guide|buddy|host|instructor|staff/.test(value)) return UserRound;
+  if (/purchase|shopping|souvenir|extra/.test(value)) return ShoppingBag;
+  if (/hike|trek|walk|trail/.test(value)) return Footprints;
+  if (/mountain|climb|peak/.test(value)) return Mountain;
+  if (/beach|swim|snorkel|sea|ocean|boat|sail/.test(value)) return Waves;
+  return Sparkles;
+}
 
 export function ExperiencePage({
   id,
@@ -70,6 +107,8 @@ export function ExperiencePage({
   const [cartError, setCartError] = useState<unknown>();
   const saving = useRef(false);
   const [adding, setAdding] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const navigate = useNavigate();
   const { session } = useSession();
 
@@ -159,16 +198,34 @@ export function ExperiencePage({
     }
   }
 
+  async function shareListing() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: p.title, url: window.location.href });
+      } catch {
+        // A dismissed native share sheet is not an error for the page.
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      window.setTimeout(() => setShareCopied(false), 1800);
+    } catch {
+      // Clipboard access may be unavailable in non-secure browser contexts.
+    }
+  }
+
   return (
-    <article className="flex flex-col gap-6 max-w-[1340px] mx-auto pb-16">
+    <article className="experience-detail-page">
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+      <nav aria-label="Breadcrumb" className="experience-breadcrumb">
         <Link to="/" className="hover:text-primary transition-colors">
           Home
         </Link>
         <ChevronRight className="size-3" />
-        <Link to="/search" search={{ country: "Sri Lanka" }} className="hover:text-primary transition-colors">
-          Sri Lanka
+        <Link to="/search" search={{ country: p.country }} className="hover:text-primary transition-colors">
+          {p.country}
         </Link>
         <ChevronRight className="size-3" />
         <Link to="/search" search={{ destination: p.destination }} className="hover:text-primary transition-colors">
@@ -181,71 +238,70 @@ export function ExperiencePage({
       </nav>
 
       {/* Experience Header / Title & Badges */}
-      <div className="flex flex-col gap-2.5">
-        <div className="flex flex-wrap items-center gap-2">
-          {p.liveNow && (
-            <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1">
-              <span className="size-1.5 rounded-full bg-white animate-pulse" />
-              Live Now
-            </Badge>
-          )}
-          {p.freeCancellation && (
-            <Badge variant="outline" className="text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800 gap-1 font-semibold">
-              <CheckCircle2 className="size-3" />
-              Free Cancellation
-            </Badge>
-          )}
-          <Badge variant="secondary" className="font-medium">
-            {p.category}
-          </Badge>
-        </div>
-
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground leading-[1.15]">
-          {p.title}
-        </h1>
-
-        <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs sm:text-sm text-foreground">
-          <div className="flex items-center gap-1 font-bold">
-            <Star className="size-4 fill-amber-400 text-amber-400" />
-            <span>{p.rating.toFixed(1)}</span>
-            <span className="font-normal text-muted-foreground">
-              ({p.reviews} verified reviews)
-            </span>
-          </div>
-          <span className="text-muted-foreground hidden sm:inline">·</span>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <MapPin className="size-4 text-primary shrink-0" />
-            <span>{p.destination}, {p.country}</span>
-          </div>
-          <span className="text-muted-foreground hidden sm:inline">·</span>
-          <div className="text-muted-foreground">
-            Hosted by{" "}
-            {p.providerId ? (
-              <Link
-                to="/buddy/$id"
-                params={{ id: p.providerId }}
-                className="text-primary font-semibold hover:underline"
-              >
-                {p.supplier}
-              </Link>
-            ) : (
-              <span className="font-semibold text-foreground">{p.supplier}</span>
-            )}
-          </div>
+      <div className="experience-listing-header">
+        <div className="experience-listing-title-row">
+          <h1 className="experience-listing-title">{p.title}</h1>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="experience-share-button"
+            onClick={() => void shareListing()}
+          >
+            <Share2 className="size-4" />
+            {shareCopied ? "Copied" : "Share"}
+          </Button>
         </div>
       </div>
 
       {/* Photo Gallery full-width */}
-      <div className="rounded-2xl overflow-hidden shadow-xs border border-border/80">
+      <div className="experience-gallery-shell">
         <PhotoGallery images={[p.image, ...p.gallery]} title={p.title} />
       </div>
 
       {/* Main Content Layout: Story Left, Booking Box Right */}
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12 mt-4 items-start">
+      <div className="experience-content-layout">
         {/* Left Column: Details, Highlights, Itinerary, Reviews */}
-        <div className="flex flex-col gap-10">
+        <div className="experience-details-column">
+          <section className="experience-listing-summary">
+            <div>
+              <h2>{p.category} experience in {p.destination}, {p.country}</h2>
+              <p>{p.duration} · {p.languages.join(", ")}</p>
+            </div>
+            {p.liveNow && (
+              <Badge className="experience-live-badge">
+                <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                Live now
+              </Badge>
+            )}
+          </section>
+
+          <div className="experience-rating-card">
+            <Star className="size-5 fill-current" aria-hidden="true" />
+            <strong>{p.rating.toFixed(1)}</strong>
+            <span aria-hidden="true">·</span>
+            <span>{p.reviews} traveler reviews</span>
+          </div>
+
+          <div className="experience-host-summary">
+            <span className="experience-host-avatar" aria-hidden="true">
+              {p.supplier.trim().slice(0, 1).toUpperCase()}
+            </span>
+            <div>
+              <strong>
+                Hosted by{" "}
+                {p.providerId ? (
+                  <Link to="/buddy/$id" params={{ id: p.providerId }}>
+                    {p.supplier}
+                  </Link>
+                ) : p.supplier}
+              </strong>
+              <span>Local experience provider</span>
+            </div>
+          </div>
+
           {/* Quick Info Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 rounded-2xl border border-border/80 bg-card shadow-xs">
+          <div className="experience-facts-grid">
             <div className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
                 <Clock className="size-4 text-primary" /> Duration
@@ -295,18 +351,31 @@ export function ExperiencePage({
           )}
 
           {/* Overview Section */}
-          <section className="flex flex-col gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-foreground">
+          <section className="experience-description-block">
+            <h2>
               Overview
             </h2>
-            <p className="text-base text-muted-foreground leading-relaxed">
+            <p
+              className="experience-description-copy"
+              data-expanded={descriptionExpanded || undefined}
+            >
               {p.description}
             </p>
+            {p.description.length > 260 && (
+              <button
+                type="button"
+                className="experience-description-toggle"
+                aria-expanded={descriptionExpanded}
+                onClick={() => setDescriptionExpanded((expanded) => !expanded)}
+              >
+                {descriptionExpanded ? "Show less" : "Show more"}
+              </button>
+            )}
           </section>
 
           {/* What makes it special / Highlights */}
-          <section className="flex flex-col gap-4 p-6 rounded-2xl bg-muted/30 border border-border/80">
-            <h2 className="text-xl font-bold tracking-tight text-foreground">
+          <section className="experience-highlights-block">
+            <h2>
               What Makes It Special
             </h2>
             <ul className="grid gap-3 sm:grid-cols-2">
@@ -320,37 +389,39 @@ export function ExperiencePage({
           </section>
 
           {/* What's Included & Excluded */}
-          <section className="flex flex-col gap-6">
+          <section className="experience-inclusions-section">
             <h2 className="text-xl font-bold tracking-tight text-foreground">
-              What's Included & Excluded
+              What this experience includes
             </h2>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
-                  Included
-                </h3>
-                <ul className="flex flex-col gap-2.5">
-                  {p.included.map((h) => (
-                    <li key={h} className="flex items-start gap-2 text-sm text-foreground">
-                      <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
-                      <span>{h}</span>
-                    </li>
-                  ))}
+            <div className="experience-inclusions-grid">
+              <div>
+                <h3>Included</h3>
+                <ul>
+                  {p.included.map((item) => {
+                    const Icon = amenityIcon(item);
+                    return (
+                      <li key={item} className="experience-amenity">
+                        <Icon aria-hidden="true" />
+                        <span>{item}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
 
               {p.notIncluded.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-sm font-bold text-neutral-500 uppercase tracking-wide">
-                    Not Included
-                  </h3>
-                  <ul className="flex flex-col gap-2.5">
-                    {p.notIncluded.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <XCircle className="size-4 shrink-0 text-neutral-400 mt-0.5" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
+                <div>
+                  <h3>Not included</h3>
+                  <ul>
+                    {p.notIncluded.map((item) => {
+                      const Icon = amenityIcon(item);
+                      return (
+                        <li key={item} className="experience-amenity experience-amenity-excluded">
+                          <Icon aria-hidden="true" />
+                          <span>{item}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}
@@ -382,19 +453,32 @@ export function ExperiencePage({
             </section>
           )}
 
-          {/* Meeting Point */}
-          <section className="flex flex-col gap-3 p-6 rounded-2xl border border-border/80 bg-card">
-            <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <MapPin className="size-5 text-primary" /> Departure & Meeting Point
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {p.meetingPoint}
-            </p>
-          </section>
-
           {/* Verified Customer Reviews */}
           <section className="flex flex-col gap-4">
             <ExperienceReviews packageId={p.id} />
+          </section>
+
+          {/* Meeting point and location map */}
+          <section className="experience-location-section">
+            <h2>Where you’ll meet</h2>
+            <p>{p.meetingPoint}</p>
+            {p.location && (
+              <Suspense
+                fallback={<div className="experience-location-map-loading">Loading map…</div>}
+              >
+                <MeetingMap
+                  points={[
+                    {
+                      id: p.id,
+                      latitude: p.location.latitude,
+                      longitude: p.location.longitude,
+                      label: p.location.label || p.meetingPoint,
+                    },
+                  ]}
+                  className="experience-location-map"
+                />
+              </Suspense>
+            )}
           </section>
 
           {/* Things to Know & Policies */}
@@ -407,12 +491,12 @@ export function ExperiencePage({
         </div>
 
         {/* Right Column: Sticky Booking Widget (Viator Style) */}
-        <aside className="sticky top-24 z-20">
+        <aside className="experience-booking-aside">
           <Card
             id="booking"
-            className="border border-border/80 bg-card shadow-lg rounded-2xl overflow-hidden"
+            className="booking-panel"
           >
-            <CardHeader className="bg-muted/30 border-b border-border/80 pb-4">
+            <CardHeader className="booking-panel-header">
               <div className="flex items-baseline justify-between">
                 <div>
                   <span className="text-xs font-medium text-muted-foreground">From</span>

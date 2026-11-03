@@ -22,16 +22,10 @@ import { ExperienceCard } from "./experience-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+
+
 import { cn } from "@/lib/utils";
 import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
 const MeetingMap = lazy(() =>
@@ -53,11 +47,14 @@ export function CatalogPage({
   filters?: Record<string, unknown>;
 }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [clearDraft, setClearDraft] = useState(false);
+  const [filterReset, setFilterReset] = useState(0);
   const [mapOpen, setMapOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>();
   const money = useMoney();
   const [filterError, setFilterError] = useState<unknown>();
   const parsed = searchSchema.parse(filters);
+  const defaults = clearDraft ? searchSchema.parse({}) : parsed;
   const query = useQuery(catalogQuery(parsed));
   useLiveNowUpdates();
   const navigate = useNavigate();
@@ -101,6 +98,7 @@ export function CatalogPage({
       return;
     }
     setFilterError(undefined);
+    setFiltersOpen(false);
     void navigate({ to: "/search", search: searchSchema.parse(next) });
   }
   const packages = query.data?.items ?? [];
@@ -204,8 +202,7 @@ export function CatalogPage({
         <Button
           variant="outline"
           aria-expanded={filtersOpen}
-          aria-controls="catalog-filter-panel"
-          onClick={() => setFiltersOpen(!filtersOpen)}
+          onClick={() => { setClearDraft(false); setFilterError(undefined); setFiltersOpen(true); }}
         >
           <SlidersHorizontal />
           Filters
@@ -248,153 +245,71 @@ export function CatalogPage({
           <FieldLabel htmlFor="live-now">Live now</FieldLabel>
         </Field>
       </div>
-      <div
-        id="catalog-filter-panel"
-        className={cn("catalog-filter-panel", !filtersOpen && "hidden")}
-      >
-        <Card className="overflow-visible bg-transparent ring-0 [--card-spacing:0px] md:[--card-spacing:0px]">
-          <CardHeader>
-            <CardTitle>Filter experiences</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              id="catalog-filters"
-              key={JSON.stringify(parsed)}
-              onSubmit={submit}
-            >
-              <input type="hidden" name="filterForm" value="1" />
-              <input type="hidden" name="q" value={parsed.q} />
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="category">Category</FieldLabel>
-                  <SelectCombobox
-                    id="category"
-                    name="category"
-                    defaultValue={parsed.category}
-                    placeholder="All experiences"
-                    options={[
-                      "",
-                      ...categories.map((c) => c.name),
-                      "Cultural experiences",
-                      "Outdoor activities",
-                    ].map((category) => ({
-                      value: category,
-                      label: category || "All experiences",
-                    }))}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="destination">Destination</FieldLabel>
-                  <Input
-                    id="destination"
-                    name="destination"
-                    defaultValue={parsed.destination}
-                    maxLength={120}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="search-date">Date</FieldLabel>
-                  <Input
-                    id="search-date"
-                    name="date"
-                    type="date"
-                    min={today()}
-                    max={addDays(today(), 180)}
-                    defaultValue={parsed.date}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="duration">Duration</FieldLabel>
-                  <SelectCombobox
-                    id="duration"
-                    name="duration"
-                    defaultValue={parsed.duration ?? ""}
-                    placeholder="Any duration"
-                    options={[
-                      { value: "", label: "Any duration" },
-                      { value: "short", label: "Up to 4 hours" },
-                      { value: "long", label: "More than 4 hours" },
-                    ]}
-                  />
-                </Field>
-                <Separator />
-                <Field>
-                  <FieldLabel htmlFor="minPrice">Min price (LKR)</FieldLabel>
-                  <Input
-                    id="minPrice"
-                    name="minPrice"
-                    type="number"
-                    min="0"
-                    defaultValue={parsed.minPrice}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="maxPrice">Max price (LKR)</FieldLabel>
-                  <Input
-                    id="maxPrice"
-                    name="maxPrice"
-                    type="number"
-                    min="0"
-                    defaultValue={parsed.maxPrice}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="sort">Sort by</FieldLabel>
-                  <SelectCombobox
-                    id="sort"
-                    name="sort"
-                    defaultValue={parsed.sort}
-                    options={[
-                      { value: "recommended", label: "Recommended" },
-                      { value: "price-low", label: "Lowest price" },
-                      { value: "rating", label: "Highest rated" },
-                    ]}
-                  />
-                </Field>
-                <Field orientation="horizontal">
-                  <Checkbox
-                    id="freeCancellation"
-                    name="freeCancellation"
-                    defaultChecked={parsed.freeCancellation}
-                  />
-                  <FieldLabel htmlFor="freeCancellation">
-                    Free cancellation
-                  </FieldLabel>
-                </Field>
-              </FieldGroup>
-            </form>
-          </CardContent>
-          <CardFooter className="flex-wrap gap-2">
-            <Button type="submit" form="catalog-filters" className="flex-1">
-              Apply filters
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setFilterError(undefined);
-                void navigate({
-                  to: "/search",
-                  search: (previous) => ({
-                    ...previous,
-                    category: "",
-                    destination: "",
-                    date: undefined,
-                    duration: undefined,
-                    live: false,
-                    minPrice: undefined,
-                    maxPrice: undefined,
-                    freeCancellation: false,
-                    sort: "recommended",
-                    page: 1,
-                  }),
-                });
-              }}
-            >
-              Reset
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+      <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <DialogContent className="catalog-filter-dialog" showCloseButton={false}>
+          <div className="catalog-filter-dialog-header">
+            <span aria-hidden="true" />
+            <DialogTitle>Filters</DialogTitle>
+            <Button variant="ghost" size="icon" aria-label="Close filters" onClick={() => setFiltersOpen(false)}>Ã—</Button>
+          </div>
+          <form id="catalog-filters" key={`${JSON.stringify(parsed)}:${filterReset}`} className="filter-modal-body" onSubmit={submit}>
+            <input type="hidden" name="filterForm" value="1" />
+            <input type="hidden" name="q" value={parsed.q} />
+            <section className="filter-section">
+              <h3>Find your kind of experience</h3>
+              <p>Choose what you would love to do.</p>
+              <div className="filter-category-options">
+                {[{name: "", label: "Everything", icon: Compass}, ...categories, {name: "Cultural experiences", label: "Culture", icon: Landmark}, {name: "Outdoor activities", label: "Outdoors", icon: Trees}].map(({name, label, icon: Icon}) => (
+                  <label className="filter-category-option" key={name}>
+                    <input type="radio" name="category" value={name} defaultChecked={defaults.category === name} />
+                    <span><Icon aria-hidden="true" /><strong>{label}</strong></span>
+                  </label>
+                ))}
+              </div>
+            </section>
+            <section className="filter-section">
+              <h3>Duration</h3>
+              <div className="filter-segments">
+                {[['', 'Any duration'], ['short', 'Up to 4 hours'], ['long', 'Over 4 hours']].map(([value, label]) => (
+                  <label key={value}><input type="radio" name="duration" value={value} defaultChecked={(defaults.duration ?? '') === value} /><span>{label}</span></label>
+                ))}
+              </div>
+            </section>
+            <section className="filter-section">
+              <h3>Price range</h3>
+              <p>Experience price per person, in LKR.</p>
+              <div className="filter-price-fields">
+                <label><span>Minimum</span><div><small>LKR</small><Input aria-label="Minimum price in LKR" name="minPrice" type="number" min="0" step="any" placeholder="Any" defaultValue={defaults.minPrice} /></div></label>
+                <span aria-hidden="true">—</span>
+                <label><span>Maximum</span><div><small>LKR</small><Input aria-label="Maximum price in LKR" name="maxPrice" type="number" min="0" step="any" placeholder="Any" defaultValue={defaults.maxPrice} /></div></label>
+              </div>
+            </section>
+            <section className="filter-section">
+              <h3>Booking options</h3>
+              <label className="filter-toggle-option">
+                <span><strong>Free cancellation</strong><small>More flexibility when your plans change</small></span>
+                <input type="checkbox" name="freeCancellation" defaultChecked={defaults.freeCancellation} />
+              </label>
+            </section>
+            <section className="filter-section">
+              <h3>Where and when</h3>
+              <div className="filter-details-grid">
+                <Field><FieldLabel htmlFor="destination">Destination</FieldLabel><Input id="destination" name="destination" placeholder="Any destination" defaultValue={defaults.destination} maxLength={120} /></Field>
+                <Field><FieldLabel htmlFor="search-date">Experience date</FieldLabel><Input id="search-date" name="date" type="date" min={today()} max={addDays(today(),180)} defaultValue={defaults.date} /></Field>
+              </div>
+            </section>
+            <section className="filter-section">
+              <h3>Sort results</h3>
+              <SelectCombobox id="sort" name="sort" defaultValue={defaults.sort} options={[{value: "recommended", label: "Recommended"}, {value: "price-low", label: "Lowest price"}, {value: "rating", label: "Highest rated"}]} />
+            </section>
+            {!!filterError && <div role="alert"><Problem error={filterError} /></div>}
+          </form>
+          <div className="filter-modal-footer">
+            <button type="button" className="filter-clear" onClick={() => { setClearDraft(true); setFilterReset(value => value + 1); setFilterError(undefined); }}>Clear all</button>
+            <Button type="submit" form="catalog-filters">Show experiences</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="catalog-map-layout">
         <div className="catalog-list-column">
           {!!filterError && <Problem error={filterError} />}

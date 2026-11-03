@@ -30,9 +30,10 @@ export function PhotoGallery({
           "experience-photo-grid",
           photos.length === 1 && "experience-photo-grid-single",
           photos.length === 2 && "experience-photo-grid-pair",
+          photos.length === 3 && "experience-photo-grid-triple",
         )}
       >
-        {photos.slice(0, 4).map((src, i) => (
+        {photos.slice(0, 5).map((src, i) => (
           <Button
             key={src}
             type="button"
@@ -53,7 +54,7 @@ export function PhotoGallery({
               className="size-full object-cover"
             />
             {i === 0 && (
-              <span className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-card px-4 py-2 text-xs font-semibold text-foreground shadow-sm">
+              <span className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-card px-4 py-2 text-xs font-semibold text-foreground shadow-sm">
                 <Grid2X2 className="size-4" /> All {photos.length} photos
               </span>
             )}
