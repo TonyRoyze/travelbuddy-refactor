@@ -286,26 +286,6 @@ export function ExperiencePage({
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
             <FieldGroup>
-              <Field>
-                <FieldLabel className="sr-only" htmlFor="option">
-                  Experience option
-                </FieldLabel>
-                <SelectCombobox
-                  id="option"
-                  value={String(option)}
-                  onValueChange={(value) =>
-                    setSelection({
-                      ...selection,
-                      option: Number(value),
-                      time: undefined,
-                    })
-                  }
-                  options={p.options.map((o, i) => ({
-                    value: String(i),
-                    label: o.name,
-                  }))}
-                />
-              </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field>
                   <FieldLabel htmlFor="date">Date</FieldLabel>
