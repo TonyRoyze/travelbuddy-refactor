@@ -1,5 +1,6 @@
 import { format, parseISO } from "date-fns";
-import { CalendarIcon, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { useQuery } from "@tanstack/react-query";
 import { reservationsQuery } from "./queries";
@@ -38,6 +39,14 @@ function OperatingDateRange({
   endDate: string;
   onChange: (startDate: string, endDate: string) => void;
 }) {
+  const [months, setMonths] = useState(1);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const update = () => setMonths(media.matches ? 2 : 1);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   const from = dateFromISO(startDate);
   const to = dateFromISO(endDate);
   const selected: DateRange | undefined = from ? { from, to } : undefined;
@@ -45,7 +54,7 @@ function OperatingDateRange({
     <Field className="min-w-0">
       <div className="max-w-full overflow-x-auto rounded-md border">
         <Calendar
-          className="p-2"
+          className="mx-auto w-fit p-2"
           mode="range"
           defaultMonth={from}
           selected={selected}
@@ -55,7 +64,7 @@ function OperatingDateRange({
               range?.to ? format(range.to, "yyyy-MM-dd") : "",
             )
           }
-          numberOfMonths={2}
+          numberOfMonths={months}
         />
       </div>
     </Field>
@@ -88,7 +97,7 @@ export function ScheduleEditor({
       title="Operating schedule"
       description="Choose operating dates and days."
     >
-      <div className="grid justify-start gap-5 xl:grid-cols-[max-content_max-content]">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <OperatingDateRange
           startDate={value.startDate}
           endDate={value.endDate}
@@ -96,35 +105,35 @@ export function ScheduleEditor({
             onChange({ ...value, startDate, endDate })
           }
         />
-        <FieldSet className="w-fit self-start p-0">
+        <FieldSet className="min-w-0 self-start p-0">
           <FieldLegend>Operating days</FieldLegend>
-          <div className="grid w-fit grid-cols-2 content-start gap-x-3 gap-y-1">
+          <div className="grid w-full grid-cols-2 content-start gap-2 sm:grid-cols-3">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
               (day, index) => (
-                <Button
+                <Field
                   key={day}
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  aria-pressed={value.weekdays.includes(index)}
-                  className="w-full justify-between"
-                  onClick={() =>
-                    onChange({
-                      ...value,
-                      weekdays: value.weekdays.includes(index)
-                        ? value.weekdays.filter((v) => v !== index)
-                        : [...value.weekdays, index].sort(),
-                    })
-                  }
+                  orientation="horizontal"
+                  className="relative min-h-12 rounded-lg border border-input px-4 py-3 has-[[data-checked]]:bg-secondary"
                 >
-                  {day}
-                  <Check
-                    aria-hidden="true"
-                    className={
-                      value.weekdays.includes(index) ? "" : "invisible"
+                  <Checkbox
+                    id={`operating-day-${index}`}
+                    checked={value.weekdays.includes(index)}
+                    onCheckedChange={(checked) =>
+                      onChange({
+                        ...value,
+                        weekdays: checked
+                          ? [...value.weekdays, index].sort()
+                          : value.weekdays.filter((v) => v !== index),
+                      })
                     }
                   />
-                </Button>
+                  <FieldLabel
+                    htmlFor={`operating-day-${index}`}
+                    className="flex-1 cursor-pointer after:absolute after:inset-0"
+                  >
+                    {day}
+                  </FieldLabel>
+                </Field>
               ),
             )}
           </div>
@@ -177,7 +186,8 @@ export function ScheduleEditor({
                     { after: parseISO(value.endDate) },
                   ]}
                   onSelect={(date) =>
-                    date && exception(index, { date: format(date, "yyyy-MM-dd") })
+                    date &&
+                    exception(index, { date: format(date, "yyyy-MM-dd") })
                   }
                 />
               </PopoverContent>

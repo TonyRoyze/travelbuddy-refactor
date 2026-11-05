@@ -1,10 +1,43 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { safeReturn } from "@/lib/validation";
 
-export function authCallbackUrl(origin: string, returnTo: string) {
-  const url = new URL("/auth/callback", origin);
+export const NATIVE_AUTH_CALLBACK = "com.travelbuddy.app://auth/callback";
+
+export function authCallbackUrl(
+  origin: string,
+  returnTo: string,
+  native = false,
+) {
+  const url = new URL(native ? NATIVE_AUTH_CALLBACK : "/auth/callback", origin);
   url.searchParams.set("returnTo", safeReturn(returnTo));
   return url.toString();
+}
+
+// Only accept our registered auth endpoint, never arbitrary incoming app URLs.
+export function nativeAuthCallbackPath(value: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  const callback = new URL(NATIVE_AUTH_CALLBACK);
+  if (
+    url.protocol !== callback.protocol ||
+    url.host !== callback.host ||
+    url.pathname !== callback.pathname ||
+    url.username ||
+    url.password
+  )
+    return null;
+
+  const search = new URLSearchParams();
+  const code = url.searchParams.get("code");
+  if (code) search.set("code", code);
+  const error = callbackError(url);
+  if (error) search.set("error_description", error);
+  search.set("returnTo", safeReturn(url.searchParams.get("returnTo")));
+  return `/auth/callback?${search}`;
 }
 
 // React StrictMode can mount the callback twice. Exchange each one-use code once,

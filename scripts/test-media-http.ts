@@ -13,6 +13,7 @@ import { setTimeout as delay } from "node:timers/promises";
 const accountId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const userId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 let rejectCommit = false;
+let rejectStorage = false;
 let authStatus = 200;
 const uploads: { path: string; mime: string; bytes: Buffer }[] = [];
 const commits: { name: string; input: Record<string, unknown> }[] = [];
@@ -57,6 +58,17 @@ const backend = createServer(async (req, res) => {
     path.startsWith("/storage/v1/object/buddy-media/") &&
     req.method === "POST"
   ) {
+    if (rejectStorage) {
+      res.statusCode = 403;
+      res.end(
+        JSON.stringify({
+          message: "Invalid Compact JWS",
+          statusCode: "403",
+          error: "Unauthorized",
+        }),
+      );
+      return;
+    }
     uploads.push({ path, mime: String(req.headers["content-type"]), bytes });
     res.end(JSON.stringify({ Key: path }));
   } else if (
@@ -231,6 +243,17 @@ try {
     "Rejected registration must remove the uploaded WebP",
   );
   rejectCommit = false;
+  const committedBeforeStorageFailure = commits.length;
+  rejectStorage = true;
+  const storageFailure = await upload(original, "image/png", "upload");
+  assert.equal(storageFailure.status, 503);
+  assert.match((await storageFailure.json()).error, /not saved.*storage/i);
+  assert.equal(
+    commits.length,
+    committedBeforeStorageFailure,
+    "A rejected Storage write must never attach a photo to the account",
+  );
+  rejectStorage = false;
   execFileSync("ffmpeg", [
     "-v",
     "error",

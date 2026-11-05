@@ -4,6 +4,7 @@ export default ts.config(
   {
     ignores: [
       "dist/**",
+      "ios/**",
       "src/routeTree.gen.ts",
       "src/types/database.ts",
       "supabase/functions/**",

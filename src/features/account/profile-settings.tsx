@@ -1,4 +1,3 @@
-import { ExternalLink } from "lucide-react";
 import { currencies, type DisplayCurrency } from "@/features/currency/model";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { LocationAutocomplete } from "@/components/custom-ui/location-autocomplete";
@@ -16,8 +15,7 @@ import {
 } from "./profile-model";
 import type { Account } from "./types";
 import { ProfileMedia } from "./profile-media";
-import { ProfileAvatar } from "./profile-avatar";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -37,9 +35,6 @@ export function ProfileSettingsPage() {
   return <Settings key={account.data.id} account={account.data} />;
 }
 function Settings({ account }: { account: Account }) {
-  const [bioExpanded, setBioExpanded] = useState(false);
-  const bio = account.profileDetails.bio.trim();
-  const bioIsLong = bio.length > 120;
   const buddy = account.roles.some(
     (role) => role === "provider" || role === "guide",
   );
@@ -56,62 +51,8 @@ function Settings({ account }: { account: Account }) {
             : "Share what you enjoy so the right buddy can find you."}
         </p>
       </div>
-      <div className="grid items-start gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="flex flex-col gap-5 rounded-lg border bg-card p-6 lg:sticky lg:top-28">
-          <ProfileAvatar
-            name={account.displayName}
-            mediaId={account.avatarMediaId}
-            className="size-24"
-          />
-          <div>
-            <h2 className="text-xl">{account.displayName}</h2>
-            <p>{buddy ? "Local buddy" : "Traveller"}</p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Your profile helps people understand who they’ll be exploring with.
-            Only share what you’re comfortable sharing.
-          </p>
-          {buddy && (
-            <Link
-              to="/buddy/$id"
-              params={{ id: account.id }}
-              aria-label="View public profile"
-              title="View public profile"
-              className={buttonVariants({
-                variant: "ghost",
-                size: "icon",
-                className: "absolute right-2 top-2",
-              })}
-            >
-              <ExternalLink aria-hidden="true" />
-            </Link>
-          )}
-          <div className="flex items-center gap-4 pr-5">
-            <ProfileMedia account={account} kind="photo" />
-            <div>
-              <h2 className="text-xl">{account.displayName}</h2>
-              <p>{buddy ? "Local buddy" : "Traveller"}</p>
-            </div>
-          </div>
-          {bio && (
-            <div>
-              <p className={bioIsLong && !bioExpanded ? "line-clamp-3" : ""}>
-                {bio}
-              </p>
-              {bioIsLong && (
-                <Button
-                  type="button"
-                  variant="link"
-                  className="h-auto px-0 py-1"
-                  aria-expanded={bioExpanded}
-                  onClick={() => setBioExpanded((expanded) => !expanded)}
-                >
-                  {bioExpanded ? "View less" : "View more"}
-                </Button>
-              )}
-            </div>
-          )}
-        </aside>
+      <div className="flex flex-col gap-6">
+        <ProfileMedia account={account} kind="photo" />
         <div className="flex flex-col gap-6">
           <ProfileForm account={account} buddy={buddy} />
           {buddy && <ProfileMedia account={account} kind="video" />}

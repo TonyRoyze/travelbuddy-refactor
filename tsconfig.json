@@ -18,6 +18,7 @@
   },
   "include": [
     "src",
+    "capacitor.config.ts",
     "vite.config.ts",
     "services/profile-media",
     "services/payments",

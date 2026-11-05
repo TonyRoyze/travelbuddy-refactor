@@ -1,13 +1,10 @@
 import { Camera } from "lucide-react";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
 import { useId, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase, rpc } from "@/lib/supabase";
+import { accountQuery } from "@/lib/queries";
 import { validateProfileFile } from "./profile-model";
+import { readUploadResult } from "./upload-result";
 import type { Account } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { VideoMedia } from "@/features/catalog/media";
@@ -32,8 +29,6 @@ export function ProfileMedia({
   const client = useQueryClient(),
     id = useId();
   const libraryInput = useRef<HTMLInputElement>(null);
-  const cameraInput = useRef<HTMLInputElement>(null);
-  const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<unknown>(),
     [notice, setNotice] = useState("");
@@ -61,11 +56,20 @@ export function ProfileMedia({
         },
         body: file,
       });
-      const body = await response.json().catch(() => ({
-        error: "The upload service is unavailable. Please try again.",
-      }));
-      if (!response.ok) throw new Error(body.error);
-      await refresh();
+      const mediaId = await readUploadResult(response);
+      const updated = await client.fetchQuery({
+        ...accountQuery(),
+        staleTime: 0,
+      });
+      const attached =
+        kind === "photo"
+          ? updated.avatarMediaId === mediaId
+          : updated.profileVideoIds.includes(mediaId);
+      if (!attached)
+        throw new Error(
+          "The upload could not be confirmed on your profile. Please reload your profile before trying again.",
+        );
+      await refresh(updated);
     },
     onSuccess: () => {
       setFiles([]);
@@ -114,7 +118,6 @@ export function ProfileMedia({
     const selectPhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.currentTarget.files?.[0];
       event.currentTarget.value = "";
-      setPhotoMenuOpen(false);
       choose(file);
     };
     return (
@@ -131,65 +134,23 @@ export function ProfileMedia({
           disabled={pending}
           onChange={selectPhoto}
         />
-        <input
-          ref={cameraInput}
-          type="file"
-          accept="image/*"
-          capture="user"
-          aria-label="Take a profile photo"
-          className="hidden"
-          disabled={pending}
-          onChange={selectPhoto}
-        />
         <div className="relative mb-2 size-24">
           <ProfileAvatar
             name={account.displayName}
             mediaId={account.avatarMediaId}
             className="size-24 border-4 border-card"
           />
-          <Popover open={photoMenuOpen} onOpenChange={setPhotoMenuOpen}>
-            <PopoverTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="absolute left-1/2 top-18 z-10 w-18 h-8 -translate-x-1/2 justify-around rounded-full border-0 bg-card shadow-sm"
-                  disabled={pending}
-                />
-              }
-            >
-              <Camera data-icon="inline-start" />
-              {pending ? "Saving…" : account.avatarMediaId ? "Edit" : "Add"}
-            </PopoverTrigger>
-            <PopoverContent className="w-64 rounded-2xl p-3" sideOffset={10}>
-              <Button
-                variant="secondary"
-                className="w-full rounded-full"
-                onClick={() => libraryInput.current?.click()}
-              >
-                Select from library
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full rounded-full"
-                onClick={() => cameraInput.current?.click()}
-              >
-                Take a photo
-              </Button>
-              {account.avatarMediaId && (
-                <Button
-                  variant="destructive"
-                  className="w-full rounded-full"
-                  onClick={() => {
-                    setPhotoMenuOpen(false);
-                    change.mutate([]);
-                  }}
-                >
-                  Remove photo
-                </Button>
-              )}
-            </PopoverContent>
-          </Popover>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="absolute left-1/2 top-18 z-10 w-18 h-8 -translate-x-1/2 justify-around rounded-full border-0 bg-card shadow-sm"
+            disabled={pending}
+            onClick={() => libraryInput.current?.click()}
+          >
+            <Camera data-icon="inline-start" />
+            {pending ? "Saving…" : account.avatarMediaId ? "Edit" : "Add"}
+          </Button>
         </div>
         {(error || upload.error || change.error) && (
           <Problem error={error ?? upload.error ?? change.error} />

@@ -2,10 +2,12 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import type { Provider } from "@supabase/supabase-js";
+import { Capacitor } from "@capacitor/core";
 import { Apple, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { safeReturn } from "@/lib/validation";
 import { authCallbackUrl } from "./oauth";
+import { signInWithProvider } from "./native-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -56,7 +58,11 @@ export function AuthPage({
     try {
       if (mode === "recover") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: authCallbackUrl(location.origin, "/reset-password"),
+          redirectTo: authCallbackUrl(
+            location.origin,
+            "/reset-password",
+            Capacitor.isNativePlatform(),
+          ),
         });
         if (error) throw error;
         setNotice("Check your email for a password reset link.");
@@ -70,7 +76,11 @@ export function AuthPage({
           email,
           password,
           options: {
-            emailRedirectTo: authCallbackUrl(location.origin, target),
+            emailRedirectTo: authCallbackUrl(
+              location.origin,
+              target,
+              Capacitor.isNativePlatform(),
+            ),
           },
         });
         if (error) throw error;
@@ -87,7 +97,7 @@ export function AuthPage({
           password,
         });
         if (error) throw error;
-        window.location.assign(target);
+        await navigate({ href: target, replace: true });
       }
     } catch (e) {
       setError(e);
@@ -101,13 +111,8 @@ export function AuthPage({
     setOauthFailure(false);
     setError(undefined);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: authCallbackUrl(location.origin, target),
-        },
-      });
-      if (error) throw error;
+      await signInWithProvider(provider, target);
+      if (Capacitor.isNativePlatform()) setPending(false);
     } catch (e) {
       setError(e);
       if (mode === "login") setOauthFailure(true);

@@ -312,7 +312,14 @@ function CheckoutContent({
                     />
                   </Field>
                 </FieldGroup>
-                {error !== undefined && <Problem error={error} />}
+                {error !== undefined && (
+                  <div className="flex flex-col gap-3">
+                    <Problem error={error} />
+                    <Link to="/cart" className={buttonVariants({ variant: "outline" })}>
+                      Edit bookings in cart
+                    </Link>
+                  </div>
+                )}
                 <Button type="submit" disabled={pending}>
                   {pending
                     ? "Checking prices and availability…"

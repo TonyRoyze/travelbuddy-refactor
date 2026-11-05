@@ -1,3 +1,4 @@
+import { DatePicker } from "@/components/custom-ui/date-picker";
 import { useMoney } from "@/features/currency/currency-provider";
 import {
   Card,
@@ -185,7 +186,9 @@ export function ExperiencePage({
           </p>
         </div>
       </div>
-      <PhotoGallery images={[p.image, ...p.gallery]} title={p.title} />
+      <div className="mb-6">
+        <PhotoGallery images={[p.image, ...p.gallery]} title={p.title} />
+      </div>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
         <div className="flex flex-col gap-8 [&_section]:flex [&_section]:flex-col [&_section]:gap-4 [&_section>p]:leading-relaxed [&_section>p]:text-muted-foreground">
           <div className="flex flex-wrap gap-4 rounded-lg border bg-card p-5 text-sm [&_span]:flex [&_span]:items-center [&_span]:gap-2 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
@@ -304,19 +307,19 @@ export function ExperiencePage({
                   }))}
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
                 <Field>
                   <FieldLabel htmlFor="date">Date</FieldLabel>
-                  <Input
+                  <DatePicker
                     id="date"
-                    type="date"
+                    name="date"
                     min={today()}
                     max={addDays(today(), 180)}
                     value={date}
-                    onChange={(e) =>
+                    onValueChange={(date) =>
                       setSelection({
                         ...selection,
-                        date: e.target.value,
+                        date,
                         time: undefined,
                       })
                     }

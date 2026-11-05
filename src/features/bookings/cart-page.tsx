@@ -1,7 +1,7 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, Trash2, ShieldCheck, ArrowRight, CheckCircle2 } from "lucide-react";
+import { MessageCircle, Trash2, ShieldCheck } from "lucide-react";
 import { packageQuery } from "@/lib/queries";
 import { Media } from "@/features/catalog/media";
 import { Button, buttonVariants } from "@/components/ui/button";

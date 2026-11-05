@@ -30,13 +30,7 @@ import {
   FieldLabel,
   FieldTitle,
 } from "@/components/ui/field";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@/components/ui/combobox";
+import { SelectCombobox } from "@/components/custom-ui/select-combobox";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
@@ -289,34 +283,22 @@ function Editor({ saved }: { saved?: EditorPackage }) {
                 />
                 <Field>
                   <FieldLabel htmlFor="package-category">Category</FieldLabel>
-                  <Combobox
-                    items={[
+                  <SelectCombobox
+                    id="package-category"
+                    options={[
                       ...new Set([
                         ...packageCategories,
                         ...(input.category ? [input.category] : []),
                       ]),
-                    ]}
+                    ].map((item) => ({ value: item, label: item }))}
                     value={input.category}
-                    onValueChange={(value) => {
-                      if (typeof value === "string") change("category", value);
-                    }}
-                  >
-                    <ComboboxInput
-                      id="package-category"
-                      aria-label="Category"
-                      placeholder="Choose a category"
-                      className="w-full"
-                    />
-                    <ComboboxContent>
-                      <ComboboxList>
-                        {(item) => (
-                          <ComboboxItem key={item} value={item}>
-                            {item}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
+                    onValueChange={(value) => change("category", value)}
+                    placeholder="Choose a category"
+                    searchPlaceholder="Find a category…"
+                    onCreateOption={(value) =>
+                      change("category", value.slice(0, 80))
+                    }
+                  />
                 </Field>
                 <Field className="min-w-0">
                   <FieldTitle>Duration</FieldTitle>

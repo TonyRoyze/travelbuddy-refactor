@@ -23,6 +23,7 @@ import { Media } from "./media";
 import { addDays } from "./selection";
 import { destinations } from "./destinations";
 import { destinationSlug } from "./destination-links";
+import { MobileSearch } from "./mobile-search";
 import { GuestSelector, type Guests } from "./guest-selector";
 import type { SearchSuggestion } from "./search-input";
 import { Calendar as DateCalendar } from "@/components/ui/calendar";
@@ -201,9 +202,24 @@ export function HomePage() {
             Find your own way around the World, with local people who know every turn, taste and tale.
           </p>
 
+          <div className="mt-8 w-full md:hidden">
+            <MobileSearch
+              destination={destinationText}
+              onDestinationChange={(value, suggestion) => { setDestinationText(value); setSelectedSuggestion(suggestion); }}
+              suggestions={destinationText.trim().length >= 2 ? suggestionItems : popularDestinations.length ? popularDestinations : destinations.map((place) => ({ value: place.query, kind: "destination" as const }))}
+              loading={destinationText.trim().length >= 2 && destinationMatches.isFetching}
+              date={date}
+              endDate={endDate}
+              onDatesChange={(start, end) => { setDate(start); setEndDate(end); }}
+              guests={guests}
+              onGuestsChange={setGuests}
+              onSearch={search}
+            />
+          </div>
+
           {/* Search Bar Embedded in Hero */}
           <div
-            className="home-search-band w-full max-w-5xl mt-8 sm:mt-10"
+            className="home-search-band hidden w-full max-w-5xl mt-8 sm:mt-10 md:block"
             data-guests-open={guestsOpen || undefined}
           >
             <form

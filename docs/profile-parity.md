@@ -31,3 +31,7 @@ pnpm test:nearby:http --cleanup /path/printed/by/fixture/command/fixture.json
 ```
 
 The last command removes only the generated accounts, users, packages and their media objects. The HTTP checks use local Supabase and FFmpeg and cover signed URLs, private traveller photos, forged/corrupt files, upload limits, role/ownership restrictions and stale edits.
+
+### Storage rejects the server key
+
+If uploads fail with `Invalid Compact JWS`, self-hosted Storage is rejecting the opaque `sb_secret_` API key. Set `SUPABASE_STORAGE_SECRET_KEY` in `.env.media.local` (or the production runtime secret) to the same project's legacy `service_role` JWT, and restart the media service. This setting is server-only; do not use a `VITE_` prefix. Keep `SUPABASE_SECRET_KEY` for the service RPCs if it is accepted by the API. If those requests also return `401 Unauthorized`, replace it with a valid server key for that same project; a legacy `service_role` JWT can be used for both server settings. A successful upload returns a media UUID, and the client confirms that the refreshed account references that UUID before showing “saved.” HTML responses from an unconfigured SPA proxy are rejected.

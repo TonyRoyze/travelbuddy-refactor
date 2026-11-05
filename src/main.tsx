@@ -8,6 +8,14 @@ import { SessionProvider } from "@/features/auth/session";
 import "@/app/styles.css";
 import { ThemeProvider } from "@/app/theme";
 import { CartProvider } from "@/features/bookings/cart-provider";
+import { initializeNativeAuth } from "@/features/auth/native-auth";
+
+void initializeNativeAuth((href) =>
+  router.navigate({ href, replace: true }),
+).catch(() => {
+  console.error("Could not initialize native authentication links.");
+});
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
