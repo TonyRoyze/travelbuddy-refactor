@@ -219,7 +219,7 @@ export function Shell() {
           pathname === "/search"
             ? "mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8"
             : pathname === "/login" || pathname === "/register"
-              ? "mx-auto w-full max-w-md px-4 py-8 sm:py-12"
+              ? "mx-auto w-full max-w-5xl px-4 py-8 sm:py-12"
               : pathname !== "/" &&
                 "mx-auto w-full max-w-[1340px] px-4 py-6 sm:px-6 md:py-10 lg:px-8",
         )}
