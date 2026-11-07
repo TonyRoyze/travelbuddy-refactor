@@ -51,7 +51,8 @@ The native container serves the bundled application at `capacitor://localhost`. 
 
 The following integrations still need native support before an end-to-end release:
 
-- **Media and payment APIs:** the web app currently calls `/profile-media` and `/payments-api` relative to its origin. Vite and the web deployment proxy those paths, but the bundled app has no such proxy. Add configurable HTTPS API origins and allow the native origin on the services before relying on uploads or online checkout.
+- **Media uploads:** native builds send profile and package uploads to `https://travelbuddy.shalinda.com`; override with `VITE_MEDIA_API_ORIGIN` when building for another deployment. The media service permits `capacitor://localhost` with explicit CORS preflight headers and still verifies every upload JWT. Rebuild and sync the iOS app after changing this setting. Website uploads remain same-origin.
+- **Payment APIs:** `/payments-api` still requires a reachable native API origin before relying on native online checkout.
 - **PayHere:** the existing hosted checkout submits a form away from the app. Implement and verify a browser or native payment handoff with a return link into the app. Keep the server notification as the authority for successful payments.
 - **Device experience:** validate safe areas, keyboard behavior, external links, background/resume behavior, permissions, and offline states on iPhone. Add camera, location, or push plugins when implementing those capabilities.
 - **Distribution:** replace placeholder assets, configure signing, and complete account deletion, privacy disclosures, and App Store preparation.

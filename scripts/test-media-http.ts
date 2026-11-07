@@ -148,6 +148,42 @@ try {
     await delay(100);
   }
   assert.ok(ready, "Upload service must start");
+  for (const route of ["upload", "package-upload"]) {
+    const preflight = await fetch(`${base}/${route}`, {
+      method: "OPTIONS",
+      headers: {
+        Origin: "capacitor://localhost",
+        "Access-Control-Request-Method": "POST",
+        "Access-Control-Request-Headers":
+          "authorization,content-type,x-media-kind",
+      },
+    });
+    assert.equal(preflight.status, 204);
+    assert.equal(
+      preflight.headers.get("access-control-allow-origin"),
+      "capacitor://localhost",
+    );
+    const unauthorized = await fetch(`${base}/${route}`, {
+      method: "POST",
+      headers: { Origin: "capacitor://localhost" },
+    });
+    assert.equal(
+      unauthorized.status,
+      401,
+      "Native uploads must still require authentication",
+    );
+    assert.equal(
+      unauthorized.headers.get("access-control-allow-origin"),
+      "capacitor://localhost",
+    );
+  }
+  const rejectedOrigin = await fetch(`${base}/package-upload`, {
+    method: "OPTIONS",
+    headers: { Origin: "https://untrusted.example" },
+  });
+  assert.equal(rejectedOrigin.status, 403);
+  assert.equal(rejectedOrigin.headers.get("access-control-allow-origin"), null);
+
   for (const extension of ["png", "jpg", "webp"]) {
     const path = join(dir, `source.${extension}`);
     await sharp({

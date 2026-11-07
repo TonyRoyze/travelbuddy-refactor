@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { DeleteButton } from "@/components/custom-ui/delete-button";
 import { Problem } from "@/components/custom-ui/feedback";
 import { mediaUrl } from "./model";
+import { mediaApiUrl } from "@/lib/media-api";
+import { readUploadResult } from "@/features/account/upload-result";
 export function PackageMediaPicker({
   kind,
   ids,
@@ -85,7 +87,7 @@ export function PackageMediaPicker({
       if (!session) throw new Error("Sign in before uploading.");
       const mediaId = await new Promise<string>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/profile-media/package-upload");
+        xhr.open("POST", mediaApiUrl("/profile-media/package-upload"));
         xhr.timeout = 60000;
         xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
         xhr.setRequestHeader("Content-Type", file.type);
@@ -94,12 +96,15 @@ export function PackageMediaPicker({
           if (e.lengthComputable)
             setProgress(Math.round((e.loaded / e.total) * 100));
         };
-        xhr.onload = () => {
+        xhr.onload = async () => {
           try {
-            const body = JSON.parse(xhr.responseText);
-            if (xhr.status < 200 || xhr.status >= 300)
-              throw new Error(body.error || "Upload failed.");
-            resolve(body.mediaId);
+            resolve(
+              await readUploadResult(
+                new Response(xhr.responseText, {
+                  status: xhr.status,
+                }),
+              ),
+            );
           } catch (error) {
             reject(error);
           }

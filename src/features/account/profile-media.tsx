@@ -1,3 +1,4 @@
+import { mediaApiUrl } from "@/lib/media-api";
 import { Camera } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -46,7 +47,7 @@ export function ProfileMedia({
         error,
       } = await supabase.auth.getSession();
       if (error || !session) throw new Error("Sign in to upload a file.");
-      const response = await fetch("/profile-media/upload", {
+      const response = await fetch(mediaApiUrl("/profile-media/upload"), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

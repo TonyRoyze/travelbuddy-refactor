@@ -18,12 +18,15 @@ if (!url || !key || !secret)
   throw new Error(
     "Configure the profile upload service in .env.media.local; see .env.media.example.",
   );
-const allowed = new Set(
-  (
+const allowed = new Set([
+  ...(
     process.env.MEDIA_ALLOWED_ORIGINS ??
     "http://localhost:5173,http://127.0.0.1:5173"
-  ).split(","),
-);
+  )
+    .split(",")
+    .map((origin) => origin.trim()),
+  "capacitor://localhost",
+]);
 const service = createClient<Database, "travelbuddy_api">(url, secret, {
   db: { schema: "travelbuddy_api" },
   auth: { persistSession: false, autoRefreshToken: false },
@@ -60,6 +63,27 @@ const server = createServer(
       res.writeHead(status);
       res.end(JSON.stringify(body));
     };
+    const uploadRoute =
+      req.url === "/profile-media/upload" ||
+      req.url === "/profile-media/package-upload";
+    const origin = req.headers.origin;
+    if (uploadRoute && origin && allowed.has(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Vary", "Origin");
+      res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Authorization, Content-Type, X-Media-Kind, X-Profile-Revision",
+      );
+      if (req.method === "OPTIONS") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+    } else if (uploadRoute && req.method === "OPTIONS") {
+      send(403, { error: "This upload origin is not allowed." });
+      return;
+    }
     if (req.url === "/profile-media/health" && req.method === "GET") {
       send(200, { ready: true });
       return;
