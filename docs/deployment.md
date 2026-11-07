@@ -65,3 +65,11 @@ OAuth verification requires the provider's real browser flow; email recovery del
 - Browser verification created unique temporary accounts, a package, messages, a booking, and an uploaded image; all those fixtures were removed. Existing records were preserved.
 
 Google sign-in is configured and its button is visible, but completing the external Google login was not automated. Password-update and session flows were exercised; delivery of recovery email through SMTP was not verified.
+
+## Chat Realtime
+
+Apply `20261107091557_realtime_messages.sql` with `pnpm db:migrate` before rolling out the frontend. Supabase Realtime must be running and reachable through the gateway's WebSocket route. The migration uses the installed `realtime.send`, `realtime.topic`, and `realtime.messages` APIs; it does not expose the backend schema through PostgREST or Postgres Changes.
+
+Message inserts and updates emit private `changed` broadcasts to `chat:<supabase-user-id>` for both conversation participants. Notifications carry only a conversation ID. A SELECT policy allows authenticated users to receive their own topic; the application does not grant clients broadcast INSERT access. Message content and attachments are fetched through the existing authorized RPCs. Inbox subscriptions refresh message history, conversation previews and unread counts; reconnecting refetches to recover missed notifications. The provider dashboard also listens for these notifications while retaining its booking refresh interval.
+
+After migration, verify with two signed-in participants in separate sessions: incoming text, attachments and shared experiences should appear without refresh, unread counts should update, and a message sent during a disconnected session should appear after reconnection. A third user must be unable to subscribe to either participant's private topic. Database and WebSocket integration checks require a running Supabase instance.

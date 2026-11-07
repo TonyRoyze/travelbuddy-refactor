@@ -1,12 +1,17 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
+import { useMessageUpdates } from "./realtime";
 import type { Conversation, ChatMessage } from "./types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { MessageComposer } from "./message-composer";
@@ -35,6 +40,7 @@ export function InboxPage({
   packageId?: string;
   returnTo?: string;
 }) {
+  useMessageUpdates();
   const money = useMoney();
   const navigate = useNavigate();
   const client = useQueryClient();
@@ -58,7 +64,6 @@ export function InboxPage({
     queryKey: ["conversations"],
     queryFn: async () =>
       (await rpc("conversations", {})) as unknown as Conversation[],
-    refetchInterval: 5000,
   });
   const messages = useInfiniteQuery({
     queryKey: ["messages", active],
@@ -73,19 +78,8 @@ export function InboxPage({
     getNextPageParam: (lastPage) =>
       lastPage.hasMore ? (lastPage.nextBefore ?? undefined) : undefined,
   });
-  const newestMessages = useQuery({
-    queryKey: ["message-head", active],
-    enabled: !!active,
-    queryFn: async (): Promise<MessagePage> =>
-      (await rpc("message_page", {
-        conversation_id: active!,
-        before_created_at: null,
-        before_id: null,
-      })) as unknown as MessagePage,
-    refetchInterval: 5000,
-  });
   const thread = threads.data?.find((t) => t.id === active);
-  const lastMessage = newestMessages.data?.items.at(-1)?.id;
+  const lastMessage = messages.data?.pages[0]?.items.at(-1)?.id;
   const pageCount = messages.data?.pages.length ?? 0;
   const seenMessageIds = new Set<string>();
   const visibleMessages = messages.data?.pages
