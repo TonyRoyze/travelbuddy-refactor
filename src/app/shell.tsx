@@ -22,6 +22,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { useCart } from "@/features/bookings/cart-provider";
 import { ProviderHeartbeat } from "@/features/nearby/provider-heartbeat";
 import Avatar04 from "@/components/custom-ui/avatar-04";
+import { ProfileAvatar } from "@/features/account/profile-avatar";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -192,7 +193,7 @@ export function Shell() {
                 aria-label={account?.displayName ?? "Sign in"}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
-                  "h-10 rounded-full gap-2 px-3 sm:px-4 font-medium text-xs sm:text-sm border-border hover:bg-muted",
+                  "hidden md:inline-flex h-10 rounded-full gap-2 px-3 sm:px-4 font-medium text-xs sm:text-sm border-border hover:bg-muted",
                 )}
               >
                 {account ? (
@@ -403,7 +404,7 @@ export function Shell() {
             return (
               <Link
                 key={item.to}
-                to={item.to}
+                to={item.to === "/account" && !session ? "/login" : item.to}
                 search={{}}
                 aria-current={isSelected ? "page" : undefined}
                 className={cn(
@@ -413,12 +414,24 @@ export function Shell() {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Icon
-                  className={cn(
-                    "size-[1.35rem] shrink-0",
-                    isSelected && "stroke-[2.25]",
-                  )}
-                />
+                {item.to === "/account" && session && account ? (
+                  <ProfileAvatar
+                    name={account.displayName}
+                    mediaId={account.avatarMediaId}
+                    className={cn(
+                      "size-7 text-[10px] ring-1 ring-border",
+                      isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                    )}
+                  />
+                ) : (
+                  <Icon
+                    className={cn(
+                      "size-[1.35rem] shrink-0",
+                      isSelected && "stroke-[2.25]",
+                    )}
+                    aria-hidden="true"
+                  />
+                )}
                 <span className="max-w-full truncate leading-none">
                   {item.label}
                 </span>
