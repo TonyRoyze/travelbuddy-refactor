@@ -35,6 +35,12 @@ docker build \
 
 The GitHub Actions workflow instead reads `SUPABASE_PUBLISHABLE_KEY` and `PUBLIC_SITE_URL` from repository variables; the Supabase server-only key belongs in the Kubernetes `travelbuddy-runtime` Secret, never in either env file or the image.
 
+## iOS app
+
+The Vite app is also packaged with Capacitor for iOS. On a Mac with Xcode installed, run `pnpm ios:sync` to build and copy the web app into the native project, then `pnpm ios:open` to open Xcode. `pnpm ios:run` builds, syncs, and deploys to a selected simulator or device.
+
+See [iOS setup and remaining native integrations](docs/ios-capacitor.md) for signing, backend connectivity, authentication, and payment requirements.
+
 ## Database and API setup
 
 The application tables remain in the private `travelbuddy_backend` schema. Apply the additive migrations once:

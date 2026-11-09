@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/lib/supabase";
 import { safeReturn } from "@/lib/validation";
 import { Loading, Problem } from "@/components/custom-ui/feedback";
@@ -6,9 +7,12 @@ import { callbackError, createCodeExchanger } from "./oauth";
 const exchangeCode = createCodeExchanger(supabase.auth);
 export function AuthCallback() {
   const [error, setError] = useState<unknown>();
+  const href = useLocation({ select: (location) => location.href });
+  const navigate = useNavigate();
   useEffect(() => {
     let active = true;
-    const url = new URL(location.href);
+    setError(undefined);
+    const url = new URL(href, location.origin);
     const params = url.searchParams;
     const code = params.get("code");
     const providerError = callbackError(url);
@@ -26,7 +30,11 @@ export function AuthCallback() {
     }
     void exchangeCode(code)
       .then(() => {
-        if (active) location.replace(safeReturn(params.get("returnTo")));
+        if (active)
+          return navigate({
+            href: safeReturn(params.get("returnTo")),
+            replace: true,
+          });
       })
       .catch((error: unknown) => {
         if (active) setError(error);
@@ -34,6 +42,6 @@ export function AuthCallback() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [href, navigate]);
   return error ? <Problem error={error} /> : <Loading />;
 }

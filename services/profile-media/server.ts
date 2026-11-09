@@ -271,8 +271,16 @@ const server = createServer(
       const uploaded = await storage.storage
         .from("buddy-media")
         .upload(storagePath, bytes, { contentType: savedMime, upsert: false });
-      if (uploaded.error)
-        throw new UploadError("Upload failed. Please try again.", 503);
+      if (uploaded.error) {
+        console.error("Profile storage upload failed:", {
+          message: uploaded.error.message,
+          statusCode: uploaded.error.statusCode,
+        });
+        throw new UploadError(
+          "Your file was not saved because photo storage is temporarily unavailable. Please try again later.",
+          503,
+        );
+      }
       const metadata = {
         id,
         path: storagePath,

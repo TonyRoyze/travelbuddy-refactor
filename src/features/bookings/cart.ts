@@ -59,6 +59,10 @@ export function checkCapacity(
     const slot = availability[index]?.slots.find(
       (value) => value.time === item.time,
     );
+    if (!slot)
+      throw new Error(
+        `${item.experience.title}: the selected time is no longer available (not enough places or the start time has passed). Choose another date or time in your cart.`,
+      );
     if (
       !slot ||
       count > slot.remaining ||

@@ -59,11 +59,11 @@ export function ProviderControls() {
     discovery.data.packages.find((pack) => pack.id === selected) ??
     discovery.data.packages[0];
   return (
-    <section className="flex flex-col gap-5 border-t pt-6">
+    <section className="flex flex-col gap-5">
       <div>
-        <h2>Be here when travelers need you.</h2>
+        <h2>Live availability</h2>
         <p className="mt-2 text-muted-foreground">
-          Go online to receive requests for your local experiences.
+          Let travelers know when you’re ready to receive requests.
         </p>
       </div>
       <FieldGroup>
@@ -89,9 +89,8 @@ export function ProviderControls() {
             : "Not accepting requests"}
       </Badge>
       <p className="text-sm text-muted-foreground">
-        Keep the app open while you’re available. Your status expires within two
-        minutes after the app closes or loses its connection. Switch off
-        whenever you stop accepting requests.
+        Keep the app open while available. You’ll appear offline within two
+        minutes of closing the app or losing connection.
       </p>
       {toggle.error && <Problem error={toggle.error} />}
       {!pack ? (
@@ -101,7 +100,7 @@ export function ProviderControls() {
         />
       ) : (
         <>
-          <Field>
+          <Field className="border-t pt-5">
             <FieldLabel htmlFor="provider-package">
               Experience meeting point
             </FieldLabel>

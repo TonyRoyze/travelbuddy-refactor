@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { parseEnv } from "node:util";
+import { networkInterfaces } from "node:os";
 
 const require = createRequire(import.meta.url);
 const viteCli = join(
@@ -30,6 +31,23 @@ function startService(name: string, entry: string, envFiles: string[]) {
       `[dev] Skipping ${name}: missing ${missing.join(", ")}. Configure ${envFiles.join(" or ")} to enable this service.`,
     );
     return null;
+  }
+  if (name === "profile uploads") {
+    // Phones reach Vite over the LAN rather than through localhost.
+    const origins = new Set(
+      (env.MEDIA_ALLOWED_ORIGINS ?? "http://localhost:5173,http://127.0.0.1:5173")
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    );
+    for (const addresses of Object.values(networkInterfaces())) {
+      for (const address of addresses ?? []) {
+        if (address.family === "IPv4" && !address.internal) {
+          origins.add(`http://${address.address}:5173`);
+        }
+      }
+    }
+    env.MEDIA_ALLOWED_ORIGINS = [...origins].join(",");
   }
   return spawn(process.execPath, ["--import", "tsx", entry], {
     stdio: "inherit",

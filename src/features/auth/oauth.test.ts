@@ -1,12 +1,65 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { authCallbackUrl, callbackError, createCodeExchanger } from "./oauth";
+import {
+  authCallbackUrl,
+  callbackError,
+  createCodeExchanger,
+  nativeAuthCallbackPath,
+} from "./oauth";
 
 function mockAuth(exchangeCodeForSession: ReturnType<typeof vi.fn>) {
   return { exchangeCodeForSession } as unknown as SupabaseClient["auth"];
 }
 
 describe("OAuth callback", () => {
+  it("uses the registered app scheme for native OAuth and password recovery", () => {
+    const url = new URL(
+      authCallbackUrl("capacitor://localhost", "/reset-password", true),
+    );
+    expect(`${url.protocol}//${url.host}${url.pathname}`).toBe(
+      "com.travelbuddy.app://auth/callback",
+    );
+    expect(url.searchParams.get("returnTo")).toBe("/reset-password");
+  });
+
+  it("routes native PKCE codes locally and sanitizes their return destination", () => {
+    const path = nativeAuthCallbackPath(
+      "com.travelbuddy.app://auth/callback?code=one-use-code&returnTo=%2Fcheckout%3Ftravelers%3D2&ignored=value",
+    );
+    const url = new URL(path!, "https://travel.example");
+    expect(url.pathname).toBe("/auth/callback");
+    expect(url.searchParams.get("code")).toBe("one-use-code");
+    expect(url.searchParams.get("returnTo")).toBe("/checkout?travelers=2");
+    expect(url.searchParams.has("ignored")).toBe(false);
+    const unsafe = nativeAuthCallbackPath(
+      "com.travelbuddy.app://auth/callback?code=code&returnTo=https://evil.example",
+    );
+    expect(
+      new URL(unsafe!, "https://travel.example").searchParams.get("returnTo"),
+    ).toBe("/");
+  });
+
+  it.each([
+    "not a URL",
+    "https://auth/callback?code=code",
+    "com.travelbuddy.app://evil/callback?code=code",
+    "com.travelbuddy.app://auth/other?code=code",
+    "com.travelbuddy.app://auth:123/callback?code=code",
+    "com.travelbuddy.app://user@auth/callback?code=code",
+  ])("ignores unrelated or malformed deep links: %s", (url) => {
+    expect(nativeAuthCallbackPath(url)).toBeNull();
+  });
+
+  it("forwards native provider errors without accepting implicit-flow tokens", () => {
+    const path = nativeAuthCallbackPath(
+      "com.travelbuddy.app://auth/callback#error_description=User+cancelled&access_token=token",
+    );
+    const url = new URL(path!, "https://travel.example");
+    expect(url.searchParams.get("error_description")).toBe("User cancelled");
+    expect(url.searchParams.has("access_token")).toBe(false);
+    expect(url.hash).toBe("");
+  });
+
   it("preserves booking context and rejects external destinations", () => {
     const url = new URL(
       authCallbackUrl(

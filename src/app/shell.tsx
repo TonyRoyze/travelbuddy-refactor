@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   CurrencyNotice,
   useDisplayCurrency,
@@ -25,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/search", label: "Explore Tours", icon: Compass },
+  { to: "/search", label: "Explore", icon: Compass },
   { to: "/bookings", label: "My Bookings", icon: CalendarDays },
   { to: "/inbox", label: "Messages", icon: MessageCircle },
 ] as const;
@@ -48,6 +49,25 @@ export function Brand() {
 }
 
 export function Shell() {
+  const [inputFocused, setInputFocused] = useState(false);
+  useEffect(() => {
+    const update = () => {
+      const element = document.activeElement;
+      setInputFocused(
+        element instanceof HTMLElement &&
+          (element.matches("input:not([type=hidden]), textarea, select") ||
+            element.isContentEditable),
+      );
+    };
+    const onFocusOut = () => queueMicrotask(update);
+    update();
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", onFocusOut);
+    return () => {
+      document.removeEventListener("focusin", update);
+      document.removeEventListener("focusout", onFocusOut);
+    };
+  }, []);
   const { session } = useSession();
   const displayCurrency = useDisplayCurrency();
   const { items: cart } = useCart();
@@ -61,15 +81,6 @@ export function Shell() {
       ? { ...item, to: "/account/dashboard" as const, label: "Dashboard" }
       : item,
   );
-  const mobileNavigation = [
-    ...navigation,
-    { to: "/cart" as const, label: "Cart", icon: ShoppingBag },
-    {
-      to: session ? ("/account" as const) : ("/login" as const),
-      label: session ? "Profile" : "Sign in",
-      icon: UserRound,
-    },
-  ];
   const auth = [
     "/login",
     "/register",
@@ -92,8 +103,10 @@ export function Shell() {
   return (
     <div
       className={cn(
-        "min-h-dvh bg-background text-foreground flex flex-col",
-        !focused && "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0",
+        "min-h-dvh bg-background text-foreground flex flex-col pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]",
+        focused
+          ? "pb-[env(safe-area-inset-bottom)]"
+          : "pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]",
       )}
     >
       <a
@@ -102,9 +115,8 @@ export function Shell() {
       >
         Skip to content
       </a>
-
       {/* Primary Sticky Header */}
-      <header className="site-header sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md transition-colors">
+      <header className="site-header sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur-md transition-colors">
         <div className="mx-auto flex h-16 max-w-[1340px] items-center justify-between gap-4 px-4 sm:px-6 md:h-20 lg:px-8">
           <Brand />
 
@@ -219,7 +231,7 @@ export function Shell() {
 
       {/* Clean Modern Viator-style Footer */}
       {!auth && (
-        <footer className="mt-20 border-t border-border bg-card/60">
+        <footer className="mt-20 hidden border-t border-border bg-card/60 md:block">
           <div className="mx-auto max-w-[1340px] px-4 py-12 sm:px-6 lg:px-8">
             <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 pb-12 border-b border-border/80">
               {/* Brand info */}
@@ -245,19 +257,39 @@ export function Shell() {
                   Top Destinations
                 </h4>
                 <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <Link to="/destinations/$slug" params={{ slug: "sigiriya" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/destinations/$slug"
+                    params={{ slug: "sigiriya" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Sigiriya Tours & Activities
                   </Link>
-                  <Link to="/destinations/$slug" params={{ slug: "ella" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/destinations/$slug"
+                    params={{ slug: "ella" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Ella Hikes & Tea Plantations
                   </Link>
-                  <Link to="/destinations/$slug" params={{ slug: "galle" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/destinations/$slug"
+                    params={{ slug: "galle" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Galle Fort & Southern Coast
                   </Link>
-                  <Link to="/destinations/$slug" params={{ slug: "kandy" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/destinations/$slug"
+                    params={{ slug: "kandy" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Kandy Cultural Heritage
                   </Link>
-                  <Link to="/destinations/$slug" params={{ slug: "mirissa" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/destinations/$slug"
+                    params={{ slug: "mirissa" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Mirissa Whale Watching
                   </Link>
                 </div>
@@ -269,19 +301,39 @@ export function Shell() {
                   Explore by Category
                 </h4>
                 <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <Link to="/search" search={{ category: "Cultural experiences" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/search"
+                    search={{ category: "Cultural experiences" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Cultural & Heritage Tours
                   </Link>
-                  <Link to="/search" search={{ category: "Outdoor activities" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/search"
+                    search={{ category: "Outdoor activities" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Outdoor & Hiking Adventures
                   </Link>
-                  <Link to="/search" search={{ category: "Wildlife" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/search"
+                    search={{ category: "Wildlife" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Safari & Wildlife Encounters
                   </Link>
-                  <Link to="/search" search={{ category: "Day trips" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/search"
+                    search={{ category: "Day trips" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Full-Day Island Excursions
                   </Link>
-                  <Link to="/search" search={{ category: "Food & drink" }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/search"
+                    search={{ category: "Food & drink" }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Local Food & Cooking Classes
                   </Link>
                 </div>
@@ -293,16 +345,29 @@ export function Shell() {
                   For Hosts & Travelers
                 </h4>
                 <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <Link to="/bookings" className="hover:text-primary transition-colors">
+                  <Link
+                    to="/bookings"
+                    className="hover:text-primary transition-colors"
+                  >
                     Manage My Bookings
                   </Link>
-                  <Link to="/inbox" className="hover:text-primary transition-colors">
+                  <Link
+                    to="/inbox"
+                    className="hover:text-primary transition-colors"
+                  >
                     Chat with Guides
                   </Link>
-                  <Link to="/account" className="hover:text-primary transition-colors">
+                  <Link
+                    to="/account"
+                    className="hover:text-primary transition-colors"
+                  >
                     Account & Profile
                   </Link>
-                  <Link to="/search" search={{ freeCancellation: true }} className="hover:text-primary transition-colors">
+                  <Link
+                    to="/search"
+                    search={{ freeCancellation: true }}
+                    className="hover:text-primary transition-colors"
+                  >
                     Free Cancellation Policy
                   </Link>
                 </div>
@@ -313,7 +378,9 @@ export function Shell() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs text-muted-foreground">
               <p>© 2026 TravelBuddy. All rights reserved.</p>
               <div className="flex items-center gap-4">
-                <span>Currency: <strong>{displayCurrency}</strong> (Settled in LKR)</span>
+                <span>
+                  Currency: <strong>{displayCurrency}</strong> (Settled in LKR)
+                </span>
                 <span>English</span>
                 <span>Secure payments powered by PayHere</span>
               </div>
@@ -322,11 +389,11 @@ export function Shell() {
         </footer>
       )}
 
-      {/* Mobile Floating Bottom Dock */}
-      {!focused && (
+      {/* Mobile bottom navigation */}
+      {!focused && !inputFocused && (
         <nav
           aria-label="Mobile navigation"
-          className="fixed inset-x-4 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 mx-auto grid h-16 max-w-md grid-cols-5 items-center rounded-2xl border border-border/80 bg-background/95 p-1.5 shadow-lg backdrop-blur-lg md:hidden"
+          className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid h-[calc(4.5rem+env(safe-area-inset-bottom))] grid-cols-5 items-center border-t border-border/70 px-2 pt-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:hidden"
         >
           {[
             ...navigation,
@@ -340,14 +407,21 @@ export function Shell() {
                 search={{}}
                 aria-current={isSelected ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 rounded-xl py-1 text-[11px] font-medium transition-colors",
+                  "flex h-full min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-medium transition-colors",
                   isSelected
-                    ? "text-primary font-bold bg-primary/10"
+                    ? "text-primary font-semibold"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Icon className="size-4.5" />
-                <span>{item.label}</span>
+                <Icon
+                  className={cn(
+                    "size-[1.35rem] shrink-0",
+                    isSelected && "stroke-[2.25]",
+                  )}
+                />
+                <span className="max-w-full truncate leading-none">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
