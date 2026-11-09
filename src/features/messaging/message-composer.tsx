@@ -110,7 +110,7 @@ export function MessageComposer({
   return (
     <form
       ref={form}
-      className="border-t p-3 sm:p-4"
+      className="chat-composer border-t p-3 sm:p-4"
       onSubmit={(event) => {
         event.preventDefault();
         if (canSend) send.mutate();
