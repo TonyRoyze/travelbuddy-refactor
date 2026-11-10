@@ -16,6 +16,7 @@ import {
 import type { Account } from "./types";
 import { ProfileAvatar } from "./profile-avatar";
 import { ProviderControls } from "@/features/nearby/provider-controls";
+import { unregisterCurrentPushDevice } from "@/features/messaging/native-push";
 import { supabase } from "@/lib/supabase";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -31,6 +32,7 @@ export function SignOutButton() {
     navigate = useNavigate();
   const logout = useMutation({
     mutationFn: async () => {
+      await unregisterCurrentPushDevice();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       client.clear();

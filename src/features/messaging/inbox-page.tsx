@@ -11,7 +11,6 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
-import { useMessageUpdates } from "./realtime";
 import type { Conversation, ChatMessage } from "./types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { MessageComposer } from "./message-composer";
@@ -40,7 +39,6 @@ export function InboxPage({
   packageId?: string;
   returnTo?: string;
 }) {
-  useMessageUpdates();
   const money = useMoney();
   const navigate = useNavigate();
   const client = useQueryClient();
