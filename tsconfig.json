@@ -22,6 +22,7 @@
     "vite.config.ts",
     "services/profile-media",
     "services/payments",
+    "services/push",
     "scripts/dev.ts"
   ]
 }

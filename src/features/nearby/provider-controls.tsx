@@ -13,7 +13,6 @@ import type {
   ProviderPresence,
 } from "./types";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { SelectCombobox } from "@/components/custom-ui/select-combobox";
@@ -66,19 +65,18 @@ export function ProviderControls() {
           Let travelers know when you’re ready to receive requests.
         </p>
       </div>
-      <FieldGroup>
-        <Field orientation="horizontal">
-          <Switch
-            id="accepting-requests"
-            checked={presence.accepting}
-            disabled={toggle.isPending}
-            onCheckedChange={(accepting) => toggle.mutate(accepting)}
-          />
-          <FieldLabel htmlFor="accepting-requests">
-            Accepting requests
-          </FieldLabel>
-        </Field>
-      </FieldGroup>
+      <Button
+        type="button"
+        variant={presence.accepting ? "outline" : "default"}
+        disabled={toggle.isPending}
+        onClick={() => toggle.mutate(!presence.accepting)}
+      >
+        {toggle.isPending
+          ? "Updating availability…"
+          : presence.accepting
+            ? "Go offline"
+            : "Go online"}
+      </Button>
       <Badge
         variant={presence.online && !heartbeat.error ? "default" : "secondary"}
       >
@@ -86,11 +84,13 @@ export function ProviderControls() {
           ? "Online and accepting requests"
           : presence.accepting
             ? "Reconnecting…"
-            : "Not accepting requests"}
+            : "Offline"}
       </Badge>
       <p className="text-sm text-muted-foreground">
-        Keep the app open while available. You’ll appear offline within two
-        minutes of closing the app or losing connection.
+        Go offline to stop appearing in live discovery immediately. Your choice
+        is saved until you go online again. Existing booking messages and their
+        notifications stay enabled. While online, keep the app open; you’ll
+        disappear from live discovery within two minutes of losing connection.
       </p>
       {toggle.error && <Problem error={toggle.error} />}
       {!pack ? (

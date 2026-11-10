@@ -4,6 +4,7 @@ dist/
 .env*
 !.env.example
 !.env.media.example
+!.env.push.example
 !.env.payments.example
 !.env.deploy.example
 *.tsbuildinfo

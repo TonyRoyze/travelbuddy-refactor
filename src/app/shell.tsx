@@ -20,6 +20,8 @@ import { useSession } from "@/features/auth/session";
 import { accountQuery } from "@/lib/queries";
 import { buttonVariants } from "@/components/ui/button";
 import { useCart } from "@/features/bookings/cart-provider";
+import { NativePushControls } from "@/features/messaging/native-push-controls";
+import { useMessageUpdates } from "@/features/messaging/realtime";
 import { ProviderHeartbeat } from "@/features/nearby/provider-heartbeat";
 import Avatar04 from "@/components/custom-ui/avatar-04";
 import { ProfileAvatar } from "@/features/account/profile-avatar";
@@ -50,6 +52,7 @@ export function Brand() {
 }
 
 export function Shell() {
+  useMessageUpdates();
   const [inputFocused, setInputFocused] = useState(false);
   useEffect(() => {
     const update = () => {
@@ -227,6 +230,7 @@ export function Shell() {
       >
         <CurrencyNotice />
         <ProviderHeartbeat />
+        <NativePushControls />
         <Outlet />
       </main>
 
@@ -420,7 +424,8 @@ export function Shell() {
                     mediaId={account.avatarMediaId}
                     className={cn(
                       "size-7 text-[10px] ring-1 ring-border",
-                      isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+                      isSelected &&
+                        "ring-2 ring-primary ring-offset-2 ring-offset-background",
                     )}
                   />
                 ) : (

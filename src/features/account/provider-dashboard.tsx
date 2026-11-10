@@ -1,4 +1,3 @@
-import { useMessageUpdates } from "@/features/messaging/realtime";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -38,7 +37,6 @@ export function ProviderDashboardPage() {
   );
 }
 function DashboardContent() {
-  useMessageUpdates();
   const [filters, setFilters] = useState({
     status: "Upcoming",
     date: "",

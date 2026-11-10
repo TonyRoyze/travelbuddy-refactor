@@ -68,6 +68,24 @@ spec:
                   name: travelbuddy-runtime
                   key: SUPABASE_STORAGE_SECRET_KEY
                   optional: true
+            - name: APNS_TEAM_ID
+              value: 3U4384584Z
+            - name: APNS_ENVIRONMENT
+              value: production
+            - name: APNS_TOPIC
+              value: com.travelbuddy.app
+            - name: APNS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: APNS_KEY_ID
+                  optional: true
+            - name: APNS_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: APNS_PRIVATE_KEY
+                  optional: true
             - name: MEDIA_HOST
               value: 127.0.0.1
             - name: MEDIA_PORT

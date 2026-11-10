@@ -41,6 +41,18 @@ The app registers the custom URL scheme `com.travelbuddy.app` and sends native O
 
 Email confirmation and password recovery links should be opened on the same device/app installation that requested them because the PKCE verifier stays in that app. The configured email templates must preserve the requested redirect URL.
 
+### Message push notifications
+
+The app uses `@capacitor/push-notifications` and APNs. Signed-in iPhone users can choose **Enable notifications**. Existing permission grants register automatically on launch and resume. A notification opens its conversation only for the signed-in recipient. Sign-out unregisters the device and clears delivered alerts. `TravelBuddyPushEnvironment` reads the signed provisioning profile to choose sandbox or production, including development-signed Release builds. Without an embedded profile, it falls back to sandbox for Debug and production for Release/App Store builds.
+
+The target includes the Push Notifications capability and `App.entitlements`. Enable push for `com.travelbuddy.app` in the Apple Developer account and refresh its provisioning profile. Xcode manages the distribution entitlement when archiving. Create an APNs signing key for the appropriate environment and topic in the same Apple team; configure the server using [.env.push.example](../.env.push.example). For separate environment-scoped keys, run separate workers configured with the matching environment (see deployment notes).
+
+Apply `20261110060551_iphone_message_push.sql` before enabling push. It stores private device registrations and queues one alert per incoming message/device after the message transaction commits. Attachment/package updates do not enqueue another alert. The server sends a generic message preview, retries temporary failures, and removes invalid tokens. Jobs expire after 24 hours; APNs requests expire after one hour. Delivery can be repeated if a worker crashes after Apple accepts a request but before acknowledgement; the APNs collapse identifier uses the message ID.
+
+**Go offline** saves the provider's live availability as off immediately. Heartbeats cannot override this choice. It removes the provider from live discovery while preserving messages and their notifications, including existing booking conversations. Scheduled experience listings and existing bookings remain available.
+
+After rebuilding/syncing, validate on a signed physical iPhone: enable notifications, background the app, send a message from another account, tap the alert, go offline and repeat, then sign out and verify that new messages no longer alert that device. Repeat with Release/TestFlight because sandbox success does not validate production signing. A simulator build checks compilation but cannot establish real delivery.
+
 ### iPhone layout and navigation
 
 The viewport uses `viewport-fit=cover`; the web shell applies the top and side safe areas and reserves bottom space for the home indicator and navigation. Keep `ios.contentInset` set to `never` so UIKit does not add another layer of insets. `TravelBuddyViewController` enables WebKit's back/forward navigation gestures: swipe from the left edge to go back, or from the right edge to go forward when there is navigation history.
@@ -54,7 +66,7 @@ The following integrations still need native support before an end-to-end releas
 - **Media uploads:** native builds send profile and package uploads to `https://travelbuddy.shalinda.com`; override with `VITE_MEDIA_API_ORIGIN` when building for another deployment. The media service permits `capacitor://localhost` with explicit CORS preflight headers and still verifies every upload JWT. Rebuild and sync the iOS app after changing this setting. Website uploads remain same-origin.
 - **Payment APIs:** `/payments-api` still requires a reachable native API origin before relying on native online checkout.
 - **PayHere:** the existing hosted checkout submits a form away from the app. Implement and verify a browser or native payment handoff with a return link into the app. Keep the server notification as the authority for successful payments.
-- **Device experience:** validate safe areas, keyboard behavior, external links, background/resume behavior, permissions, and offline states on iPhone. Add camera, location, or push plugins when implementing those capabilities.
+- **Device experience:** validate safe areas, keyboard behavior, external links, background/resume behavior, permissions, and offline states on iPhone. Add camera or location plugins when implementing those capabilities.
 - **Distribution:** replace placeholder assets, configure signing, and complete account deletion, privacy disclosures, and App Store preparation.
 
 ## References

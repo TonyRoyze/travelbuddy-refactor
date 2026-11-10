@@ -35,7 +35,10 @@ function startService(name: string, entry: string, envFiles: string[]) {
   if (name === "profile uploads") {
     // Phones reach Vite over the LAN rather than through localhost.
     const origins = new Set(
-      (env.MEDIA_ALLOWED_ORIGINS ?? "http://localhost:5173,http://127.0.0.1:5173")
+      (
+        env.MEDIA_ALLOWED_ORIGINS ??
+        "http://localhost:5173,http://127.0.0.1:5173"
+      )
         .split(",")
         .map((origin) => origin.trim())
         .filter(Boolean),
@@ -61,6 +64,9 @@ const children = [
   startService("profile uploads", "services/profile-media/server.ts", [
     ".env.media.local",
   ]),
+  spawn(process.execPath, ["--import", "tsx", "services/push/worker.ts"], {
+    stdio: "inherit",
+  }),
   startService("payments", "services/payments/server.ts", [
     ".env.media.local",
     ".env.payments.local",
@@ -81,7 +87,10 @@ children.forEach((child) => {
     stop();
   });
   child.on("exit", (code) => {
-    if (!stopping) {
+    if (
+      !stopping &&
+      !(code === 0 && child.spawnargs.includes("services/push/worker.ts"))
+    ) {
       process.exitCode = code ?? 1;
       stop();
     }

@@ -13,12 +13,22 @@ const services = [
     stdio: "inherit",
   }),
 ];
+// Missing APNs configuration disables push without stopping the web service.
+const pushWorker = spawn("node_modules/.bin/tsx", ["services/push/worker.ts"], {
+  stdio: "inherit",
+});
+pushWorker.on("error", () =>
+  console.error("Could not start the iPhone push worker."),
+);
 let stopping = false;
+pushWorker.on("exit", (code) => {
+  if (!stopping && code !== 0) stop(1);
+});
 
 function stop(code = 0) {
   if (stopping) return;
   stopping = true;
-  for (const child of services) child.kill("SIGTERM");
+  for (const child of [...services, pushWorker]) child.kill("SIGTERM");
   server.close(() => process.exit(code));
   setTimeout(() => process.exit(code), 40000).unref();
 }
@@ -94,13 +104,21 @@ const server = createServer(async (req, res) => {
       : undefined;
   if (upstreamPort) {
     const proxy = httpRequest(
-      { hostname: "127.0.0.1", port: upstreamPort, path: req.url, method: req.method, headers: req.headers },
+      {
+        hostname: "127.0.0.1",
+        port: upstreamPort,
+        path: req.url,
+        method: req.method,
+        headers: req.headers,
+      },
       (upstream) => {
         res.writeHead(upstream.statusCode ?? 502, upstream.headers);
         upstream.pipe(res);
       },
     );
-    proxy.setTimeout(55000, () => proxy.destroy(new Error("Upstream timed out")));
+    proxy.setTimeout(55000, () =>
+      proxy.destroy(new Error("Upstream timed out")),
+    );
     proxy.on("error", () => {
       if (!res.headersSent) res.writeHead(502);
       res.end("Application service unavailable");

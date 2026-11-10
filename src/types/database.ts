@@ -15,6 +15,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      register_push_device: { Args: { device_token: string; installation_id: string; environment: string }; Returns: undefined }
+      unregister_push_device: { Args: { device_token: string }; Returns: undefined }
+      claim_message_push: { Args: { delivery_environment: string }; Returns: Json }
+      finish_message_push: { Args: { job_id: string; lease_id: string; outcome: string }; Returns: undefined }
+
       account: { Args: never; Returns: Json }
       apply_payment_notification: {
         Args: {
