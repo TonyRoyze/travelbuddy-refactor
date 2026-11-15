@@ -1,6 +1,6 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { cn } from "@/lib/utils";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   useQuery,
   useInfiniteQuery,
@@ -30,6 +30,46 @@ import {
   MessageScrollerButton,
 } from "@/components/ui/message-scroller";
 import { Problem, Loading, NoResults } from "@/components/custom-ui/feedback";
+import { sendChatMessage } from "./attachments";
+
+type LoadResult = { index: number; startedAt: string; latencyMs: number; ok: boolean; error?: string };
+function LoadDashboard({ conversationId }: { conversationId: string }) {
+  const [count, setCount] = useState(100);
+  const [concurrency, setConcurrency] = useState(5);
+  const [running, setRunning] = useState(false);
+  const [results, setResults] = useState<LoadResult[]>([]);
+  const cancelled = useRef(false);
+  const run = async () => {
+    cancelled.current = false; setResults([]); setRunning(true);
+    const collected: LoadResult[] = []; let cursor = 0;
+    const workers = Array.from({ length: Math.min(concurrency, count) }, async () => {
+      while (!cancelled.current) {
+        const index = cursor++;
+        if (index >= count) break;
+        const started = Date.now(); const startedAt = new Date(started).toISOString();
+        try {
+          await sendChatMessage(conversationId, `[Load test ${startedAt}] Message ${index + 1}/${count}`, []);
+          collected.push({ index: index + 1, startedAt, latencyMs: Date.now() - started, ok: true });
+        } catch (error) {
+          collected.push({ index: index + 1, startedAt, latencyMs: Date.now() - started, ok: false, error: error instanceof Error ? error.message : String(error) });
+        }
+        setResults([...collected].sort((a,b) => a.index - b.index));
+      }
+    });
+    await Promise.all(workers); setRunning(false);
+  };
+  const exportCsv = () => {
+    const rows = [["index","started_at","latency_ms","success","error"], ...results.map(r => [r.index, r.startedAt, r.latencyMs, r.ok, r.error ?? ""])];
+    const csv = rows.map(row => row.map(value => `"${String(value).replaceAll('"','""')}"`).join(",")).join("\n");
+    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); link.download = `messaging-load-${new Date().toISOString().replaceAll(":","-")}.csv`; link.click(); URL.revokeObjectURL(link.href);
+  };
+  const successful = results.filter(r => r.ok).length;
+  return <section className="m-4 rounded-lg border p-4" aria-label="Messaging load test">
+    <h2 className="text-lg font-semibold">Messaging load test</h2><p className="mb-3 text-sm text-muted-foreground">Sends real messages to this conversation as the signed-in user. Start with a small run.</p>
+    <div className="flex flex-wrap items-end gap-3"><label className="text-sm">Messages<input className="mt-1 block w-28 rounded border bg-background px-2 py-1" type="number" min="1" max="1000" value={count} disabled={running} onChange={e=>setCount(Math.max(1,Math.min(1000,Number(e.target.value)||1)))}/></label><label className="text-sm">Concurrency<input className="mt-1 block w-28 rounded border bg-background px-2 py-1" type="number" min="1" max="20" value={concurrency} disabled={running} onChange={e=>setConcurrency(Math.max(1,Math.min(20,Number(e.target.value)||1)))}/></label><Button disabled={running} onClick={()=>void run()}>Start run</Button><Button variant="outline" disabled={!running} onClick={()=>{cancelled.current=true}}>Stop</Button><Button variant="outline" disabled={!results.length} onClick={exportCsv}>Export CSV</Button></div>
+    <p className="mt-3 text-sm" aria-live="polite">{running ? `Running: ${results.length}/${count}` : `Completed: ${results.length} · ${successful} succeeded · ${results.length-successful} failed`}{results.length ? ` · average ${Math.round(results.reduce((sum,r)=>sum+r.latencyMs,0)/results.length)} ms` : ""}</p>
+  </section>;
+}
 export function InboxPage({
   conversation,
   packageId,
@@ -135,6 +175,7 @@ export function InboxPage({
       </div>
       {started.error && <Problem error={started.error} />}
       <div className="conversation-workspace grid min-h-[560px] overflow-hidden rounded-lg border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
+        {active && <div className="col-span-full"><LoadDashboard conversationId={active} /></div>}
         <aside
           className={cn(
             "border-r bg-muted/25 py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
