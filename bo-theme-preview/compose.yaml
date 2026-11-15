@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: travelbuddy
+      POSTGRES_USER: travelbuddy
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-travelbuddy-local-only}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: .
+    command: ["pnpm", "db:documents:deploy"]
+    environment:
+      DOCUMENT_DATABASE_URL: postgresql://travelbuddy:${POSTGRES_PASSWORD:-travelbuddy-local-only}@db:5432/travelbuddy?schema=travelbuddy_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DOCUMENT_DATABASE_URL: postgresql://travelbuddy:${POSTGRES_PASSWORD:-travelbuddy-local-only}@db:5432/travelbuddy?schema=travelbuddy_backend
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?Set GOOGLE_CLIENT_ID in .env}
+      AUTH_APP_URL: http://localhost:3000
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in .env}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-data:
