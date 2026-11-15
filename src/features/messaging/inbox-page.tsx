@@ -7,7 +7,13 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Badge } from "@/components/ui/badge";
 import { rpc } from "@/lib/supabase";
 import { accountQuery } from "@/lib/queries";
@@ -79,6 +85,7 @@ export function InboxPage({
   packageId?: string;
   returnTo?: string;
 }) {
+  const [search, setSearch] = useState("");
   const money = useMoney();
   const navigate = useNavigate();
   const client = useQueryClient();
@@ -116,6 +123,12 @@ export function InboxPage({
     getNextPageParam: (lastPage) =>
       lastPage.hasMore ? (lastPage.nextBefore ?? undefined) : undefined,
   });
+  const searchTerm = search.trim().toLocaleLowerCase();
+  const filteredThreads = threads.data?.filter((thread) =>
+    [thread.name, thread.packageTitle, thread.preview].some((value) =>
+      value?.toLocaleLowerCase().includes(searchTerm),
+    ),
+  );
   const thread = threads.data?.find((t) => t.id === active);
   const lastMessage = messages.data?.pages[0]?.items.at(-1)?.id;
   const pageCount = messages.data?.pages.length ?? 0;
@@ -167,22 +180,36 @@ export function InboxPage({
   }, [active, lastMessage, client]);
   return (
     <section>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-5 [&_h1]:mb-3 [&_p]:text-muted-foreground">
-        <div>
-          <h1>A good trip starts with a hello.</h1>
-          <p>Talk to your host before making it a plan.</p>
-        </div>
-      </div>
       {started.error && <Problem error={started.error} />}
-      <div className="conversation-workspace grid min-h-[560px] overflow-hidden rounded-lg border bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
-        {active && <div className="col-span-full"><LoadDashboard conversationId={active} /></div>}
+      <div className="conversation-workspace grid min-h-[560px] overflow-hidden md:rounded-lg md:border md:bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
+        {active && (
+          <div className="col-span-full">
+            <LoadDashboard conversationId={active} />
+          </div>
+        )}
         <aside
           className={cn(
-            "border-r bg-muted/25 py-5 [&>h2]:px-5 [&>h2]:pb-4 [&>h2]:text-base",
+            "min-w-0 md:border-r md:bg-muted/25 md:py-5",
             active && "hidden md:block",
           )}
         >
-          <h2>Your conversations</h2>
+          <div className="flex flex-col gap-4 pb-4 md:px-5">
+            <h1 className="text-xl font-semibold md:text-base">
+              Your conversations
+            </h1>
+            <InputGroup className="rounded-full bg-background">
+              <InputGroupAddon>
+                <Search aria-hidden="true" />
+              </InputGroupAddon>
+              <InputGroupInput
+                type="search"
+                aria-label="Search conversations"
+                placeholder="Search conversations"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </InputGroup>
+          </div>
           {threads.isPending ? (
             <Loading />
           ) : threads.error ? (
@@ -192,26 +219,41 @@ export function InboxPage({
               title="Say hello"
               description="Open an experience and choose Chat with provider."
             />
+          ) : !filteredThreads?.length ? (
+            <NoResults
+              title="No conversations found"
+              description="Try another name, experience, or message."
+            />
           ) : (
             <nav aria-label="Conversations">
-              {threads.data.map((t) => (
-                <Button
-                  key={t.id}
-                  variant={t.id === active ? "secondary" : "ghost"}
-                  className="h-auto w-full flex-col items-start gap-1 rounded-none px-5 py-4 text-left whitespace-normal [&_span]:text-xs [&_span]:text-muted-foreground [&_p]:max-w-full [&_p]:truncate [&_p]:text-sm"
-                  aria-current={t.id === active ? "true" : undefined}
-                  onClick={() =>
-                    navigate({
-                      to: "/inbox",
-                      search: { conversation: t.id, returnTo },
-                    })
-                  }
-                >
-                  <strong>{t.name}</strong>
-                  {!!t.unread && <Badge>{t.unread} unread</Badge>}
-                  <span>{t.packageTitle ?? "Private conversation"}</span>
-                  <p>{t.preview ?? "Start a conversation"}</p>
-                </Button>
+              {filteredThreads.map((t, index) => (
+                <div key={t.id}>
+                  {index > 0 && <Separator />}
+                  <Button
+                    variant={t.id === active ? "secondary" : "ghost"}
+                    className="h-auto w-full min-w-0 flex-col items-stretch gap-1 rounded-none px-0 py-4 text-left whitespace-normal md:px-5"
+                    aria-current={t.id === active ? "true" : undefined}
+                    onClick={() =>
+                      navigate({
+                        to: "/inbox",
+                        search: { conversation: t.id, returnTo },
+                      })
+                    }
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <strong className="min-w-0 flex-1 truncate">
+                        {t.name}
+                      </strong>
+                      {!!t.unread && <Badge>{t.unread} unread</Badge>}
+                    </div>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {t.packageTitle ?? "Private conversation"}
+                    </span>
+                    <p className="truncate text-sm text-muted-foreground">
+                      {t.preview ?? "Start a conversation"}
+                    </p>
+                  </Button>
+                </div>
               ))}
             </nav>
           )}
