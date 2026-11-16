@@ -143,6 +143,9 @@ export function InboxPage({
       return true;
     });
   useLayoutEffect(() => {
+    scrollRestore.current = null;
+  }, [active]);
+  useLayoutEffect(() => {
     const previous = scrollRestore.current;
     if (!previous) return;
     const viewport = document.querySelector<HTMLElement>(
@@ -267,6 +270,7 @@ export function InboxPage({
           )}
         </aside>
         <div
+          key={active ?? "no-conversation"}
           className={cn(
             "flex min-h-0 min-w-0 flex-col overflow-hidden [&>form]:shrink-0",
             !active && "hidden md:flex",
