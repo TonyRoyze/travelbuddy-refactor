@@ -181,15 +181,23 @@ export function InboxPage({
   return (
     <section>
       {started.error && <Problem error={started.error} />}
-      <div className="conversation-workspace grid min-h-[560px] overflow-hidden md:rounded-lg md:border md:bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]">
-        {active && (
-          <div className="col-span-full">
-            <LoadDashboard conversationId={active} />
-          </div>
+      {active && (
+        <details className="mb-3 rounded-lg border">
+          <summary className="cursor-pointer px-4 py-2 text-sm text-muted-foreground">
+            Messaging load test
+          </summary>
+          <LoadDashboard conversationId={active} />
+        </details>
+      )}
+      <div
+        className={cn(
+          "conversation-workspace grid min-h-0 overflow-hidden md:h-[calc(100dvh-14rem)] md:min-h-[360px] md:rounded-lg md:border md:bg-card md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[300px_minmax(0,1fr)]",
+          active && "h-[calc(100dvh-16rem)] min-h-[320px]",
         )}
+      >
         <aside
           className={cn(
-            "min-w-0 md:border-r md:bg-muted/25 md:py-5",
+            "min-h-0 min-w-0 overflow-y-auto md:border-r md:bg-muted/25 md:py-5",
             active && "hidden md:block",
           )}
         >
@@ -259,7 +267,10 @@ export function InboxPage({
           )}
         </aside>
         <div
-          className={cn("flex min-w-0 flex-col", !active && "hidden md:flex")}
+          className={cn(
+            "flex min-h-0 min-w-0 flex-col overflow-hidden [&>form]:shrink-0",
+            !active && "hidden md:flex",
+          )}
         >
           {!active ? (
             <NoResults
@@ -268,7 +279,7 @@ export function InboxPage({
             />
           ) : (
             <>
-              <header className="flex items-center gap-3 border-b px-4 py-3 [&_h2]:text-base [&_p]:text-xs [&_p]:text-muted-foreground [&>a]:ml-auto [&>a]:text-xs [&>a]:font-semibold [&>a]:text-primary">
+              <header className="flex shrink-0 items-center gap-3 border-b px-4 py-3 [&_h2]:text-base [&_p]:text-xs [&_p]:text-muted-foreground [&>a]:ml-auto [&>a]:text-xs [&>a]:font-semibold [&>a]:text-primary">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -309,9 +320,9 @@ export function InboxPage({
                   autoScroll
                   defaultScrollPosition="end"
                 >
-                  <MessageScroller className="h-[400px] min-h-[300px] max-h-[55vh] flex-1">
+                  <MessageScroller className="h-auto min-h-0 flex-1">
                     {messages.hasNextPage && (
-                      <div className="border-b p-3 text-center">
+                      <div className="shrink-0 border-b p-3 text-center">
                         <Button
                           type="button"
                           variant="outline"
@@ -336,7 +347,7 @@ export function InboxPage({
                         </Button>
                       </div>
                     )}
-                    <MessageScrollerViewport>
+                    <MessageScrollerViewport className="h-auto flex-1">
                       <MessageScrollerContent className="p-5">
                         {!visibleMessages?.length ? (
                           <NoResults
