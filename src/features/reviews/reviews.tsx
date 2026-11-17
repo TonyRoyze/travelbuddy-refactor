@@ -189,6 +189,7 @@ export function ExperienceReviews({ packageId }: { packageId: string }) {
   });
   if (query.isPending) return <p className="text-muted-foreground">Loading reviews…</p>;
   if (query.error) return <Problem error={query.error} />;
+  if (!query.data.items.length) return null;
   return (
     <section className="flex flex-col gap-4" aria-labelledby="experience-reviews-heading">
       <h2 id="experience-reviews-heading">

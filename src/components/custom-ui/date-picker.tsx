@@ -62,7 +62,9 @@ export function DatePicker({
             />
           }
         >
-          {date ? format(date, "PPP") : "Pick a date"}
+          <span className="min-w-0 truncate">
+            {date ? format(date, "dd MMM yyyy") : "Pick a date"}
+          </span>
           <CalendarIcon data-icon="inline-end" />
         </PopoverTrigger>
         <PopoverContent align="start" className="w-auto p-0">

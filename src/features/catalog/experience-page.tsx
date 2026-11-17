@@ -34,7 +34,6 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { addDays } from "./selection";
 import { useCart } from "@/features/bookings/cart-provider";
 import { CartStorageNotice } from "@/features/bookings/cart-page";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Problem, Loading } from "@/components/custom-ui/feedback";
 import { Badge } from "@/components/ui/badge";
 import { ExperienceReviews } from "@/features/reviews/reviews";
@@ -99,6 +98,12 @@ export function ExperiencePage({
   if (detail.isPending) return <Loading />;
   if (detail.error) return <Problem error={detail.error} />;
   const p = detail.data;
+  const highlights = p.highlights.filter((text) => text.trim());
+  const included = p.included.filter((text) => text.trim());
+  const notIncluded = p.notIncluded.filter((text) => text.trim());
+  const itinerary = p.itinerary.filter(
+    (step) => step.title.trim() || step.detail.trim(),
+  );
   const a = availability.data;
   const date = selection.date ?? a?.date ?? today();
   const option = p.options[selection.option] ? selection.option : 0;
@@ -222,55 +227,65 @@ export function ExperiencePage({
               </div>
             </section>
           )}
-          <section>
-            <h2>A closer look</h2>
-            <p>{p.description}</p>
-          </section>
-          <section>
-            <h2>What makes it special</h2>
-            <ul className="flex flex-col gap-3 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_svg]:mt-0.5 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
-              {p.highlights.map((h) => (
-                <li key={h}>
-                  <Check />
-                  {h}
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section>
-            <h2>Included in your experience</h2>
-            <ul className="flex flex-col gap-3 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_svg]:mt-0.5 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
-              {p.included.map((h) => (
-                <li key={h}>
-                  <Check />
-                  {h}
-                </li>
-              ))}
-            </ul>
-            {p.notIncluded.length > 0 && (
-              <p className="text-muted-foreground mt-4">
-                Not included: {p.notIncluded.join(", ")}.
-              </p>
-            )}
-          </section>
-          <section>
-            <h2>Your journey</h2>
-            <ol className="flex flex-col gap-6 border-l-2 pl-5 [&_li]:flex [&_li]:gap-5 [&_li>span]:w-20 [&_li>span]:shrink-0 [&_li>span]:text-sm [&_li>span]:text-primary [&_h3]:mb-2 [&_p]:text-muted-foreground">
-              {p.itinerary.map((s, i) => (
-                <li key={i}>
-                  <span>{s.time}</span>
-                  <div>
-                    <h3>{s.title}</h3>
-                    <p>{s.detail}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-          <section>
-            <h2>Where you’ll meet</h2>
-            <p>{p.meetingPoint}</p>
-          </section>
+          {p.description.trim() && (
+            <section>
+              <h2>A closer look</h2>
+              <p>{p.description}</p>
+            </section>
+          )}
+          {highlights.length > 0 && (
+            <section>
+              <h2>What makes it special</h2>
+              <ul className="flex flex-col gap-3 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_svg]:mt-0.5 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
+                {highlights.map((h) => (
+                  <li key={h}>
+                    <Check />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+          {(included.length > 0 || notIncluded.length > 0) && (
+            <section>
+              <h2>Included in your experience</h2>
+              <ul className="flex flex-col gap-3 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_svg]:mt-0.5 [&_svg]:size-5 [&_svg]:shrink-0 [&_svg]:text-primary">
+                {included.map((h) => (
+                  <li key={h}>
+                    <Check />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+              {notIncluded.length > 0 && (
+                <p className="text-muted-foreground mt-4">
+                  Not included: {notIncluded.join(", ")}.
+                </p>
+              )}
+            </section>
+          )}
+          {itinerary.length > 0 && (
+            <section>
+              <h2>Your journey</h2>
+              <ol className="flex flex-col gap-6 border-l-2 pl-5 [&_li]:flex [&_li]:gap-5 [&_li>span]:w-20 [&_li>span]:shrink-0 [&_li>span]:text-sm [&_li>span]:text-primary [&_h3]:mb-2 [&_p]:text-muted-foreground">
+                {itinerary.map((s, i) => (
+                  <li key={i}>
+                    <span>{s.time}</span>
+                    <div>
+                      <h3>{s.title}</h3>
+                      <p>{s.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+          {p.meetingPoint.trim() && (
+            <section>
+              <h2>Where you’ll meet</h2>
+              <p>{p.meetingPoint}</p>
+            </section>
+          )}
           <ExperienceReviews packageId={p.id} />
         </div>
         <Card className="row-start-1 self-start lg:sticky lg:top-24 lg:row-auto">
@@ -289,7 +304,7 @@ export function ExperiencePage({
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
             <FieldGroup>
-              <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
+              <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 [&>*]:min-w-0">
                 <Field>
                   <FieldLabel htmlFor="date">Date</FieldLabel>
                   <DatePicker
@@ -349,14 +364,6 @@ export function ExperiencePage({
               </Field>
             </FieldGroup>
             {availability.error && <Problem error={availability.error} />}
-            {!selection.date && date > today() && (
-              <Alert>
-                <AlertDescription>
-                  No places remain today. We selected the next available date
-                  and time.
-                </AlertDescription>
-              </Alert>
-            )}
             <p className="flex items-center justify-between">
               <span>Total · {selection.travelers} travelers</span>
               <strong>
@@ -374,6 +381,7 @@ export function ExperiencePage({
           <CardFooter className="flex-col items-stretch gap-3">
             <Button
               size="lg"
+              className="text-white"
               disabled={
                 !time ||
                 availability.isPending ||

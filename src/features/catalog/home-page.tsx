@@ -252,7 +252,7 @@ export function HomePage() {
 
           {/* Search Bar Embedded in Hero */}
           <div
-            className="home-search-band hidden w-full max-w-5xl mt-8 sm:mt-10 md:block"
+            className="home-search-band hidden w-full mt-8 sm:mt-10 md:block"
             data-guests-open={guestsOpen || undefined}
           >
             <form
@@ -618,45 +618,47 @@ export function HomePage() {
         </section>
 
         {/* Top Experiences Grid */}
-        <section aria-labelledby="home-experiences-title">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2
-                id="home-experiences-title"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+        {(query.isPending || query.error || packages.length > 0) && (
+          <section aria-labelledby="home-experiences-title">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2
+                  id="home-experiences-title"
+                  className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+                >
+                  Stories worth stepping into
+                </h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Handpicked days out with people who call the island home
+                </p>
+              </div>
+              <Link
+                to="/search"
+                search={{ country: "Sri Lanka" }}
+                className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
               >
-                Stories worth stepping into
-              </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Handpicked days out with people who call the island home
-              </p>
+                See all experiences <ArrowRight className="size-4" />
+              </Link>
             </div>
-            <Link
-              to="/search"
-              search={{ country: "Sri Lanka" }}
-              className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
-            >
-              See all experiences <ArrowRight className="size-4" />
-            </Link>
-          </div>
 
-          {query.isPending ? (
-            <Loading />
-          ) : query.error ? (
-            <Problem error={query.error} />
-          ) : !packages.length ? (
-            <NoResults
-              title="More experiences are on the way"
-              description="Explore another destination to find your next adventure."
-            />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {packages.slice(0, 8).map((experience) => (
-                <ExperienceCard key={experience.id} experience={experience} />
-              ))}
-            </div>
-          )}
-        </section>
+            {query.isPending ? (
+              <Loading />
+            ) : query.error ? (
+              <Problem error={query.error} />
+            ) : !packages.length ? (
+              <NoResults
+                title="More experiences are on the way"
+                description="Explore another destination to find your next adventure."
+              />
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {packages.slice(0, 8).map((experience) => (
+                  <ExperienceCard key={experience.id} experience={experience} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* Popular Destinations Grid */}
         <section aria-labelledby="home-destinations-title">

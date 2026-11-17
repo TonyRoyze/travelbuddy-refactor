@@ -2578,3 +2578,7 @@
     padding: 1rem;
   }
 }
+
+/* Let the hero search fill the same content width as the hero copy. */
+.home-search-band { max-width: none; padding-inline: 0; }
+.home-hero .home-search { max-width: none; }
