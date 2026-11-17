@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
+  ArrowLeft,
   Star,
   Compass,
   MapPin,
@@ -99,6 +100,8 @@ const categories = [
 
 export function HomePage() {
   const navigate = useNavigate();
+  const categoryShelf = useRef<HTMLDivElement>(null);
+  const [searchError, setSearchError] = useState("");
   const [date, setDate] = useState("");
   const [destinationText, setDestinationText] = useState("");
   const [selectedSuggestion, setSelectedSuggestion] =
@@ -116,9 +119,7 @@ export function HomePage() {
     pets: 0,
   });
   const travelers = guests.adults + guests.children + guests.infants;
-  const query = useQuery(
-    catalogQuery(searchSchema.parse({})),
-  );
+  const query = useQuery(catalogQuery(searchSchema.parse({})));
   useEffect(() => {
     const timer = window.setTimeout(
       () => setDebouncedDestination(destinationText.trim()),
@@ -142,7 +143,10 @@ export function HomePage() {
     new Map(
       packages
         .filter((item) => item.destination.trim())
-        .map((item) => [item.destination, { value: item.destination, kind: "destination" as const }]),
+        .map((item) => [
+          item.destination,
+          { value: item.destination, kind: "destination" as const },
+        ]),
     ).values(),
   ).slice(0, 7);
   const suggestionItems =
@@ -154,13 +158,22 @@ export function HomePage() {
 
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!destinationText.trim() && !date && !travelers && !guests.pets) {
+      setSearchError(
+        "Choose a destination, dates, or guests before searching.",
+      );
+      return false;
+    }
+    setSearchError("");
     const data = new FormData(event.currentTarget);
     void navigate({
       to: "/search",
       search: searchSchema.parse({
         q:
           selectedSuggestion &&
-          !["destination", "country", "category"].includes(selectedSuggestion.kind)
+          !["destination", "country", "category"].includes(
+            selectedSuggestion.kind,
+          )
             ? selectedSuggestion.value
             : selectedSuggestion
               ? undefined
@@ -184,7 +197,7 @@ export function HomePage() {
   }
 
   return (
-      <div className="home-page flex flex-col gap-12 sm:gap-16 pb-12">
+    <div className="home-page flex flex-col gap-8 sm:gap-10 pb-8">
       {/* A landscape led welcome to Sri Lanka */}
       <section className="home-hero relative overflow-hidden bg-neutral-900 text-white mx-4 sm:mx-6 lg:mx-8 mt-4 shadow-xl">
         <Media
@@ -199,21 +212,41 @@ export function HomePage() {
             Take the <span>scenic route.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base sm:text-lg text-neutral-100 text-balance leading-relaxed">
-            Find your own way around the World, with local people who know every turn, taste and tale.
+            Find your own way around the World, with local people who know every
+            turn, taste and tale.
           </p>
 
           <div className="mt-8 w-full md:hidden">
             <MobileSearch
               destination={destinationText}
-              onDestinationChange={(value, suggestion) => { setDestinationText(value); setSelectedSuggestion(suggestion); }}
-              suggestions={destinationText.trim().length >= 2 ? suggestionItems : popularDestinations.length ? popularDestinations : destinations.map((place) => ({ value: place.query, kind: "destination" as const }))}
-              loading={destinationText.trim().length >= 2 && destinationMatches.isFetching}
+              onDestinationChange={(value, suggestion) => {
+                setDestinationText(value);
+                setSelectedSuggestion(suggestion);
+              }}
+              suggestions={
+                destinationText.trim().length >= 2
+                  ? suggestionItems
+                  : popularDestinations.length
+                    ? popularDestinations
+                    : destinations.map((place) => ({
+                        value: place.query,
+                        kind: "destination" as const,
+                      }))
+              }
+              loading={
+                destinationText.trim().length >= 2 &&
+                destinationMatches.isFetching
+              }
               date={date}
               endDate={endDate}
-              onDatesChange={(start, end) => { setDate(start); setEndDate(end); }}
+              onDatesChange={(start, end) => {
+                setDate(start);
+                setEndDate(end);
+              }}
               guests={guests}
               onGuestsChange={setGuests}
               onSearch={search}
+              error={searchError}
             />
           </div>
 
@@ -226,7 +259,10 @@ export function HomePage() {
               className="home-search w-full bg-background text-foreground shadow-2xl rounded-2xl sm:rounded-full border border-border p-2"
               onSubmit={search}
             >
-              <label className="home-search-place home-search-field text-left" htmlFor="home-where">
+              <label
+                className="home-search-place home-search-field text-left"
+                htmlFor="home-where"
+              >
                 <span className="home-search-label text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                   <MapPin className="size-3.5 text-primary" /> Where to?
                 </span>
@@ -259,7 +295,14 @@ export function HomePage() {
                       onFocus={() => setDestinationOpen(true)}
                     />
                   </AutocompleteInputGroup>
-                  <AutocompleteContent className="home-destination-popover">
+                  <AutocompleteContent
+                    className="home-destination-popover"
+                    collisionAvoidance={{
+                      side: "none",
+                      align: "shift",
+                      fallbackAxisSide: "none",
+                    }}
+                  >
                     <div className="home-destination-popover-heading">
                       {destinationText.trim().length >= 2
                         ? "Matching destinations and experiences"
@@ -295,7 +338,10 @@ export function HomePage() {
                               value={item}
                               className="home-destination-option"
                             >
-                              <span className="home-destination-icon" data-kind={item.kind}>
+                              <span
+                                className="home-destination-icon"
+                                data-kind={item.kind}
+                              >
                                 <Icon aria-hidden="true" />
                               </span>
                               <span className="home-destination-copy">
@@ -318,66 +364,91 @@ export function HomePage() {
               </label>
 
               <Popover
-                  open={dateOpen}
-                  onOpenChange={(nextOpen) => {
-                    if (nextOpen) {
-                      setDateOpen(true);
-                      return;
-                    }
-                    if (date && !endDate) return;
-                    setDateOpen(false);
-                  }}
+                open={dateOpen}
+                onOpenChange={(nextOpen) => {
+                  if (nextOpen) {
+                    setDateOpen(true);
+                    return;
+                  }
+                  if (date && !endDate) return;
+                  setDateOpen(false);
+                }}
+              >
+                <PopoverTrigger
+                  ref={dateAnchor}
+                  type="button"
+                  className="home-date-trigger"
+                  aria-label={`When: ${date ? `${date}${endDate ? ` to ${endDate}` : ""}` : "Choose dates"}`}
                 >
-                  <PopoverTrigger
-                    ref={dateAnchor}
-                    type="button"
-                    className="home-date-trigger"
-                    aria-label={`When: ${date ? `${date}${endDate ? ` to ${endDate}` : ""}` : "Choose dates"}`}
-                  >
-                    <span className="home-search-label"><CalendarIcon aria-hidden="true" /> When?</span>
-                    <span className="home-date-value">{date ? `${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}${endDate ? ` – ${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${endDate}T12:00:00`))}` : " · Choose end date"}` : "Add dates"}</span>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    anchor={dateAnchor}
-                    align="center"
-                    sideOffset={12}
-                    className="home-date-popover"
-                  >
-                    <div className="home-date-popover-heading">
-                      <PopoverTitle className="home-guest-popover-title">When are you going?</PopoverTitle>
-                      <p>{date && !endDate ? "Choose your end date" : "Select your start date, then end date"}</p>
-                    </div>
-                    <DateCalendar
-                      mode="range"
-                      min={1}
-                      selected={
-                        date
-                          ? {
-                              from: new Date(`${date}T12:00:00`),
-                              ...(endDate ? { to: new Date(`${endDate}T12:00:00`) } : {}),
-                            }
-                          : undefined
+                  <span className="home-search-label">
+                    <CalendarIcon aria-hidden="true" /> When?
+                  </span>
+                  <span className="home-date-value">
+                    {date
+                      ? `${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}${endDate ? ` – ${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${endDate}T12:00:00`))}` : " · Choose end date"}`
+                      : "Add dates"}
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent
+                  anchor={dateAnchor}
+                  align="center"
+                  sideOffset={12}
+                  collisionAvoidance={{
+                    side: "none",
+                    align: "shift",
+                    fallbackAxisSide: "none",
+                  }}
+                  className="home-date-popover"
+                >
+                  <div className="home-date-popover-heading">
+                    <PopoverTitle className="home-guest-popover-title">
+                      When are you going?
+                    </PopoverTitle>
+                    <p>
+                      {date && !endDate
+                        ? "Choose your end date"
+                        : "Select your start date, then end date"}
+                    </p>
+                  </div>
+                  <DateCalendar
+                    mode="range"
+                    min={1}
+                    selected={
+                      date
+                        ? {
+                            from: new Date(`${date}T12:00:00`),
+                            ...(endDate
+                              ? { to: new Date(`${endDate}T12:00:00`) }
+                              : {}),
+                          }
+                        : undefined
+                    }
+                    onSelect={(range: DateRange | undefined) => {
+                      const toIso = (value: Date) => {
+                        const year = value.getFullYear();
+                        const month = String(value.getMonth() + 1).padStart(
+                          2,
+                          "0",
+                        );
+                        const day = String(value.getDate()).padStart(2, "0");
+                        return `${year}-${month}-${day}`;
+                      };
+                      if (!range?.from) {
+                        setDate("");
+                        setEndDate("");
+                        return;
                       }
-                      onSelect={(range: DateRange | undefined) => {
-                        const toIso = (value: Date) => {
-                          const year = value.getFullYear();
-                          const month = String(value.getMonth() + 1).padStart(2, "0");
-                          const day = String(value.getDate()).padStart(2, "0");
-                          return `${year}-${month}-${day}`;
-                        };
-                        if (!range?.from) {
-                          setDate("");
-                          setEndDate("");
-                          return;
-                        }
-                        setDate(toIso(range.from));
-                        setEndDate(range.to ? toIso(range.to) : "");
-                        if (range.to) setDateOpen(false);
-                      }}
-                      disabled={{ before: new Date(`${today()}T00:00:00`), after: new Date(`${addDays(today(), 180)}T23:59:59`) }}
-                    />
-                  </PopoverContent>
-                </Popover>
+                      setDate(toIso(range.from));
+                      setEndDate(range.to ? toIso(range.to) : "");
+                      if (range.to) setDateOpen(false);
+                    }}
+                    disabled={{
+                      before: new Date(`${today()}T00:00:00`),
+                      after: new Date(`${addDays(today(), 180)}T23:59:59`),
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
 
               <GuestSelector
                 value={guests}
@@ -389,6 +460,15 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {searchError && (
+        <p
+          role="alert"
+          className="home-search-error mx-auto hidden px-6 text-center font-medium text-destructive md:block"
+        >
+          {searchError}
+        </p>
+      )}
 
       {guestsOpen && (
         <div
@@ -403,30 +483,62 @@ export function HomePage() {
         <div className="home-trust-grid grid grid-cols-2 md:grid-cols-4">
           <div className="home-trust-item">
             <CircleCheck className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">Free cancellation</p><p className="text-xs text-muted-foreground">Up to 24 hours before</p></div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Free cancellation
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Up to 24 hours before
+              </p>
+            </div>
           </div>
           <div className="home-trust-item">
             <BadgeCheck className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">Loved by travellers</p><p className="home-trust-rating"><Star className="size-3 fill-current" /> 4.9 <span>· verified reviews</span></p></div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Loved by travellers
+              </p>
+              <p className="home-trust-rating">
+                <Star className="size-3 fill-current" /> 4.9{" "}
+                <span>· verified reviews</span>
+              </p>
+            </div>
           </div>
           <div className="home-trust-item">
             <TicketCheck className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">Ready when you are</p><p className="text-xs text-muted-foreground">Instant confirmation</p></div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Ready when you are
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Instant confirmation
+              </p>
+            </div>
           </div>
           <div className="home-trust-item">
             <Compass className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">People who know</p><p className="text-xs text-muted-foreground">Local guides, real stories</p></div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                People who know
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Local guides, real stories
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Main Container */}
-      <div className="mx-auto w-full max-w-[1340px] px-4 sm:px-6 lg:px-8 flex flex-col gap-14">
+      <div className="mx-auto w-full max-w-[1340px] px-4 sm:px-6 lg:px-8 home-sections flex flex-col gap-8">
         {/* Category Shelves */}
         <section aria-labelledby="home-categories-title">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 id="home-categories-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              <h2
+                id="home-categories-title"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+              >
                 Explore by Category
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -442,7 +554,40 @@ export function HomePage() {
             </Link>
           </div>
 
-          <div className="home-category-grid">
+          <div
+            className="home-category-navigation"
+            aria-label="Category navigation"
+          >
+            <button
+              type="button"
+              aria-label="Previous categories"
+              onClick={() =>
+                categoryShelf.current?.scrollBy({
+                  left: -categoryShelf.current.clientWidth,
+                  behavior: "smooth",
+                })
+              }
+            >
+              <ArrowLeft aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next categories"
+              onClick={() =>
+                categoryShelf.current?.scrollBy({
+                  left: categoryShelf.current.clientWidth,
+                  behavior: "smooth",
+                })
+              }
+            >
+              <ArrowRight aria-hidden="true" />
+            </button>
+          </div>
+          <div
+            id="home-category-shelf"
+            ref={categoryShelf}
+            className="home-category-grid"
+          >
             {categories.map((category) => (
               <Link
                 key={category.label}
@@ -453,8 +598,9 @@ export function HomePage() {
                 <span className="home-category-photo-wrap">
                   <Media
                     src={
-                      packages.find((item) => item.category === category.category)
-                        ?.image ?? category.image
+                      packages.find(
+                        (item) => item.category === category.category,
+                      )?.image ?? category.image
                     }
                     alt={category.label}
                     className="home-category-image transition-transform duration-700 group-hover:scale-105"
@@ -462,7 +608,9 @@ export function HomePage() {
                 </span>
                 <span className="home-category-copy">
                   <span className="home-category-title">{category.label}</span>
-                  <span className="home-category-description">{category.description}</span>
+                  <span className="home-category-description">
+                    {category.description}
+                  </span>
                 </span>
               </Link>
             ))}
@@ -473,7 +621,10 @@ export function HomePage() {
         <section aria-labelledby="home-experiences-title">
           <div className="flex items-center justify-between mb-6">
             <div>
-                <h2 id="home-experiences-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              <h2
+                id="home-experiences-title"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+              >
                 Stories worth stepping into
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -511,7 +662,10 @@ export function HomePage() {
         <section aria-labelledby="home-destinations-title">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 id="home-destinations-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              <h2
+                id="home-destinations-title"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+              >
                 Top Sri Lankan Destinations
               </h2>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -537,7 +691,9 @@ export function HomePage() {
                 <div className="absolute bottom-0 inset-x-0 p-5 text-white flex items-end justify-between">
                   <div>
                     <h3 className="text-xl font-bold">{destination.name}</h3>
-                    <p className="text-xs text-neutral-300">Sri Lanka · Tours & Day Trips</p>
+                    <p className="text-xs text-neutral-300">
+                      Sri Lanka · Tours & Day Trips
+                    </p>
                   </div>
                   <span className="flex size-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white group-hover:bg-primary transition-colors">
                     <ArrowRight className="size-4" />

@@ -10,11 +10,17 @@ function AutocompleteInput(props: AutocompletePrimitive.Input.Props) {
 }
 function AutocompleteContent({
   className,
+  collisionAvoidance,
   ...props
-}: AutocompletePrimitive.Popup.Props) {
+}: AutocompletePrimitive.Popup.Props &
+  Pick<AutocompletePrimitive.Positioner.Props, "collisionAvoidance">) {
   return (
     <AutocompletePrimitive.Portal>
-      <AutocompletePrimitive.Positioner sideOffset={6} className="isolate z-50">
+      <AutocompletePrimitive.Positioner
+        collisionAvoidance={collisionAvoidance}
+        sideOffset={6}
+        className="isolate z-50"
+      >
         <AutocompletePrimitive.Popup
           className={cn(
             "max-h-(--available-height) w-(--anchor-width) max-w-(--available-width) overflow-hidden rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10",
