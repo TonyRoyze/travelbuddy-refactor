@@ -1,3 +1,4 @@
+import { shutdownTelemetry } from "../telemetry/register.mjs";
 import { spawn } from "node:child_process";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer, request as httpRequest } from "node:http";
@@ -8,14 +9,26 @@ const port = Number(process.env.PORT ?? 8080);
 const services = [
   spawn("node_modules/.bin/tsx", ["services/profile-media/server.ts"], {
     stdio: "inherit",
+    env: {
+      ...process.env,
+      OTEL_SERVICE_NAME: `${process.env.OTEL_SERVICE_NAME ?? "travelbuddy"}-media`,
+    },
   }),
   spawn("node_modules/.bin/tsx", ["services/payments/server.ts"], {
     stdio: "inherit",
+    env: {
+      ...process.env,
+      OTEL_SERVICE_NAME: `${process.env.OTEL_SERVICE_NAME ?? "travelbuddy"}-payments`,
+    },
   }),
 ];
 // Missing APNs configuration disables push without stopping the web service.
 const pushWorker = spawn("node_modules/.bin/tsx", ["services/push/worker.ts"], {
   stdio: "inherit",
+  env: {
+    ...process.env,
+    OTEL_SERVICE_NAME: `${process.env.OTEL_SERVICE_NAME ?? "travelbuddy"}-push`,
+  },
 });
 pushWorker.on("error", () =>
   console.error("Could not start the iPhone push worker."),
@@ -29,7 +42,10 @@ function stop(code = 0) {
   if (stopping) return;
   stopping = true;
   for (const child of [...services, pushWorker]) child.kill("SIGTERM");
-  server.close(() => process.exit(code));
+  server.close(async () => {
+    await shutdownTelemetry();
+    process.exit(code);
+  });
   setTimeout(() => process.exit(code), 40000).unref();
 }
 

@@ -16,7 +16,8 @@ RUN test -n "$VITE_SUPABASE_URL" \
     && pnpm build
 
 FROM node:22-bookworm-slim AS runtime
-ENV NODE_ENV=production PORT=8080
+ENV NODE_ENV=production PORT=8080 \
+    NODE_OPTIONS="--import=./services/telemetry/register.mjs"
 WORKDIR /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \

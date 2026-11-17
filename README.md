@@ -116,3 +116,61 @@ See the [Phase 1 feature audit (F001–F014)](docs/phase-one-feature-audit.md) f
 ## Automated code quality checks
 
 The [Code quality workflow](https://github.com/tonyroyze/travelbuddy-refactor/actions/workflows/quality.yml) runs typecheck, lint, unit tests with coverage, and a production build on pull requests targeting `main` and again after pushes to `main`. Each run shows statement, branch, function, and line coverage in its summary; the detailed coverage files are kept as an artifact for 14 days. Coverage is reported as a trend and does not currently enforce a percentage threshold. Configure the `Typecheck, lint, tests and build` check as a required status check in GitHub branch protection to prevent merging when it fails.
+
+## OpenTelemetry and load testing
+
+The production container preloads `services/telemetry/register.mjs` in the web,
+media, payments, and push processes. Telemetry is opt-in. Configure these runtime
+variables on the deployment (not Vite build arguments):
+
+```sh
+OTEL_ENABLED=true
+OTEL_SERVICE_NAME=travelbuddy
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_TRACES_SAMPLER=parentbased_traceidratio
+OTEL_TRACES_SAMPLER_ARG=0.1
+OTEL_METRIC_EXPORT_INTERVAL=10000
+```
+
+Use your existing OTLP HTTP collector URL; the endpoint above is an example,
+not a collector installed by this repository. The collector must accept traces
+and metrics and forward them to your observability backend. Set
+`OTEL_EXPORTER_OTLP_HEADERS` via a Kubernetes Secret if authentication is required.
+Do not expose a collector publicly without authentication.
+
+For a short controlled test, set `OTEL_TRACES_SAMPLER_ARG=1` to capture all traces;
+reduce sampling afterwards to control overhead. Set `OTEL_ENABLED=false` or
+`OTEL_SDK_DISABLED=true` to disable telemetry. `OTEL_METRICS_EXPORTER=none`
+disables metrics. Service names gain `-media`, `-payments`, and `-push` suffixes
+for child processes. HTTP spans propagate W3C trace context across the proxy.
+Health probes are excluded, request headers and bodies are not captured, and URL
+attributes are redacted to avoid exporting query tokens or user IDs.
+
+For local services, set the same environment variables before starting Node and
+preload with `NODE_OPTIONS=--import=./services/telemetry/register.mjs` (run from the
+repository root). Configuration must exist before startup; service `.env` files
+are loaded after instrumentation. Node >=22.15 is required.
+
+Verify trace and metric export against a temporary local HTTP receiver:
+
+```sh
+node scripts/test-telemetry.mjs
+```
+
+With k6 installed, run the read-only homepage load test against a test deployment:
+
+```sh
+BASE_URL=http://localhost:8080 VUS=20 k6 run tests/load/smoke.js
+```
+
+The script ramps up over 30 seconds, holds load for one minute, then ramps down.
+It fails when HTTP errors reach 1% or p95 latency reaches one second. Review
+request latency/errors, process memory, CPU, event-loop delay, and proxy/service
+traces during the same window. This is a static frontend baseline: it does not
+execute browser JavaScript, exercise authenticated journeys, or measure Supabase
+queries. Add dedicated test-account scenarios for those workloads; do not load
+test live payment or media-write flows with this smoke script.
+
+Instrumentation uses the [OpenTelemetry Node SDK](https://opentelemetry.io/docs/languages/js/getting-started/nodejs/)
+and [OTLP exporting](https://opentelemetry.io/docs/languages/js/exporters/).
