@@ -4,7 +4,6 @@ export default ts.config(
   {
     ignores: [
       "dist/**",
-      "bo-theme-preview/**",
       "ios/**",
       "src/routeTree.gen.ts",
       "src/types/database.ts",

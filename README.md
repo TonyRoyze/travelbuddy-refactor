@@ -4,6 +4,10 @@
 
 A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is preserved under [`legacy/`](legacy/) for reference and inventory compatibility checks. Use the Vite app for LKR pricing, payments and traveler currency preferences; the archived UI assumes USD.
 
+## Main theme
+
+The blue/orange theme is built directly into the main React + Vite application. Its palette and component styling live in `src/app/styles.css`, navigation in `src/app/shell.tsx`, home page in `src/features/catalog/home-page.tsx`, and shared brand assets in `public/brand/`. Both web and iOS builds use this theme. There is no separate theme preview app or theme-specific build command.
+
 ## Run locally
 
 Requires Node 22.12+ (or Node 24+), pnpm 11, FFmpeg (for `ffprobe`), and the existing local Supabase Docker stack.

@@ -1,9 +1,0 @@
-node_modules
-.next
-.git
-.env
-.env.*
-client_secret*.json
-tmp
-output
-*.log
