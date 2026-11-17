@@ -55,6 +55,7 @@ export function GuestSelector({
     <Popover open={open} onOpenChange={onOpenChange}>
       <div
         className="home-guest-segment"
+        data-has-guests={summary ? true : undefined}
         data-open={open || undefined}
       >
         <PopoverTrigger
@@ -63,7 +64,9 @@ export function GuestSelector({
           className="home-guest-trigger"
           aria-label={`Who: ${summary || "Add guests"}`}
         >
-          <span className="home-search-label"><UsersRound aria-hidden="true" /> Who</span>
+          <span className="home-search-label">
+            <UsersRound aria-hidden="true" /> Who?
+          </span>
           <span className="home-guest-summary">{summary || "Add guests"}</span>
         </PopoverTrigger>
         <button
@@ -79,10 +82,17 @@ export function GuestSelector({
         anchor={anchor}
         align="center"
         sideOffset={12}
+        collisionAvoidance={{
+          side: "none",
+          align: "shift",
+          fallbackAxisSide: "none",
+        }}
         className="home-guest-popover"
       >
         <div className="home-guest-popover-heading">
-          <PopoverTitle className="home-guest-popover-title">Who’s joining?</PopoverTitle>
+          <PopoverTitle className="home-guest-popover-title">
+            Who’s joining?
+          </PopoverTitle>
           <p>Choose your group size</p>
         </div>
         {rows.map(({ key, label, description }) => (
