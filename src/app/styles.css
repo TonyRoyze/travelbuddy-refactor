@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Main theme adapted from bo-theme-preview: ocean blue and orange actions. */
+/* TravelBuddy main theme: ocean blue foundations and orange actions. */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -2399,7 +2399,7 @@
   .mobile-search-confirm { min-height: 2.75rem; padding-inline: 1.1rem; }
 }
 
-/* Blue/orange preview styling, mapped to the production app components. */
+/* Main application theme for navigation, experiences, search, and messaging. */
   .site-header {
     background: var(--brand-blue);
     color: white;
