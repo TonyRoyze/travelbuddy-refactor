@@ -1,3 +1,5 @@
+import { useSession } from "@/features/auth/session";
+import { SignedOutBookingEmpty } from "./signed-out-empty";
 import { useMoney } from "@/features/currency/currency-provider";
 import { Badge } from "@/components/ui/badge";
 import { BookingPolicy } from "./policy";
@@ -35,7 +37,14 @@ function compareHistory(a: Booking, b: Booking) {
   return a.status === "Upcoming" ? dateDifference : -dateDifference;
 }
 
-export function BookingsPage({
+export function BookingsPage(props: { id?: string; confirmation?: boolean }) {
+  const { session, ready } = useSession();
+  if (!ready) return <Loading />;
+  if (!session) return <SignedOutBookingEmpty page="bookings" />;
+  return <SignedInBookingsPage {...props} />;
+}
+
+function SignedInBookingsPage({
   id,
   confirmation = false,
 }: {

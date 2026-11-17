@@ -6,8 +6,10 @@ export const Route = createFileRoute("/_authenticated")({
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    if (!session)
+    if (!session) {
+      if (["/cart", "/bookings"].includes(location.pathname.replace(/\/$/, ""))) return;
       throw redirect({ to: "/login", search: { returnTo: location.href } });
+    }
     const account = await context.queryClient.fetchQuery({
       ...accountQuery(),
       staleTime: 0,

@@ -1,3 +1,5 @@
+import { useSession } from "@/features/auth/session";
+import { SignedOutBookingEmpty } from "./signed-out-empty";
 import { useQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -42,6 +44,13 @@ export function CartStorageNotice() {
 }
 
 export function CartPage() {
+  const { session, ready } = useSession();
+  if (!ready) return <Loading />;
+  if (!session) return <SignedOutBookingEmpty page="cart" />;
+  return <SignedInCartPage />;
+}
+
+function SignedInCartPage() {
   const money = useMoney();
   const { items, remove } = useCart();
   const experienceIds = [...new Set(items.map((item) => item.experienceId))];
