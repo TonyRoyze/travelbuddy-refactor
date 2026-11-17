@@ -188,15 +188,15 @@ export function HomePage() {
       {/* A landscape led welcome to Sri Lanka */}
       <section className="home-hero relative overflow-hidden bg-neutral-900 text-white mx-4 sm:mx-6 lg:mx-8 mt-4 shadow-xl">
         <Media
-          src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85"
-          alt="Travelers exploring a scenic mountain landscape"
-          className="absolute inset-0 size-full object-cover object-center opacity-55"
+          src="/brand/illustrated-travel-hero.webp"
+          alt="Illustrated travel landscape with mountains, coastlines, and local experiences"
+          className="absolute inset-0 size-full object-cover object-center opacity-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/5" />
+        <div className="home-hero-shade absolute inset-0" />
 
         <div className="relative z-10 mx-auto w-full max-w-[1340px] px-6 py-14 sm:py-20 lg:py-24 text-left flex flex-col items-start">
           <h1 className="mt-5 max-w-3xl text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-balance leading-[1.02]">
-            Take the scenic route.
+            Take the <span>scenic route.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base sm:text-lg text-neutral-100 text-balance leading-relaxed">
             Find your own way around the World, with local people who know every turn, taste and tale.
