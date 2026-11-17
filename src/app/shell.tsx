@@ -39,7 +39,7 @@ export function Brand() {
     <Link
       to="/"
       aria-label="TravelBuddy home"
-      className="inline-flex shrink-0 items-center gap-2.5 font-bold tracking-tight text-foreground transition-opacity hover:opacity-95"
+      className="site-brand inline-flex shrink-0 items-center gap-2.5 font-bold tracking-tight text-foreground transition-opacity hover:opacity-95"
     >
       <span className="brand-mark flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
         <Compass className="size-5" />
@@ -157,7 +157,7 @@ export function Shell() {
           {focused ? (
             <Link
               to="/"
-              className="flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline"
+              className="header-back flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline"
             >
               Back to experiences
             </Link>
@@ -165,7 +165,7 @@ export function Shell() {
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Currency Badge */}
               <div
-                className="hidden items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex"
+                className="header-currency hidden items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex"
                 title={`Display currency: ${displayCurrency}`}
               >
                 <Globe className="size-3.5" />
@@ -178,7 +178,7 @@ export function Shell() {
                 aria-label={`Shopping cart, ${cart.length} items`}
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "relative size-10 rounded-full text-foreground hover:bg-muted",
+                  "header-cart relative size-10 rounded-full text-foreground hover:bg-muted",
                 )}
               >
                 <ShoppingBag className="size-5" aria-hidden="true" />
@@ -196,7 +196,7 @@ export function Shell() {
                 aria-label={account?.displayName ?? "Sign in"}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
-                  "hidden md:inline-flex h-10 rounded-full gap-2 px-3 sm:px-4 font-medium text-xs sm:text-sm border-border hover:bg-muted",
+                  "header-account hidden md:inline-flex h-10 rounded-full gap-2 px-3 sm:px-4 font-medium text-xs sm:text-sm border-border hover:bg-muted",
                 )}
               >
                 {account ? (
@@ -236,7 +236,7 @@ export function Shell() {
 
       {/* Clean Modern Viator-style Footer */}
       {!auth && (
-        <footer className="mt-20 hidden border-t border-border bg-card/60 md:block">
+        <footer className="site-footer mt-20 hidden border-t border-border bg-card/60 md:block">
           <div className="mx-auto max-w-[1340px] px-4 py-12 sm:px-6 lg:px-8">
             <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 pb-12 border-b border-border/80">
               {/* Brand info */}
