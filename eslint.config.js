@@ -10,6 +10,10 @@ export default ts.config(
       "supabase/functions/**",
     ],
   },
+  {
+    files: ["tests/load/*.js"],
+    languageOptions: { globals: { __ENV: "readonly" } },
+  },
   js.configs.recommended,
   ...ts.configs.recommended,
   {

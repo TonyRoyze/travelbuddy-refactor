@@ -32,6 +32,8 @@ jobs:
         run: pnpm lint
       - name: Unit tests
         run: pnpm test
+      - name: Telemetry export smoke test
+        run: node scripts/test-telemetry.mjs
       - name: Production build
         run: pnpm build
 
