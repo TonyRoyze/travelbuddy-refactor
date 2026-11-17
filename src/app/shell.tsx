@@ -140,14 +140,11 @@ export function Shell() {
                     className={cn(
                       "relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors hover:text-foreground hover:bg-muted/60",
                       isSelected
-                        ? "text-primary font-semibold bg-primary/5 hover:bg-primary/10"
+                        ? "text-primary font-semibold"
                         : "text-muted-foreground",
                     )}
                   >
                     {item.label}
-                    {isSelected && (
-                      <span className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-primary" />
-                    )}
                   </Link>
                 );
               })}

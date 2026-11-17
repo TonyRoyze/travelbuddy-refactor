@@ -299,7 +299,8 @@ export function InboxPage({
                     title="View experience"
                     className={buttonVariants({
                       variant: "ghost",
-                      size: "icon",
+                      size: "sm",
+                      className: "chat-experience-link",
                     })}
                   >
                     <ExternalLink aria-hidden="true" />

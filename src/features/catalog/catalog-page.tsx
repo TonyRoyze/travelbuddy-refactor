@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useState, type FormEvent } from "react";
 import {
   SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { useMoney } from "@/features/currency/currency-provider";
 import { catalogQuery } from "@/lib/queries";
@@ -248,7 +249,7 @@ export function CatalogPage({
               aria-label="Close filters"
               onClick={() => setFiltersOpen(false)}
             >
-              ×
+              <X className="size-6" aria-hidden="true" />
             </Button>
           </div>
           <form

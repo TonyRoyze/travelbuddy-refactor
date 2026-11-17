@@ -2159,7 +2159,7 @@
   }
 
   .chat-thread:hover { background: color-mix(in srgb, var(--muted) 72%, transparent); }
-  .chat-thread.is-active { background: color-mix(in srgb, var(--primary) 9%, var(--card)); box-shadow: inset 3px 0 var(--primary); }
+  .chat-thread.is-active { background: color-mix(in srgb, var(--primary) 9%, var(--card)); box-shadow: none; }
 
   .chat-avatar {
     display: grid;
@@ -2197,7 +2197,7 @@
   }
 
   .chat-header .chat-avatar { width: 2.65rem; height: 2.65rem; }
-  .chat-header-copy { min-width: 0; }
+  .chat-header-copy { min-width: 0; flex: 1; }
   .chat-header-copy h2 { margin: 0; overflow: hidden; font-size: .95rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
   .chat-header-copy p { margin: .18rem 0 0; overflow: hidden; color: var(--muted-foreground); font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
   .chat-header > a { display: inline-flex; width: auto; height: 2.3rem; align-items: center; gap: .4rem; margin-left: auto; padding: 0 .7rem; color: var(--primary); font-size: .75rem; font-weight: 650; }
@@ -2410,8 +2410,8 @@
   .site-brand .brand-mark { background: var(--action); color: var(--action-foreground); box-shadow: none; }
   .site-header .site-brand, .site-header .site-brand .text-primary { color: white; }
   .site-header nav a { color: #e4edff; }
-  .site-header nav a:hover, .site-header nav a[aria-current="page"] { background: rgb(255 255 255 / 12%); color: white; }
-  .site-header nav a[aria-current="page"] > span { background: var(--action); }
+  .site-header nav a:hover { background: rgb(255 255 255 / 8%); color: white; }
+  .site-header nav a[aria-current="page"] { background: transparent; color: white; text-decoration: underline; text-underline-offset: .5rem; text-decoration-thickness: 2px; }
   .site-header .header-currency { color: #e4edff; border-color: rgb(255 255 255 / 35%); background: rgb(255 255 255 / 8%); }
   .site-header .header-cart, .site-header .header-back { color: white; }
   .site-header .header-cart:hover { background: rgb(255 255 255 / 14%); }
@@ -2582,3 +2582,16 @@
 /* Let the hero search fill the same content width as the hero copy. */
 .home-search-band { max-width: none; padding-inline: 0; }
 .home-hero .home-search { max-width: none; }
+
+/* Readable filter controls and a chat action that keeps its own space. */
+.catalog-filter-dialog-header [data-slot="dialog-title"] { font-size: 1.25rem; }
+.catalog-filter-dialog-header button svg { width: 1.5rem; height: 1.5rem; }
+.catalog-filter-dialog .filter-category-option strong,
+.catalog-filter-dialog .filter-segments span,
+.catalog-filter-dialog .filter-section > p,
+.catalog-filter-dialog .filter-modal-footer button { font-size: 1rem; }
+.chat-header > .chat-experience-link { flex: none; max-width: 100%; min-height: 2.75rem; }
+@media (max-width: 767px) {
+  .chat-header > .chat-experience-link { width: 2.75rem; height: 2.75rem; }
+  .chat-experience-link > span { display: none; }
+}
