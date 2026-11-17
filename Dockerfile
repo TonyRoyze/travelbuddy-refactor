@@ -16,8 +16,7 @@ RUN test -n "$VITE_SUPABASE_URL" \
     && pnpm build
 
 FROM node:22-bookworm-slim AS runtime
-ENV NODE_ENV=production PORT=8080 \
-    NODE_OPTIONS="--import=./services/telemetry/register.mjs"
+ENV NODE_ENV=production PORT=8080
 WORKDIR /app
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \
@@ -33,6 +32,7 @@ COPY --from=build --chown=app:app /app/scripts ./scripts
 COPY --from=build --chown=app:app /app/supabase/migrations ./supabase/migrations
 COPY --from=build --chown=app:app /app/src/types ./src/types
 COPY --from=build --chown=app:app /app/src/features/currency/model.ts ./src/features/currency/model.ts
+ENV NODE_OPTIONS="--import=./services/telemetry/register.mjs"
 USER app
 EXPOSE 8080
 CMD ["node", "services/runtime/server.mjs"]
