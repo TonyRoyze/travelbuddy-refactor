@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useState, type FormEvent } from "react";
-import {
-  SlidersHorizontal,
-  X,
-} from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { useMoney } from "@/features/currency/currency-provider";
 import { catalogQuery } from "@/lib/queries";
 import { useLiveNowUpdates } from "@/lib/live-now";
