@@ -3,16 +3,14 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
-  ArrowLeft,
-  Star,
   Compass,
   MapPin,
   Calendar as CalendarIcon,
   Sparkles,
   Building2,
-  CircleCheck,
-  BadgeCheck,
-  TicketCheck,
+  Landmark,
+  Utensils,
+  Trees,
 } from "lucide-react";
 import { catalogQuery } from "@/lib/queries";
 import { rpc } from "@/lib/supabase";
@@ -44,63 +42,21 @@ import {
   AutocompleteList,
 } from "@/components/ui/autocomplete";
 
-const photo = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=640&q=85`;
-
 const categories = [
+  { label: "Tours", category: "Tours & sightseeing", icon: Landmark },
+  { label: "Food & drink", category: "Food & drink", icon: Utensils },
+  { label: "Attractions", category: "Tickets & passes", icon: Compass },
+  { label: "Day trips", category: "Day trips", icon: Sparkles },
+  { label: "Wildlife", category: "Wildlife", icon: Trees },
   {
-    label: "Cultural & Heritage",
+    label: "Cultural experiences",
     category: "Cultural experiences",
-    image: photo("photo-1515003197210-e0cd71810b5f"),
-    description: "Ancient temples & sacred sites",
-  },
-  {
-    label: "Food & Cooking",
-    category: "Food & drink",
-    image: photo("photo-1555939594-58d7cb561ad1"),
-    description: "Street food, tea & spice tours",
-  },
-  {
-    label: "Outdoor Adventures",
-    category: "Outdoor activities",
-    image: photo("photo-1464822759023-fed622ff2c3b"),
-    description: "Hikes, waterfalls & peaks",
-  },
-  {
-    label: "Tickets & Passes",
-    category: "Tickets & passes",
-    image: destinations[1].image,
-    description: "Fortresses & landmark entry",
-  },
-  {
-    label: "Day Trips & Tours",
-    category: "Day trips",
-    image: photo("photo-1476514525535-07fb3b4ae5f1"),
-    description: "Guided full-day excursions",
-  },
-  {
-    label: "Wildlife & Safari",
-    category: "Wildlife",
-    image: destinations[2].image,
-    description: "Elephants, leopards & whales",
-  },
-  {
-    label: "Cruises & Sailing",
-    category: "Cruises & sailing",
-    image: photo("photo-1544551763-46a013bb70d5"),
-    description: "Catamarans, surfing & lagoons",
-  },
-  {
-    label: "Sightseeing",
-    category: "Tours & sightseeing",
-    image: photo("photo-1500530855697-b586d89ba3ee"),
-    description: "City walks & scenic viewpoints",
+    icon: Landmark,
   },
 ];
 
 export function HomePage() {
   const navigate = useNavigate();
-  const categoryShelf = useRef<HTMLDivElement>(null);
   const [searchError, setSearchError] = useState("");
   const [date, setDate] = useState("");
   const [destinationText, setDestinationText] = useState("");
@@ -113,7 +69,7 @@ export function HomePage() {
   const [endDate, setEndDate] = useState("");
   const dateAnchor = useRef<HTMLButtonElement>(null);
   const [guests, setGuests] = useState<Guests>({
-    adults: 0,
+    adults: 1,
     children: 0,
     infants: 0,
     pets: 0,
@@ -197,23 +153,21 @@ export function HomePage() {
   }
 
   return (
-    <div className="home-page flex flex-col gap-8 sm:gap-10 pb-8">
+    <div className="home-page utrippers-home">
       {/* A landscape led welcome to Sri Lanka */}
-      <section className="home-hero relative overflow-hidden bg-neutral-900 text-white mx-4 sm:mx-6 lg:mx-8 mt-4 shadow-xl">
-        <Media
-          src="/brand/illustrated-travel-hero.webp"
-          alt="Illustrated travel landscape with mountains, coastlines, and local experiences"
-          className="absolute inset-0 size-full object-cover object-center opacity-90"
-        />
-        <div className="home-hero-shade absolute inset-0" />
-
-        <div className="relative z-10 mx-auto w-full max-w-[1340px] px-6 py-14 sm:py-20 lg:py-24 text-left flex flex-col items-start">
-          <h1 className="mt-5 max-w-3xl text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-balance leading-[1.02]">
-            Take the <span>scenic route.</span>
+      <section className="home-hero relative">
+        <div className="utrippers-hero-art" aria-hidden="true">
+          <div className="utrippers-hero-night" />
+        </div>
+        <div className="utrippers-hero-shade" aria-hidden="true" />
+        <div className="utrippers-hero-content relative">
+          <h1>
+            Find your next
+            <br />
+            <span>great story.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-base sm:text-lg text-neutral-100 text-balance leading-relaxed">
-            Find your own way around the World, with local people who know every
-            turn, taste and tale.
+          <p className="hero-description">
+            Discover unforgettable experiences, wherever you go.
           </p>
 
           <div className="mt-8 w-full md:hidden">
@@ -264,7 +218,7 @@ export function HomePage() {
                 htmlFor="home-where"
               >
                 <span className="home-search-label text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                  <MapPin className="size-3.5 text-primary" /> Where to?
+                  <MapPin className="size-3.5 text-primary" /> Where
                 </span>
                 <Autocomplete<SearchSuggestion>
                   items={suggestionItems}
@@ -290,7 +244,7 @@ export function HomePage() {
                       name="q"
                       maxLength={120}
                       autoComplete="off"
-                      placeholder="Search destinations or experiences"
+                      placeholder="Search destinations"
                       className="home-destination-input-control"
                       onFocus={() => setDestinationOpen(true)}
                     />
@@ -381,7 +335,7 @@ export function HomePage() {
                   aria-label={`When: ${date ? `${date}${endDate ? ` to ${endDate}` : ""}` : "Choose dates"}`}
                 >
                   <span className="home-search-label">
-                    <CalendarIcon aria-hidden="true" /> When?
+                    <CalendarIcon aria-hidden="true" /> When
                   </span>
                   <span className="home-date-value">
                     {date
@@ -478,166 +432,40 @@ export function HomePage() {
         />
       )}
 
-      {/* TravelBuddy values */}
-      <section className="mx-auto w-full max-w-[1340px] px-4 sm:px-6 lg:px-8">
-        <div className="home-trust-grid grid grid-cols-2 md:grid-cols-4">
-          <div className="home-trust-item">
-            <CircleCheck className="home-trust-icon" aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Free cancellation
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Up to 24 hours before
-              </p>
-            </div>
-          </div>
-          <div className="home-trust-item">
-            <BadgeCheck className="home-trust-icon" aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Loved by travellers
-              </p>
-              <p className="home-trust-rating">
-                <Star className="size-3 fill-current" /> 4.9{" "}
-                <span>· verified reviews</span>
-              </p>
-            </div>
-          </div>
-          <div className="home-trust-item">
-            <TicketCheck className="home-trust-icon" aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Ready when you are
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Instant confirmation
-              </p>
-            </div>
-          </div>
-          <div className="home-trust-item">
-            <Compass className="home-trust-icon" aria-hidden="true" />
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                People who know
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Local guides, real stories
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Container */}
-      <div className="mx-auto w-full max-w-[1340px] px-4 sm:px-6 lg:px-8 home-sections flex flex-col gap-8">
-        {/* Category Shelves */}
-        <section aria-labelledby="home-categories-title">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2
-                id="home-categories-title"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
-              >
-                Explore by Category
-              </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                From slow mornings to summit mornings
-              </p>
-            </div>
-            <Link
-              to="/search"
-              search={{ country: "Sri Lanka" }}
-              className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
-            >
-              All categories <ArrowRight className="size-4" />
+      <div className="utrippers-home-content">
+        <nav
+          className="utrippers-categories"
+          aria-label="Experience categories"
+        >
+          {categories.map(({ label, category, icon: Icon }) => (
+            <Link key={category} to="/search" search={{ category }}>
+              <Icon size={20} aria-hidden="true" />
+              <span>{label}</span>
             </Link>
-          </div>
-
-          <div
-            className="home-category-navigation"
-            aria-label="Category navigation"
-          >
-            <button
-              type="button"
-              aria-label="Previous categories"
-              onClick={() =>
-                categoryShelf.current?.scrollBy({
-                  left: -categoryShelf.current.clientWidth,
-                  behavior: "smooth",
-                })
-              }
-            >
-              <ArrowLeft aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label="Next categories"
-              onClick={() =>
-                categoryShelf.current?.scrollBy({
-                  left: categoryShelf.current.clientWidth,
-                  behavior: "smooth",
-                })
-              }
-            >
-              <ArrowRight aria-hidden="true" />
-            </button>
-          </div>
-          <div
-            id="home-category-shelf"
-            ref={categoryShelf}
-            className="home-category-grid"
-          >
-            {categories.map((category) => (
-              <Link
-                key={category.label}
-                to="/search"
-                search={{ category: category.category, country: "Sri Lanka" }}
-                className="home-category-tile group"
-              >
-                <span className="home-category-photo-wrap">
-                  <Media
-                    src={
-                      packages.find(
-                        (item) => item.category === category.category,
-                      )?.image ?? category.image
-                    }
-                    alt={category.label}
-                    className="home-category-image transition-transform duration-700 group-hover:scale-105"
-                  />
-                </span>
-                <span className="home-category-copy">
-                  <span className="home-category-title">{category.label}</span>
-                  <span className="home-category-description">
-                    {category.description}
-                  </span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+          ))}
+        </nav>
 
         {/* Top Experiences Grid */}
         {(query.isPending || query.error || packages.length > 0) && (
           <section aria-labelledby="home-experiences-title">
             <div className="flex items-center justify-between mb-6">
               <div>
+                <p className="utrippers-eyebrow">
+                  A little curiosity goes a long way
+                </p>
                 <h2
                   id="home-experiences-title"
-                  className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+                  className="utrippers-section-title"
                 >
-                  Stories worth stepping into
+                  Find your next story.
                 </h2>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Handpicked days out with people who call the island home
-                </p>
               </div>
               <Link
                 to="/search"
                 search={{ country: "Sri Lanka" }}
                 className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
               >
-                See all experiences <ArrowRight className="size-4" />
+                See all <ArrowRight className="size-4" />
               </Link>
             </div>
 
@@ -651,8 +479,8 @@ export function HomePage() {
                 description="Explore another destination to find your next adventure."
               />
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {packages.slice(0, 8).map((experience) => (
+              <div className="utrippers-experience-grid">
+                {packages.slice(0, 12).map((experience) => (
                   <ExperienceCard key={experience.id} experience={experience} />
                 ))}
               </div>
@@ -664,19 +492,17 @@ export function HomePage() {
         <section aria-labelledby="home-destinations-title">
           <div className="flex items-center justify-between mb-6">
             <div>
+              <p className="utrippers-eyebrow">Start with a place</p>
               <h2
                 id="home-destinations-title"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground"
+                className="utrippers-section-title"
               >
-                Top Sri Lankan Destinations
+                Where will curiosity take you?
               </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Each place has its own pace. Find yours.
-              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="utrippers-destination-grid">
             {destinations.map((destination) => (
               <Link
                 key={destination.name}
@@ -694,7 +520,7 @@ export function HomePage() {
                   <div>
                     <h3 className="text-xl font-bold">{destination.name}</h3>
                     <p className="text-xs text-neutral-300">
-                      Sri Lanka · Tours & Day Trips
+                      {destination.country}
                     </p>
                   </div>
                   <span className="flex size-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white group-hover:bg-primary transition-colors">

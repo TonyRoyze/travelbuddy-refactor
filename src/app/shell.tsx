@@ -11,9 +11,8 @@ import {
   MessageCircle,
   UserRound,
   ShoppingBag,
-  Globe,
-  ShieldCheck,
-  CheckCircle2,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session";
@@ -25,34 +24,32 @@ import { useMessageUpdates } from "@/features/messaging/realtime";
 import { ProviderHeartbeat } from "@/features/nearby/provider-heartbeat";
 import Avatar04 from "@/components/custom-ui/avatar-04";
 import { ProfileAvatar } from "@/features/account/profile-avatar";
+import { useTheme } from "@/app/theme";
 import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", label: "Home", icon: Home },
   { to: "/search", label: "Explore", icon: Compass },
-  { to: "/bookings", label: "My Bookings", icon: CalendarDays },
-  { to: "/inbox", label: "Messages", icon: MessageCircle },
+  { to: "/bookings", label: "Bookings", icon: CalendarDays },
+  { to: "/inbox", label: "Inbox", icon: MessageCircle },
 ] as const;
 
 export function Brand() {
   return (
-    <Link
-      to="/"
-      aria-label="TravelBuddy home"
-      className="site-brand inline-flex shrink-0 items-center gap-2.5 font-bold tracking-tight text-foreground transition-opacity hover:opacity-95"
-    >
-      <span className="brand-mark flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
-        <Compass className="size-5" />
-      </span>
-      <span className="text-xl font-bold tracking-tight md:text-2xl">
-        Travel<span className="text-primary">Buddy</span>
-      </span>
+    <Link to="/" aria-label="UTrippers home" className="utrippers-brand">
+      <img
+        src="/brand/utrippers-horizontal-white.svg"
+        width="164"
+        height="53"
+        alt=""
+      />
     </Link>
   );
 }
 
 export function Shell() {
   useMessageUpdates();
+  const { resolvedTheme, setTheme } = useTheme();
   const [inputFocused, setInputFocused] = useState(false);
   useEffect(() => {
     const update = () => {
@@ -107,7 +104,7 @@ export function Shell() {
   return (
     <div
       className={cn(
-        "min-h-dvh bg-background text-foreground flex flex-col pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]",
+        "utrippers-shell min-h-dvh bg-background text-foreground flex flex-col pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]",
         focused
           ? "pb-[env(safe-area-inset-bottom)]"
           : "pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-[env(safe-area-inset-bottom)]",
@@ -121,7 +118,7 @@ export function Shell() {
       </a>
       {/* Primary Sticky Header */}
       <header className="site-header sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur-md transition-colors">
-        <div className="mx-auto flex h-16 max-w-[1340px] items-center justify-between gap-4 px-4 sm:px-6 md:h-20 lg:px-8">
+        <div className="utrippers-header-inner mx-auto flex h-16 max-w-[1340px] items-center justify-between gap-4 px-4 sm:px-6 md:h-20 lg:px-8">
           <Brand />
 
           {!focused && (
@@ -160,14 +157,24 @@ export function Shell() {
             </Link>
           ) : (
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Currency Badge */}
-              <div
-                className="header-currency hidden items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:inline-flex"
-                title={`Display currency: ${displayCurrency}`}
+              <button
+                type="button"
+                className="theme-toggle"
+                aria-label={
+                  resolvedTheme === "dark"
+                    ? "Switch to light theme"
+                    : "Switch to dark theme"
+                }
+                onClick={() =>
+                  setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                }
               >
-                <Globe className="size-3.5" />
-                <span>{displayCurrency}</span>
-              </div>
+                {resolvedTheme === "dark" ? (
+                  <Sun size={20} />
+                ) : (
+                  <Moon size={20} />
+                )}
+              </button>
 
               {/* Shopping Cart Button */}
               <Link
@@ -233,159 +240,27 @@ export function Shell() {
 
       {/* Clean Modern Viator-style Footer */}
       {!auth && (
-        <footer className="site-footer mt-20 hidden border-t border-border bg-card/60 md:block">
-          <div className="mx-auto max-w-[1340px] px-4 py-12 sm:px-6 lg:px-8">
-            <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4 pb-12 border-b border-border/80">
-              {/* Brand info */}
-              <div className="flex flex-col gap-4">
-                <Brand />
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Your trusted marketplace for top-rated tours, day trips,
-                  safaris, and local experiences across Sri Lanka.
-                </p>
-                <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                    <CheckCircle2 className="size-3.5" /> Verified Guides
-                  </span>
-                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                    <ShieldCheck className="size-3.5" /> Secure Checkout
-                  </span>
-                </div>
-              </div>
-
-              {/* Discover */}
-              <div className="flex flex-col gap-3">
-                <h4 className="text-sm font-semibold text-foreground tracking-tight">
-                  Top Destinations
-                </h4>
-                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <Link
-                    to="/destinations/$slug"
-                    params={{ slug: "sigiriya" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Sigiriya Tours & Activities
-                  </Link>
-                  <Link
-                    to="/destinations/$slug"
-                    params={{ slug: "ella" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Ella Hikes & Tea Plantations
-                  </Link>
-                  <Link
-                    to="/destinations/$slug"
-                    params={{ slug: "galle" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Galle Fort & Southern Coast
-                  </Link>
-                  <Link
-                    to="/destinations/$slug"
-                    params={{ slug: "kandy" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Kandy Cultural Heritage
-                  </Link>
-                  <Link
-                    to="/destinations/$slug"
-                    params={{ slug: "mirissa" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Mirissa Whale Watching
-                  </Link>
-                </div>
-              </div>
-
-              {/* Experiences */}
-              <div className="flex flex-col gap-3">
-                <h4 className="text-sm font-semibold text-foreground tracking-tight">
-                  Explore by Category
-                </h4>
-                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <Link
-                    to="/search"
-                    search={{ category: "Cultural experiences" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Cultural & Heritage Tours
-                  </Link>
-                  <Link
-                    to="/search"
-                    search={{ category: "Outdoor activities" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Outdoor & Hiking Adventures
-                  </Link>
-                  <Link
-                    to="/search"
-                    search={{ category: "Wildlife" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Safari & Wildlife Encounters
-                  </Link>
-                  <Link
-                    to="/search"
-                    search={{ category: "Day trips" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Full-Day Island Excursions
-                  </Link>
-                  <Link
-                    to="/search"
-                    search={{ category: "Food & drink" }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Local Food & Cooking Classes
-                  </Link>
-                </div>
-              </div>
-
-              {/* Provider / Help */}
-              <div className="flex flex-col gap-3">
-                <h4 className="text-sm font-semibold text-foreground tracking-tight">
-                  For Hosts & Travelers
-                </h4>
-                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <Link
-                    to="/bookings"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Manage My Bookings
-                  </Link>
-                  <Link
-                    to="/inbox"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Chat with Guides
-                  </Link>
-                  <Link
-                    to="/account"
-                    className="hover:text-primary transition-colors"
-                  >
-                    Account & Profile
-                  </Link>
-                  <Link
-                    to="/search"
-                    search={{ freeCancellation: true }}
-                    className="hover:text-primary transition-colors"
-                  >
-                    Free Cancellation Policy
-                  </Link>
-                </div>
-              </div>
+        <footer className="utrippers-footer">
+          <div className="utrippers-footer-inner">
+            <div>
+              <Brand />
+              <h2>
+                Good company.
+                <br />
+                Great discoveries.
+              </h2>
+              <p>
+                Find the experience that feels right. Know what’s
+                <br className="hidden sm:block" /> included. Keep every booking
+                in one place.
+              </p>
             </div>
-
-            {/* Bottom copyright */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs text-muted-foreground">
-              <p>© 2026 TravelBuddy. All rights reserved.</p>
-              <div className="flex items-center gap-4">
-                <span>
-                  Currency: <strong>{displayCurrency}</strong> (Settled in LKR)
-                </span>
-                <span>English</span>
-                <span>Secure payments powered by PayHere</span>
-              </div>
+            <div className="utrippers-footer-meta">
+              <Link to="/search" search={{ freeCancellation: true }}>
+                Free cancellation
+              </Link>
+              <p>English · {displayCurrency} · Payments settled in LKR</p>
+              <p>© 2026 UTrippers</p>
             </div>
           </div>
         </footer>

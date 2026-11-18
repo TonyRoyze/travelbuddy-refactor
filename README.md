@@ -1,12 +1,16 @@
-# TravelBuddy
+# UTrippers
 
-[![Code quality](https://github.com/tonyroyze/travelbuddy-refactor/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/tonyroyze/travelbuddy-refactor/actions/workflows/quality.yml)
+[![Code quality](https://github.com/TonyRoyze/travelbuddy-refactor/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/TonyRoyze/travelbuddy-refactor/actions/workflows/quality.yml)
 
 A React + Vite application backed by the existing self-hosted Supabase instance. The earlier Next.js implementation is preserved under [`legacy/`](legacy/) for reference and inventory compatibility checks. Use the Vite app for LKR pricing, payments and traveler currency preferences; the archived UI assumes USD.
 
-## Main theme
+## Production UI and branch
 
-The blue/orange theme is built directly into the main React + Vite application. Its palette and component styling live in `src/app/styles.css`, navigation in `src/app/shell.tsx`, home page in `src/features/catalog/home-page.tsx`, and shared brand assets in `public/brand/`. Both web and iOS builds use this theme. There is no separate theme preview app or theme-specific build command.
+The root Vite application now carries the UTrippers design from `bo-theme-preview/`: branding, illustrated day/night hero, search, category navigation, listing cards and footer. The former standalone preview was removed on this repository; build the production app from the repository root. The live Supabase catalog, authentication, booking, provider and LKR payment flows remain in the root application. Catalog items and destinations therefore reflect production data rather than the preview’s demo inventory.
+
+Production changes are reviewed against `dev`. The quality workflow runs for pull requests and pushes to `dev` and `main`; the image workflow publishes a root-app image on pushes to either branch. Images use the exact commit SHA. Publishing does not itself roll out Kubernetes: your deployment process must select the image for the final merged `tony/main` commit. A feature-branch push does not publish or deploy production.
+
+Light is the default appearance. Explicit saved light, dark or system preferences are respected; the header theme button switches between light and dark.
 
 ## Run locally
 

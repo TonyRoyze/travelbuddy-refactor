@@ -65,7 +65,7 @@ export function GuestSelector({
           aria-label={`Who: ${summary || "Add guests"}`}
         >
           <span className="home-search-label">
-            <UsersRound aria-hidden="true" /> Who?
+            <UsersRound aria-hidden="true" /> Who
           </span>
           <span className="home-guest-summary">{summary || "Add guests"}</span>
         </PopoverTrigger>
@@ -75,7 +75,7 @@ export function GuestSelector({
           aria-label="Search experiences"
         >
           <Search aria-hidden="true" />
-          <span>Search</span>
+          <span>Explore</span>
         </button>
       </div>
       <PopoverContent

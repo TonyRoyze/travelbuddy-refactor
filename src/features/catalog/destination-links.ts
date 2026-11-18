@@ -17,7 +17,7 @@ export function destinationFromSlug(slug: string) {
 export function destinationMetadata(town: string, origin: string) {
   const url = new URL(`/destinations/${destinationSlug(town)}`, origin).href;
   return {
-    title: `${town} experiences in Sri Lanka | TravelBuddy`,
+    title: `${town} experiences in Sri Lanka | UTrippers`,
     description: `Discover experiences in ${town}, Sri Lanka. Compare local Buddy packages, choose a date and chat with your host before booking.`,
     url,
     image:
