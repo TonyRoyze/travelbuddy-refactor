@@ -1,0 +1,623 @@
+/* Production UTrippers identity, shared with the standalone design preview. */
+:root {
+  --background: #fff;
+  --foreground: #102f53;
+  --card: #fff;
+  --card-foreground: #102f53;
+  --popover: #fff;
+  --popover-foreground: #102f53;
+  --primary: #003b95;
+  --primary-hover: #002f76;
+  --primary-foreground: #fff;
+  --secondary: #eaf2fc;
+  --secondary-foreground: #003b95;
+  --muted: #f2f6fb;
+  --muted-foreground: #5b7494;
+  --border: #d6e2f4;
+  --input: #b4c7cf;
+  --ring: #003b95;
+  --action: #ff881a;
+  --action-ink: #082c50;
+}
+.dark {
+  --background: #071a30;
+  --foreground: #edf4ff;
+  --card: #122b45;
+  --card-foreground: #edf4ff;
+  --popover: #122b45;
+  --popover-foreground: #edf4ff;
+  --primary: #9ac7ff;
+  --primary-hover: #c4dfff;
+  --primary-foreground: #071a30;
+  --secondary: #1a3653;
+  --secondary-foreground: #d7e9ff;
+  --muted: #142e49;
+  --muted-foreground: #b1c8e3;
+  --border: #35506d;
+  --input: #6686a2;
+  --ring: #9ac7ff;
+}
+.utrippers-shell .site-header {
+  background: #003b95;
+  color: #fff;
+  border: 0;
+  box-shadow: 0 2px 8px #00345d15;
+}
+.utrippers-header-inner {
+  height: 72px;
+  max-width: none;
+  padding-inline: 40px;
+}
+.utrippers-brand {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+.utrippers-brand img {
+  display: block;
+  width: 142px;
+  height: 46px;
+  object-fit: contain;
+}
+.site-header nav {
+  gap: 5px;
+}
+.site-header nav a {
+  color: #fff;
+  border-radius: 999px;
+  padding-inline: 20px;
+}
+.site-header nav a[aria-current="page"] {
+  background: var(--action);
+  color: var(--action-ink);
+}
+.site-header nav a > span {
+  display: none;
+}
+.site-header nav a:hover {
+  background: #ffffff20;
+  color: #fff;
+}
+.site-header nav a[aria-current="page"]:hover {
+  background: #ff9e43;
+  color: var(--action-ink);
+}
+.site-header a[href="/cart"] {
+  color: #fff;
+}
+.site-header a[href="/login"],
+.site-header a[href="/account"] {
+  background: #fff;
+  color: #003b95;
+  border-color: #fff;
+}
+.site-header a[href="/login"] svg {
+  color: #003b95;
+}
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  background: #ffffff20;
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+.utrippers-home {
+  padding-bottom: 0;
+}
+.utrippers-home .home-hero {
+  display: flex;
+  align-items: center;
+  container-type: inline-size;
+  min-height: 800px;
+  margin: 0;
+  border-radius: 0;
+  background: #ecf7f4;
+  box-shadow: none;
+}
+.utrippers-hero-art,
+.utrippers-hero-night,
+.utrippers-hero-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.utrippers-hero-art {
+  background: url("/brand/illustrated-travel-hero.webp") center / cover
+    no-repeat;
+}
+.utrippers-hero-night {
+  background: url("/brand/illustrated-travel-hero-night.webp") center / cover
+    no-repeat;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.utrippers-hero-shade {
+  background: linear-gradient(
+    90deg,
+    #eff9f5e6 0%,
+    #eff9f599 30%,
+    #eff9f51a 60%,
+    transparent 80%
+  );
+}
+.utrippers-home .utrippers-hero-content {
+  width: 100%;
+  padding: 80px 3.6%;
+}
+.utrippers-home .home-hero h1 {
+  max-width: 800px;
+  color: #06366a;
+  font-size: clamp(3.5rem, 5.4vw, 6rem);
+  font-weight: 750;
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+  text-wrap: initial;
+}
+.utrippers-home .home-hero h1 span {
+  color: #dc520b;
+}
+.utrippers-home .hero-description {
+  margin-top: 26px;
+  color: #13547c;
+  font-size: 18px;
+  line-height: 1.7;
+}
+.utrippers-home .home-search-band {
+  margin-top: 40px;
+  width: min(850px, 100%);
+}
+.utrippers-home .home-search {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.6fr;
+  min-height: 76px;
+  padding: 8px !important;
+  border: 1px solid var(--input);
+  border-radius: 999px !important;
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: 0 15px 35px #00345d24;
+}
+.utrippers-home .home-search .home-search-place {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 18px 24px;
+  gap: 2px;
+  padding: 5px 22px;
+  min-height: 56px;
+}
+.utrippers-home .home-search .home-search-label {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--foreground);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 700;
+}
+.utrippers-home .home-search .home-search-label svg {
+  display: none;
+}
+.utrippers-home .home-search .home-destination-input {
+  grid-column: 1;
+  grid-row: 2;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  min-height: 24px;
+  height: 24px;
+}
+.utrippers-home .home-search .home-destination-input-control {
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 400;
+}
+.utrippers-home .home-search input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+.utrippers-home .home-search .home-date-trigger {
+  display: grid;
+  grid-column: auto;
+  grid-row: auto;
+  grid-template-columns: 1fr;
+  grid-template-rows: 18px 24px;
+  gap: 2px;
+  border-left: 1px solid var(--input);
+  padding: 5px 22px;
+  border-radius: 0;
+}
+.utrippers-home .home-search .home-date-value {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 400;
+}
+.utrippers-home .home-search .home-guest-segment {
+  border-left: 1px solid var(--input);
+  border-radius: 0;
+  padding: 0;
+}
+.utrippers-home .home-search .home-guest-trigger {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 18px 24px;
+  gap: 2px;
+  padding: 5px 22px;
+}
+.utrippers-home .home-search .home-guest-summary {
+  grid-column: 1;
+  grid-row: 2;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  font-weight: 400;
+}
+.utrippers-home .home-search .home-search-submit {
+  height: 50px;
+  min-width: 130px;
+  background: var(--action);
+  color: var(--action-ink);
+  border: 0;
+  border-radius: 999px;
+  padding-inline: 20px;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+}
+.utrippers-home .home-search .home-search-submit:hover {
+  background: #ff9e43;
+}
+.utrippers-home-content {
+  padding: 0 40px 100px;
+}
+.utrippers-categories {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  min-height: 96px;
+}
+.utrippers-categories a {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 10px;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 650;
+  padding: 18px;
+}
+.utrippers-categories svg {
+  color: #b84800;
+}
+.utrippers-categories a:hover {
+  text-decoration: underline;
+}
+.utrippers-home-content section {
+  margin-top: 18px;
+}
+.utrippers-home-content section + section {
+  margin-top: 92px;
+}
+.utrippers-home-content section > div:first-child {
+  align-items: center;
+}
+.utrippers-eyebrow {
+  margin-bottom: 8px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.utrippers-section-title {
+  color: var(--foreground);
+  font-size: 36px;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+.utrippers-experience-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 32px;
+}
+.utrippers-shell .experience-card {
+  padding: 0;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 2px 5px #003b9507;
+}
+.utrippers-shell .experience-card > a:first-child {
+  aspect-ratio: 4/3;
+  border-radius: 0;
+}
+.utrippers-shell .experience-card-body {
+  gap: 0;
+  padding: 18px !important;
+}
+.utrippers-shell .experience-card-location {
+  order: 0;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.utrippers-shell .experience-card-location svg {
+  color: var(--muted-foreground);
+}
+.utrippers-shell .experience-card-title {
+  order: 1;
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+.utrippers-shell .experience-card-meta {
+  order: 2;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.utrippers-shell .experience-card-meta .fill-amber-400 {
+  color: #bd5000;
+  fill: #bd5000;
+}
+.utrippers-shell .experience-card-body > div:has(> .text-emerald-700),
+.utrippers-shell .experience-card-body > .text-emerald-700 {
+  order: 3;
+  margin: 0 0 18px;
+  padding: 0;
+  background: transparent;
+  color: var(--primary);
+  font-size: 12px;
+}
+.utrippers-shell .experience-card-footer {
+  order: 4;
+  margin-top: auto;
+  padding-top: 14px !important;
+  border-color: var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.utrippers-shell .experience-card-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 3px;
+}
+.utrippers-shell .experience-card-price > span:first-child {
+  flex-basis: 100%;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+.utrippers-shell .experience-card-price > span:nth-child(2) {
+  color: var(--primary);
+  font-size: 22px;
+}
+.utrippers-shell .experience-card-action {
+  padding: 0 16px;
+  min-height: 40px;
+  border-radius: 999px;
+  background: var(--action);
+  color: var(--action-ink);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.utrippers-shell .experience-card-action:hover {
+  background: #ff9e43;
+}
+.utrippers-destination-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 320px));
+  gap: 24px;
+}
+.utrippers-destination-grid > a {
+  aspect-ratio: 10/7;
+  box-shadow: none;
+}
+.utrippers-destination-grid h3 {
+  font-size: 18px;
+}
+.utrippers-footer {
+  margin-top: 60px;
+  border-top: 4px solid var(--action);
+  background: #062e6f;
+  color: #fff;
+}
+.utrippers-footer-inner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding: 48px 40px;
+}
+.utrippers-footer h2 {
+  margin-top: 30px;
+  font-size: 36px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+.utrippers-footer p {
+  color: #c7dcff;
+  font-size: 15px;
+  line-height: 1.7;
+  margin-top: 14px;
+}
+.utrippers-footer-meta {
+  padding: 8px 48px;
+  border-left: 1px solid #ffffff30;
+}
+.utrippers-footer-meta a {
+  color: #ffab58;
+  font-weight: 700;
+}
+.utrippers-footer-meta p {
+  font-size: 13px;
+}
+.utrippers-footer-meta p:last-child {
+  margin-top: 24px;
+}
+.dark .utrippers-hero-night {
+  opacity: 1;
+}
+.dark .utrippers-hero-shade {
+  background: linear-gradient(
+    90deg,
+    #031837ee,
+    #031837aa 35%,
+    #03183722 65%,
+    transparent
+  );
+}
+.dark .utrippers-home .home-hero h1 {
+  color: #fff;
+}
+.dark .utrippers-home .home-hero h1 span {
+  color: #ffc47c;
+}
+.dark .utrippers-home .hero-description {
+  color: #e2eef9;
+}
+.dark .utrippers-shell .site-header {
+  background: #071a36;
+}
+.dark .utrippers-categories svg {
+  color: #ffb977;
+}
+@media (max-width: 1500px) {
+  .utrippers-experience-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+  }
+  .utrippers-home .home-hero {
+    min-height: 660px;
+  }
+}
+@media (max-width: 1023px) {
+  .utrippers-header-inner {
+    padding-inline: 20px;
+  }
+  .site-header nav a {
+    padding-inline: 12px;
+  }
+  .utrippers-experience-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .utrippers-home-content {
+    padding-inline: 24px;
+  }
+  .utrippers-destination-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .utrippers-home .home-search-band {
+    width: 100%;
+  }
+}
+@media (max-width: 767px) {
+  .utrippers-header-inner {
+    height: 64px;
+    padding-inline: 16px;
+  }
+  .utrippers-brand img {
+    width: 126px;
+    height: 42px;
+  }
+  .utrippers-home .home-hero {
+    min-height: 480px;
+  }
+  .utrippers-home .utrippers-hero-content {
+    padding: 60px 24px;
+  }
+  .utrippers-home .home-hero h1 {
+    font-size: clamp(3rem, 10vw, 4rem);
+  }
+  .utrippers-home .hero-description {
+    max-width: 28ch;
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  .utrippers-hero-shade {
+    background: linear-gradient(90deg, #eff9f5ee, #eff9f5bb 65%, #eff9f555);
+  }
+  .utrippers-home-content {
+    padding: 0 20px 40px;
+  }
+  .utrippers-categories {
+    min-height: 80px;
+    gap: 12px;
+  }
+  .utrippers-categories a {
+    font-size: 13px;
+    padding: 16px 8px;
+  }
+  .utrippers-section-title {
+    font-size: 27px;
+  }
+  .utrippers-eyebrow {
+    font-size: 10px;
+  }
+  .utrippers-home-content section > div:first-child {
+    gap: 16px;
+  }
+  .utrippers-home-content section > div:first-child > a {
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+  .utrippers-experience-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .utrippers-shell .experience-card-body {
+    padding: 12px !important;
+  }
+  .utrippers-shell .experience-card-title {
+    font-size: 14px;
+  }
+  .utrippers-destination-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .utrippers-destination-grid > a {
+    flex: 0 0 260px;
+    scroll-snap-align: start;
+  }
+  .utrippers-home-content section + section {
+    margin-top: 56px;
+  }
+  .utrippers-footer-inner {
+    grid-template-columns: 1fr;
+    padding: 36px 24px;
+    gap: 32px;
+  }
+  .utrippers-footer h2 {
+    font-size: 30px;
+  }
+  .utrippers-footer-meta {
+    border-left: 0;
+    border-top: 1px solid #ffffff30;
+    padding: 24px 0 0;
+  }
+}
+@media (max-width: 380px) {
+  .utrippers-experience-grid {
+    grid-template-columns: 1fr;
+  }
+}

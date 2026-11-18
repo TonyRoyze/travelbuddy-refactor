@@ -3,15 +3,14 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
-  Star,
   Compass,
   MapPin,
   Calendar as CalendarIcon,
   Sparkles,
   Building2,
-  CircleCheck,
-  BadgeCheck,
-  TicketCheck,
+  Landmark,
+  Utensils,
+  Trees,
 } from "lucide-react";
 import { catalogQuery } from "@/lib/queries";
 import { rpc } from "@/lib/supabase";
@@ -43,57 +42,16 @@ import {
   AutocompleteList,
 } from "@/components/ui/autocomplete";
 
-const photo = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=640&q=85`;
-
 const categories = [
+  { label: "Tours", category: "Tours & sightseeing", icon: Landmark },
+  { label: "Food & drink", category: "Food & drink", icon: Utensils },
+  { label: "Attractions", category: "Tickets & passes", icon: Compass },
+  { label: "Day trips", category: "Day trips", icon: Sparkles },
+  { label: "Wildlife", category: "Wildlife", icon: Trees },
   {
-    label: "Cultural & Heritage",
+    label: "Cultural experiences",
     category: "Cultural experiences",
-    image: photo("photo-1515003197210-e0cd71810b5f"),
-    description: "Ancient temples & sacred sites",
-  },
-  {
-    label: "Food & Cooking",
-    category: "Food & drink",
-    image: photo("photo-1555939594-58d7cb561ad1"),
-    description: "Street food, tea & spice tours",
-  },
-  {
-    label: "Outdoor Adventures",
-    category: "Outdoor activities",
-    image: photo("photo-1464822759023-fed622ff2c3b"),
-    description: "Hikes, waterfalls & peaks",
-  },
-  {
-    label: "Tickets & Passes",
-    category: "Tickets & passes",
-    image: destinations[1].image,
-    description: "Fortresses & landmark entry",
-  },
-  {
-    label: "Day Trips & Tours",
-    category: "Day trips",
-    image: photo("photo-1476514525535-07fb3b4ae5f1"),
-    description: "Guided full-day excursions",
-  },
-  {
-    label: "Wildlife & Safari",
-    category: "Wildlife",
-    image: destinations[2].image,
-    description: "Elephants, leopards & whales",
-  },
-  {
-    label: "Cruises & Sailing",
-    category: "Cruises & sailing",
-    image: photo("photo-1544551763-46a013bb70d5"),
-    description: "Catamarans, surfing & lagoons",
-  },
-  {
-    label: "Sightseeing",
-    category: "Tours & sightseeing",
-    image: photo("photo-1500530855697-b586d89ba3ee"),
-    description: "City walks & scenic viewpoints",
+    icon: Landmark,
   },
 ];
 
@@ -110,15 +68,13 @@ export function HomePage() {
   const [endDate, setEndDate] = useState("");
   const dateAnchor = useRef<HTMLButtonElement>(null);
   const [guests, setGuests] = useState<Guests>({
-    adults: 0,
+    adults: 1,
     children: 0,
     infants: 0,
     pets: 0,
   });
   const travelers = guests.adults + guests.children + guests.infants;
-  const query = useQuery(
-    catalogQuery(searchSchema.parse({})),
-  );
+  const query = useQuery(catalogQuery(searchSchema.parse({})));
   useEffect(() => {
     const timer = window.setTimeout(
       () => setDebouncedDestination(destinationText.trim()),
@@ -142,7 +98,10 @@ export function HomePage() {
     new Map(
       packages
         .filter((item) => item.destination.trim())
-        .map((item) => [item.destination, { value: item.destination, kind: "destination" as const }]),
+        .map((item) => [
+          item.destination,
+          { value: item.destination, kind: "destination" as const },
+        ]),
     ).values(),
   ).slice(0, 7);
   const suggestionItems =
@@ -160,7 +119,9 @@ export function HomePage() {
       search: searchSchema.parse({
         q:
           selectedSuggestion &&
-          !["destination", "country", "category"].includes(selectedSuggestion.kind)
+          !["destination", "country", "category"].includes(
+            selectedSuggestion.kind,
+          )
             ? selectedSuggestion.value
             : selectedSuggestion
               ? undefined
@@ -184,33 +145,50 @@ export function HomePage() {
   }
 
   return (
-      <div className="home-page flex flex-col gap-12 sm:gap-16 pb-12">
+    <div className="home-page utrippers-home">
       {/* A landscape led welcome to Sri Lanka */}
-      <section className="home-hero relative overflow-hidden bg-neutral-900 text-white mx-4 sm:mx-6 lg:mx-8 mt-4 shadow-xl">
-        <Media
-          src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=2000&q=85"
-          alt="Travelers exploring a scenic mountain landscape"
-          className="absolute inset-0 size-full object-cover object-center opacity-55"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/5" />
-
-        <div className="relative z-10 mx-auto w-full max-w-[1340px] px-6 py-14 sm:py-20 lg:py-24 text-left flex flex-col items-start">
-          <h1 className="mt-5 max-w-3xl text-4xl font-medium tracking-tight sm:text-6xl lg:text-7xl text-balance leading-[1.02]">
-            Take the scenic route.
+      <section className="home-hero relative">
+        <div className="utrippers-hero-art" aria-hidden="true">
+          <div className="utrippers-hero-night" />
+        </div>
+        <div className="utrippers-hero-shade" aria-hidden="true" />
+        <div className="utrippers-hero-content relative">
+          <h1>
+            Find your next
+            <br />
+            <span>great story.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-base sm:text-lg text-neutral-100 text-balance leading-relaxed">
-            Find your own way around the World, with local people who know every turn, taste and tale.
+          <p className="hero-description">
+            Discover unforgettable experiences, wherever you go.
           </p>
 
           <div className="mt-8 w-full md:hidden">
             <MobileSearch
               destination={destinationText}
-              onDestinationChange={(value, suggestion) => { setDestinationText(value); setSelectedSuggestion(suggestion); }}
-              suggestions={destinationText.trim().length >= 2 ? suggestionItems : popularDestinations.length ? popularDestinations : destinations.map((place) => ({ value: place.query, kind: "destination" as const }))}
-              loading={destinationText.trim().length >= 2 && destinationMatches.isFetching}
+              onDestinationChange={(value, suggestion) => {
+                setDestinationText(value);
+                setSelectedSuggestion(suggestion);
+              }}
+              suggestions={
+                destinationText.trim().length >= 2
+                  ? suggestionItems
+                  : popularDestinations.length
+                    ? popularDestinations
+                    : destinations.map((place) => ({
+                        value: place.query,
+                        kind: "destination" as const,
+                      }))
+              }
+              loading={
+                destinationText.trim().length >= 2 &&
+                destinationMatches.isFetching
+              }
               date={date}
               endDate={endDate}
-              onDatesChange={(start, end) => { setDate(start); setEndDate(end); }}
+              onDatesChange={(start, end) => {
+                setDate(start);
+                setEndDate(end);
+              }}
               guests={guests}
               onGuestsChange={setGuests}
               onSearch={search}
@@ -226,9 +204,12 @@ export function HomePage() {
               className="home-search w-full bg-background text-foreground shadow-2xl rounded-2xl sm:rounded-full border border-border p-2"
               onSubmit={search}
             >
-              <label className="home-search-place home-search-field text-left" htmlFor="home-where">
+              <label
+                className="home-search-place home-search-field text-left"
+                htmlFor="home-where"
+              >
                 <span className="home-search-label text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                  <MapPin className="size-3.5 text-primary" /> Where to?
+                  <MapPin className="size-3.5 text-primary" /> Where
                 </span>
                 <Autocomplete<SearchSuggestion>
                   items={suggestionItems}
@@ -254,7 +235,7 @@ export function HomePage() {
                       name="q"
                       maxLength={120}
                       autoComplete="off"
-                      placeholder="Search destinations or experiences"
+                      placeholder="Search destinations"
                       className="home-destination-input-control"
                       onFocus={() => setDestinationOpen(true)}
                     />
@@ -295,7 +276,10 @@ export function HomePage() {
                               value={item}
                               className="home-destination-option"
                             >
-                              <span className="home-destination-icon" data-kind={item.kind}>
+                              <span
+                                className="home-destination-icon"
+                                data-kind={item.kind}
+                              >
                                 <Icon aria-hidden="true" />
                               </span>
                               <span className="home-destination-copy">
@@ -318,66 +302,86 @@ export function HomePage() {
               </label>
 
               <Popover
-                  open={dateOpen}
-                  onOpenChange={(nextOpen) => {
-                    if (nextOpen) {
-                      setDateOpen(true);
-                      return;
-                    }
-                    if (date && !endDate) return;
-                    setDateOpen(false);
-                  }}
+                open={dateOpen}
+                onOpenChange={(nextOpen) => {
+                  if (nextOpen) {
+                    setDateOpen(true);
+                    return;
+                  }
+                  if (date && !endDate) return;
+                  setDateOpen(false);
+                }}
+              >
+                <PopoverTrigger
+                  ref={dateAnchor}
+                  type="button"
+                  className="home-date-trigger"
+                  aria-label={`When: ${date ? `${date}${endDate ? ` to ${endDate}` : ""}` : "Choose dates"}`}
                 >
-                  <PopoverTrigger
-                    ref={dateAnchor}
-                    type="button"
-                    className="home-date-trigger"
-                    aria-label={`When: ${date ? `${date}${endDate ? ` to ${endDate}` : ""}` : "Choose dates"}`}
-                  >
-                    <span className="home-search-label"><CalendarIcon aria-hidden="true" /> When?</span>
-                    <span className="home-date-value">{date ? `${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}${endDate ? ` – ${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${endDate}T12:00:00`))}` : " · Choose end date"}` : "Add dates"}</span>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    anchor={dateAnchor}
-                    align="center"
-                    sideOffset={12}
-                    className="home-date-popover"
-                  >
-                    <div className="home-date-popover-heading">
-                      <PopoverTitle className="home-guest-popover-title">When are you going?</PopoverTitle>
-                      <p>{date && !endDate ? "Choose your end date" : "Select your start date, then end date"}</p>
-                    </div>
-                    <DateCalendar
-                      mode="range"
-                      min={1}
-                      selected={
-                        date
-                          ? {
-                              from: new Date(`${date}T12:00:00`),
-                              ...(endDate ? { to: new Date(`${endDate}T12:00:00`) } : {}),
-                            }
-                          : undefined
+                  <span className="home-search-label">
+                    <CalendarIcon aria-hidden="true" /> When
+                  </span>
+                  <span className="home-date-value">
+                    {date
+                      ? `${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}${endDate ? ` – ${new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${endDate}T12:00:00`))}` : " · Choose end date"}`
+                      : "Add dates"}
+                  </span>
+                </PopoverTrigger>
+                <PopoverContent
+                  anchor={dateAnchor}
+                  align="center"
+                  sideOffset={12}
+                  className="home-date-popover"
+                >
+                  <div className="home-date-popover-heading">
+                    <PopoverTitle className="home-guest-popover-title">
+                      When are you going?
+                    </PopoverTitle>
+                    <p>
+                      {date && !endDate
+                        ? "Choose your end date"
+                        : "Select your start date, then end date"}
+                    </p>
+                  </div>
+                  <DateCalendar
+                    mode="range"
+                    min={1}
+                    selected={
+                      date
+                        ? {
+                            from: new Date(`${date}T12:00:00`),
+                            ...(endDate
+                              ? { to: new Date(`${endDate}T12:00:00`) }
+                              : {}),
+                          }
+                        : undefined
+                    }
+                    onSelect={(range: DateRange | undefined) => {
+                      const toIso = (value: Date) => {
+                        const year = value.getFullYear();
+                        const month = String(value.getMonth() + 1).padStart(
+                          2,
+                          "0",
+                        );
+                        const day = String(value.getDate()).padStart(2, "0");
+                        return `${year}-${month}-${day}`;
+                      };
+                      if (!range?.from) {
+                        setDate("");
+                        setEndDate("");
+                        return;
                       }
-                      onSelect={(range: DateRange | undefined) => {
-                        const toIso = (value: Date) => {
-                          const year = value.getFullYear();
-                          const month = String(value.getMonth() + 1).padStart(2, "0");
-                          const day = String(value.getDate()).padStart(2, "0");
-                          return `${year}-${month}-${day}`;
-                        };
-                        if (!range?.from) {
-                          setDate("");
-                          setEndDate("");
-                          return;
-                        }
-                        setDate(toIso(range.from));
-                        setEndDate(range.to ? toIso(range.to) : "");
-                        if (range.to) setDateOpen(false);
-                      }}
-                      disabled={{ before: new Date(`${today()}T00:00:00`), after: new Date(`${addDays(today(), 180)}T23:59:59`) }}
-                    />
-                  </PopoverContent>
-                </Popover>
+                      setDate(toIso(range.from));
+                      setEndDate(range.to ? toIso(range.to) : "");
+                      if (range.to) setDateOpen(false);
+                    }}
+                    disabled={{
+                      before: new Date(`${today()}T00:00:00`),
+                      after: new Date(`${addDays(today(), 180)}T23:59:59`),
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
 
               <GuestSelector
                 value={guests}
@@ -398,94 +402,39 @@ export function HomePage() {
         />
       )}
 
-      {/* TravelBuddy values */}
-      <section className="mx-auto w-full max-w-[1340px] px-4 sm:px-6 lg:px-8">
-        <div className="home-trust-grid grid grid-cols-2 md:grid-cols-4">
-          <div className="home-trust-item">
-            <CircleCheck className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">Free cancellation</p><p className="text-xs text-muted-foreground">Up to 24 hours before</p></div>
-          </div>
-          <div className="home-trust-item">
-            <BadgeCheck className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">Loved by travellers</p><p className="home-trust-rating"><Star className="size-3 fill-current" /> 4.9 <span>· verified reviews</span></p></div>
-          </div>
-          <div className="home-trust-item">
-            <TicketCheck className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">Ready when you are</p><p className="text-xs text-muted-foreground">Instant confirmation</p></div>
-          </div>
-          <div className="home-trust-item">
-            <Compass className="home-trust-icon" aria-hidden="true" />
-            <div><p className="text-sm font-semibold text-foreground">People who know</p><p className="text-xs text-muted-foreground">Local guides, real stories</p></div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Container */}
-      <div className="mx-auto w-full max-w-[1340px] px-4 sm:px-6 lg:px-8 flex flex-col gap-14">
-        {/* Category Shelves */}
-        <section aria-labelledby="home-categories-title">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 id="home-categories-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                Explore by Category
-              </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                From slow mornings to summit mornings
-              </p>
-            </div>
-            <Link
-              to="/search"
-              search={{ country: "Sri Lanka" }}
-              className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
-            >
-              All categories <ArrowRight className="size-4" />
+      <div className="utrippers-home-content">
+        <nav
+          className="utrippers-categories"
+          aria-label="Experience categories"
+        >
+          {categories.map(({ label, category, icon: Icon }) => (
+            <Link key={category} to="/search" search={{ category }}>
+              <Icon size={20} aria-hidden="true" />
+              <span>{label}</span>
             </Link>
-          </div>
-
-          <div className="home-category-grid">
-            {categories.map((category) => (
-              <Link
-                key={category.label}
-                to="/search"
-                search={{ category: category.category, country: "Sri Lanka" }}
-                className="home-category-tile group"
-              >
-                <span className="home-category-photo-wrap">
-                  <Media
-                    src={
-                      packages.find((item) => item.category === category.category)
-                        ?.image ?? category.image
-                    }
-                    alt={category.label}
-                    className="home-category-image transition-transform duration-700 group-hover:scale-105"
-                  />
-                </span>
-                <span className="home-category-copy">
-                  <span className="home-category-title">{category.label}</span>
-                  <span className="home-category-description">{category.description}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+          ))}
+        </nav>
 
         {/* Top Experiences Grid */}
         <section aria-labelledby="home-experiences-title">
           <div className="flex items-center justify-between mb-6">
             <div>
-                <h2 id="home-experiences-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                Stories worth stepping into
-              </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Handpicked days out with people who call the island home
+              <p className="utrippers-eyebrow">
+                A little curiosity goes a long way
               </p>
+              <h2
+                id="home-experiences-title"
+                className="utrippers-section-title"
+              >
+                Find your next story.
+              </h2>
             </div>
             <Link
               to="/search"
               search={{ country: "Sri Lanka" }}
               className="text-sm font-semibold text-primary hover:underline flex items-center gap-1"
             >
-              See all experiences <ArrowRight className="size-4" />
+              See all <ArrowRight className="size-4" />
             </Link>
           </div>
 
@@ -499,8 +448,8 @@ export function HomePage() {
               description="Explore another destination to find your next adventure."
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {packages.slice(0, 8).map((experience) => (
+            <div className="utrippers-experience-grid">
+              {packages.slice(0, 12).map((experience) => (
                 <ExperienceCard key={experience.id} experience={experience} />
               ))}
             </div>
@@ -511,16 +460,17 @@ export function HomePage() {
         <section aria-labelledby="home-destinations-title">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 id="home-destinations-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                Top Sri Lankan Destinations
+              <p className="utrippers-eyebrow">Start with a place</p>
+              <h2
+                id="home-destinations-title"
+                className="utrippers-section-title"
+              >
+                Where will curiosity take you?
               </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Each place has its own pace. Find yours.
-              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="utrippers-destination-grid">
             {destinations.map((destination) => (
               <Link
                 key={destination.name}
@@ -537,7 +487,9 @@ export function HomePage() {
                 <div className="absolute bottom-0 inset-x-0 p-5 text-white flex items-end justify-between">
                   <div>
                     <h3 className="text-xl font-bold">{destination.name}</h3>
-                    <p className="text-xs text-neutral-300">Sri Lanka · Tours & Day Trips</p>
+                    <p className="text-xs text-neutral-300">
+                      {destination.country}
+                    </p>
                   </div>
                   <span className="flex size-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white group-hover:bg-primary transition-colors">
                     <ArrowRight className="size-4" />

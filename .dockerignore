@@ -13,3 +13,6 @@ playwright-report
 test-results
 .supabase
 supabase/.temp
+
+# Standalone reference app; production builds use the root Vite app.
+bo-theme-preview
