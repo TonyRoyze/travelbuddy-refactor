@@ -1,16 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useState, type FormEvent } from "react";
-import {
-  Map,
-  Compass,
-  Utensils,
-  Landmark,
-  Sparkles,
-  Trees,
-  Waves,
-  SlidersHorizontal,
-} from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { useMoney } from "@/features/currency/currency-provider";
 import { catalogQuery } from "@/lib/queries";
 import { useLiveNowUpdates } from "@/lib/live-now";

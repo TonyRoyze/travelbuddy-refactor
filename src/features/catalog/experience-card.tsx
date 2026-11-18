@@ -1,6 +1,6 @@
 import { useMoney } from "@/features/currency/currency-provider";
 import { Link } from "@tanstack/react-router";
-import { MapPin, Star, CheckCircle2, Clock, ArrowUpRight } from "lucide-react";
+import { MapPin, Star, CheckCircle2, Clock, ArrowRight } from "lucide-react";
 import type { Experience } from "./types";
 import { Media } from "./media";
 
@@ -100,16 +100,22 @@ export function ExperienceCard({
             <span className="text-lg font-bold text-foreground">
               {money(p.price, p.currency ?? "LKR")}
             </span>
-            <span className="text-xs text-muted-foreground font-normal"> / person</span>
+            <span className="text-xs text-muted-foreground font-normal">
+              {" "}
+              / person
+            </span>
           </div>
           <Link
             to="/experience/$id"
             params={{ id: p.id }}
-            search={{ ...(date ? { date } : {}), ...(travelers ? { travelers } : {}) }}
+            search={{
+              ...(date ? { date } : {}),
+              ...(travelers ? { travelers } : {}),
+            }}
             className="experience-card-action"
             aria-label={`Explore ${p.title}`}
           >
-            Explore <ArrowUpRight aria-hidden="true" />
+            View details <ArrowRight aria-hidden="true" />
           </Link>
         </div>
       </div>

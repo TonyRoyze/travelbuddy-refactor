@@ -9,26 +9,35 @@ export type Theme = "light" | "dark" | "system";
 const key = "travelbuddy-v1.1-theme";
 const ThemeContext = createContext<{
   theme: Theme;
+  resolvedTheme: "light" | "dark";
   setTheme: (value: Theme) => void;
   storageError: boolean;
-}>({ theme: "system", setTheme: () => {}, storageError: false });
+}>({
+  theme: "light",
+  resolvedTheme: "light",
+  setTheme: () => {},
+  storageError: false,
+});
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setValue] = useState<Theme>(() => {
     try {
       const value = localStorage.getItem(key);
-      return value === "light" || value === "dark" ? value : "system";
+      return value === "light" || value === "dark" || value === "system"
+        ? value
+        : "light";
     } catch {
-      return "system";
+      return "light";
     }
   });
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [storageError, setStorageError] = useState(false);
   useEffect(() => {
     const preference = matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
-      document.documentElement.classList.toggle(
-        "dark",
-        theme === "dark" || (theme === "system" && preference.matches),
-      );
+      const dark =
+        theme === "dark" || (theme === "system" && preference.matches);
+      document.documentElement.classList.toggle("dark", dark);
+      setResolvedTheme(dark ? "dark" : "light");
     };
     apply();
     preference.addEventListener("change", apply);
@@ -38,6 +47,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <ThemeContext.Provider
       value={{
         theme,
+        resolvedTheme,
         storageError,
         setTheme: (value) => {
           setValue(value);
