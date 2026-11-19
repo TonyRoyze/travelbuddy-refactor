@@ -16,7 +16,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Field,
@@ -25,6 +24,11 @@ import {
   FieldSet,
   FieldLegend,
 } from "@/components/ui/field";
+import { Problem } from "@/components/custom-ui/feedback";
+import {
+  submitBuddyApplication,
+  type BuddyApplicationStatus,
+} from "./buddy-application";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -46,15 +50,18 @@ function mobileSnapshot() {
 const selectClass =
   "h-11 w-full rounded-md border border-input bg-background px-3 text-base focus-visible:outline-2 focus-visible:outline-ring";
 
-// UI-only draft. Never persist identity material or grant a hosting role here.
 export function BuddySignup({
   displayName,
   email,
   onBack,
+  onSubmitted,
+  reviewMessage,
 }: {
   displayName: string;
   email: string;
   onBack: () => void;
+  onSubmitted: (status: BuddyApplicationStatus) => void;
+  reviewMessage?: string | null;
 }) {
   const mobile = useSyncExternalStore(
     subscribeMobile,
@@ -70,10 +77,10 @@ export function BuddySignup({
   const [service, setService] = useState("local");
   const [home, setHome] = useState("");
   const [languages, setLanguages] = useState("");
-  const [previewed, setPreviewed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<unknown>();
   const form = useRef<HTMLFormElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const completion = useRef<HTMLDivElement>(null);
 
   function goTo(next: number) {
     setStep(next);
@@ -138,7 +145,12 @@ export function BuddySignup({
   }
   return (
     <section className="mx-auto max-w-6xl">
-      <Button variant="ghost" onClick={onBack} className="mb-6">
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        disabled={submitting}
+        className="mb-6"
+      >
         <ArrowLeft data-icon="inline-start" />
         Account type
       </Button>
@@ -197,28 +209,39 @@ export function BuddySignup({
         <div className="min-w-0">
           <Alert className="mb-8" role="note">
             <ShieldCheck />
-            <AlertTitle>Application preview</AlertTitle>
+            <AlertTitle>Private application</AlertTitle>
             <AlertDescription>
-              Nothing entered here is saved or sent. Phone, ID and face checks
-              are not active yet. Use sample details and images to try the flow.
+              TravelBuddy uses your documents and selfie to review your identity
+              and eligibility to host. Reviewers can access these images while
+              your application is under review.
             </AlertDescription>
           </Alert>
+          {reviewMessage && (
+            <Alert className="mb-6">
+              <AlertTitle>Changes requested</AlertTitle>
+              <AlertDescription>{reviewMessage}</AlertDescription>
+            </Alert>
+          )}
           <form
             ref={form}
             noValidate
-            onChange={() => setPreviewed(false)}
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
+              if (submitting) return;
               if (mobile && step < steps.length - 1) {
                 if (validate(step)) goTo(step + 1);
                 return;
               }
-              if (validate()) {
-                setPreviewed(true);
-                requestAnimationFrame(() => {
-                  completion.current?.focus({ preventScroll: true });
-                  completion.current?.scrollIntoView({ block: "center" });
-                });
+              if (!validate()) return;
+              const data = new FormData(event.currentTarget);
+              setSubmitting(true);
+              setSubmitError(undefined);
+              try {
+                onSubmitted(await submitBuddyApplication(data));
+              } catch (error) {
+                setSubmitError(error);
+              } finally {
+                setSubmitting(false);
               }
             }}
             className="flex flex-col gap-9"
@@ -234,6 +257,7 @@ export function BuddySignup({
                   </FieldLabel>
                   <Input
                     id="buddy-legal-name"
+                    name="legalName"
                     autoComplete="name"
                     required
                     maxLength={120}
@@ -246,6 +270,7 @@ export function BuddySignup({
                   </FieldLabel>
                   <Input
                     id="buddy-display-name"
+                    name="displayName"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
@@ -265,6 +290,7 @@ export function BuddySignup({
                   </FieldLabel>
                   <Input
                     id="buddy-phone"
+                    name="phone"
                     type="tel"
                     autoComplete="tel"
                     placeholder="077 123 4567 or +94 77 123 4567"
@@ -274,8 +300,7 @@ export function BuddySignup({
                     pattern="(\+94|0)[0-9\s\-]{9,14}"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Phone verification will be available here. No code will be
-                    sent in this preview.
+                    Use a number where the reviewer can reach you.
                   </p>
                 </Field>
               </FieldGroup>,
@@ -283,7 +308,7 @@ export function BuddySignup({
             {section(
               1,
               "Prepare your identity document",
-              "A Sri Lankan NIC (old or new format) or passport will be used to check your identity. Document checking is not available in this preview.",
+              "Use an old or new Sri Lankan NIC, or the photo page of your Sri Lankan passport.",
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="buddy-document">
@@ -291,6 +316,7 @@ export function BuddySignup({
                   </FieldLabel>
                   <select
                     id="buddy-document"
+                    name="documentType"
                     className={selectClass}
                     value={documentType}
                     onChange={(e) => setDocumentType(e.target.value)}
@@ -307,13 +333,13 @@ export function BuddySignup({
                   </FieldLabel>
                   <Input
                     id="buddy-birth-date"
+                    name="birthDate"
                     type="date"
                     required
                     max={new Date().toISOString().slice(0, 10)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Buddies must be 18 or older. Age verification will be
-                    connected later.
+                    Buddies must be 18 or older.
                   </p>
                 </Field>
                 <LocalFile
@@ -328,15 +354,13 @@ export function BuddySignup({
                 )}
                 <p className="text-sm text-muted-foreground">
                   Show all four corners, keep the text readable and avoid glare.
-                  Both old and new NIC formats are included in this planned
-                  flow.
                 </p>
               </FieldGroup>,
             )}
             {section(
               2,
               "Put a face to your name",
-              "A live selfie will eventually be compared with your ID photograph. Selecting a photo here does not perform a face or liveness check.",
+              "Take a recent selfie so a reviewer can compare it with your identity document.",
               <FieldGroup>
                 <div className="flex flex-col items-center gap-4 rounded-xl bg-muted px-6 py-8 text-center">
                   <div className="flex h-36 w-28 items-center justify-center rounded-[50%] border-2 border-dashed border-input">
@@ -346,9 +370,8 @@ export function BuddySignup({
                     Face the camera in good light. Keep your face visible and
                     remove sunglasses or anything covering your features.
                   </p>
-                  <Badge variant="outline">Face check not connected</Badge>
                 </div>
-                <LocalFile id="buddy-selfie" label="Sample selfie" selfie />
+                <LocalFile id="buddy-selfie" label="Selfie" selfie />
               </FieldGroup>,
             )}
             {section(
@@ -360,6 +383,7 @@ export function BuddySignup({
                   <FieldLabel htmlFor="buddy-service">Main service</FieldLabel>
                   <select
                     id="buddy-service"
+                    name="service"
                     className={selectClass}
                     value={service}
                     onChange={(e) => setService(e.target.value)}
@@ -375,6 +399,7 @@ export function BuddySignup({
                   <FieldLabel htmlFor="buddy-home">Home base</FieldLabel>
                   <Input
                     id="buddy-home"
+                    name="homeBase"
                     placeholder="e.g. Galle"
                     value={home}
                     onChange={(e) => setHome(e.target.value)}
@@ -388,6 +413,7 @@ export function BuddySignup({
                   </FieldLabel>
                   <Input
                     id="buddy-languages"
+                    name="languages"
                     placeholder="e.g. Sinhala, Tamil, English"
                     value={languages}
                     onChange={(e) => setLanguages(e.target.value)}
@@ -401,6 +427,7 @@ export function BuddySignup({
                   </FieldLabel>
                   <Textarea
                     id="buddy-intro"
+                    name="intro"
                     placeholder="Tell us about the places, people or activities you know best…"
                     rows={4}
                     maxLength={2000}
@@ -413,7 +440,12 @@ export function BuddySignup({
                       <FieldLabel htmlFor="buddy-guide-number">
                         SLTDA licence number
                       </FieldLabel>
-                      <Input id="buddy-guide-number" maxLength={100} />
+                      <Input
+                        id="buddy-guide-number"
+                        name="guideLicence"
+                        required
+                        maxLength={100}
+                      />
                     </Field>
                     <LocalFile id="buddy-guide-licence" label="Guide licence" />
                     <p className="text-sm text-muted-foreground">
@@ -436,7 +468,7 @@ export function BuddySignup({
                     <LocalFile id="buddy-insurance" label="Vehicle insurance" />
                     <p className="text-sm text-muted-foreground">
                       Vehicle permissions and insurance must cover the service
-                      offered. These documents are not checked in this preview.
+                      offered.
                     </p>
                   </FieldSet>
                 )}
@@ -445,7 +477,7 @@ export function BuddySignup({
             {section(
               4,
               "Review your buddy application",
-              "Check your details before finishing the preview. Hosting approval and verification will be added later.",
+              "Check your details before sending your application for manual review.",
               <FieldGroup>
                 <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-4 rounded-xl bg-muted p-5 text-sm">
                   <dt className="text-muted-foreground">Display name</dt>
@@ -474,43 +506,33 @@ export function BuddySignup({
                   <dd>Not started</dd>
                 </dl>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  You’ll be able to submit an application once verification is
-                  available. Completing this preview does not create or activate
-                  a buddy account.
+                  You can start hosting after your application is approved.
                 </p>
               </FieldGroup>,
             )}
-            {previewed && (
-              <Alert ref={completion} tabIndex={-1} role="status">
-                <ShieldCheck />
-                <AlertTitle>
-                  Preview complete — application not submitted
-                </AlertTitle>
-                <AlertDescription>
-                  Your details and selected images remain only on this page. No
-                  verification has run and nothing has been saved.
-                </AlertDescription>
-              </Alert>
-            )}
+            {submitError !== undefined && <Problem error={submitError} />}
             <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t bg-background py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               {mobile && step > 0 ? (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => goTo(step - 1)}
+                  disabled={submitting}
                 >
                   <ArrowLeft data-icon="inline-start" />
                   Back
                 </Button>
               ) : (
                 <span className="text-xs text-muted-foreground">
-                  Preview only · not saved
+                  Manual review
                 </span>
               )}
-              <Button type="submit">
+              <Button type="submit" disabled={submitting}>
                 {mobile && step < steps.length - 1
                   ? "Continue"
-                  : "Finish preview"}
+                  : submitting
+                    ? "Submitting…"
+                    : "Submit for review"}
                 <ArrowRight data-icon="inline-end" />
               </Button>
             </div>
@@ -545,11 +567,13 @@ function LocalFile({
       <div className="flex flex-col gap-3 rounded-lg border border-dashed border-input p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FileImage className="size-4" />
-          <span>Choose a sample image · JPG, PNG or WebP · up to 10 MB</span>
+          <span>JPG, PNG or WebP · up to 2 MB</span>
         </div>
         <Input
           id={id}
+          name={id.slice("buddy-".length)}
           type="file"
+          required
           accept="image/jpeg,image/png,image/webp"
           capture={selfie ? "user" : undefined}
           aria-invalid={!!error}
@@ -559,9 +583,9 @@ function LocalFile({
             if (
               next &&
               (!["image/jpeg", "image/png", "image/webp"].includes(next.type) ||
-                next.size > 10 * 1024 * 1024)
+                next.size > 2 * 1024 * 1024)
             ) {
-              setError("Choose a JPG, PNG or WebP image under 10 MB.");
+              setError("Choose a JPG, PNG or WebP image of 2 MB or smaller.");
               e.target.value = "";
               setFile(undefined);
               setUrl("");
@@ -582,7 +606,7 @@ function LocalFile({
             <p className="min-w-0 flex-1 break-all text-sm">
               {file.name}
               <span className="block text-xs text-muted-foreground">
-                Selected locally · not verified
+                Ready to submit
               </span>
             </p>
             <Button
@@ -608,7 +632,7 @@ function LocalFile({
           error && "text-destructive",
         )}
       >
-        {error || "Preview only. This image is not uploaded."}
+        {error || "Shared with the reviewer when you submit."}
       </p>
     </Field>
   );

@@ -16,6 +16,8 @@ export type Database = {
     }
     Functions: {
       account: { Args: never; Returns: Json }
+      buddy_application_status: { Args: never; Returns: Json }
+      submit_buddy_application: { Args: { application: Json; images: Json }; Returns: Json }
       apply_payment_notification: {
         Args: {
           amount: number
