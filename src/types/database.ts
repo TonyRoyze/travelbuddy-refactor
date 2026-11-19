@@ -21,6 +21,8 @@ export type Database = {
       finish_message_push: { Args: { job_id: string; lease_id: string; outcome: string }; Returns: undefined }
 
       account: { Args: never; Returns: Json }
+      buddy_application_status: { Args: never; Returns: Json }
+      submit_buddy_application: { Args: { application: Json; images: Json }; Returns: Json }
       apply_payment_notification: {
         Args: {
           amount: number
