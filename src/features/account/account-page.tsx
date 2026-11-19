@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { accountQuery } from "@/lib/queries";
 import { rpc } from "@/lib/supabase";
 import { safeReturn } from "@/lib/validation";
+import { BuddySignup } from "./buddy-signup";
 import { AccountOverview, SignOutButton } from "./account-overview";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,10 @@ export function AccountPage({
     client = useQueryClient();
   const [error, setError] = useState<unknown>(),
     [pending, setPending] = useState(false);
+  const [accountType, setAccountType] = useState("traveler");
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (accountType === "buddy") return;
     const form = new FormData(event.currentTarget);
     setPending(true);
     setError(undefined);
@@ -44,6 +47,14 @@ export function AccountPage({
   if (query.error) return <Problem error={query.error} />;
   const a = query.data;
   if (a.onboarding === "completed") return <AccountOverview account={a} />;
+  if (accountType === "buddy")
+    return (
+      <BuddySignup
+        displayName={a.displayName}
+        email={a.email}
+        onBack={() => setAccountType("traveler")}
+      />
+    );
   return (
     <section className="mx-auto flex max-w-2xl flex-col gap-6 rounded-xl border bg-card p-6 md:p-10">
       <h1>{onboarding ? "Make yourself at home" : "Your account"}</h1>
@@ -65,7 +76,8 @@ export function AccountPage({
             <SelectCombobox
               id="type"
               name="type"
-              defaultValue="traveler"
+              value={accountType}
+              onValueChange={setAccountType}
               options={[
                 { value: "traveler", label: "Traveller — explore and book" },
                 { value: "buddy", label: "Buddy — host local experiences" },
