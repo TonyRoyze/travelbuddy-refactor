@@ -153,7 +153,8 @@ export async function unregisterCurrentPushDevice() {
   stopCurrent?.();
   await saving;
   const token = localStorage.getItem(tokenKey);
-  if (token) await rpc("unregister_push_device", { device_token: token });
+  if (!token) return;
+  await rpc("unregister_push_device", { device_token: token });
   await PushNotifications.unregister();
   // Capacitor rejects this call if this launch never registered with APNs.
   // Revocation has already succeeded; notification cleanup must not block logout.
