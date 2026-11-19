@@ -24,9 +24,14 @@ export function AccountPage({
   const [error, setError] = useState<unknown>(),
     [pending, setPending] = useState(false);
   const [accountType, setAccountType] = useState("traveler");
+  const existingBuddy =
+    query.data?.onboarding === "completed" &&
+    query.data.roles.some((role) => role === "provider" || role === "guide");
   const application = useQuery({
     ...buddyApplicationQuery(query.data?.id),
-    enabled: query.data?.onboarding === "pending",
+    enabled:
+      query.data?.onboarding === "pending" ||
+      (existingBuddy && accountType === "buddy"),
   });
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +56,23 @@ export function AccountPage({
   if (query.isPending) return <Loading />;
   if (query.error) return <Problem error={query.error} />;
   const a = query.data;
-  if (a.onboarding === "completed") return <AccountOverview account={a} />;
+  if (
+    a.onboarding === "completed" &&
+    (!existingBuddy || accountType !== "buddy")
+  ) {
+    return (
+      <>
+        {existingBuddy && (
+          <div className="mx-auto mb-4 flex max-w-6xl justify-end">
+            <Button variant="outline" onClick={() => setAccountType("buddy")}>
+              Buddy registration
+            </Button>
+          </div>
+        )}
+        <AccountOverview account={a} />
+      </>
+    );
+  }
   if (application.data?.status === "pending") {
     return (
       <section className="mx-auto flex max-w-xl flex-col items-start gap-4 rounded-xl border bg-card p-6">
@@ -71,6 +92,11 @@ export function AccountPage({
         >
           Check status
         </Button>
+        {existingBuddy && (
+          <Button variant="ghost" onClick={() => setAccountType("traveler")}>
+            Back to account
+          </Button>
+        )}
         <SignOutButton />
       </section>
     );
@@ -83,7 +109,7 @@ export function AccountPage({
         <Problem error={application.error} />
         <Button onClick={() => void application.refetch()}>Retry</Button>
         <Button variant="ghost" onClick={() => setAccountType("traveler")}>
-          Account type
+          {existingBuddy ? "Back to account" : "Account type"}
         </Button>
       </section>
     );
@@ -91,6 +117,8 @@ export function AccountPage({
     return (
       <BuddySignup
         displayName={a.displayName}
+        existingBuddy={existingBuddy}
+        previouslyApproved={application.data?.status === "approved"}
         reviewMessage={application.data?.message}
         onSubmitted={(status) =>
           client.setQueryData(buddyApplicationQuery(a.id).queryKey, status)

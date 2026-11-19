@@ -86,4 +86,27 @@ DO $$ BEGIN
   ASSERT travelbuddy_api.account()->'roles' = '["guide"]';
   ASSERT travelbuddy_api.account()->>'onboarding' = 'completed';
 END $$;
+-- An existing host can reapply without changing their public account.
+DO $$
+DECLARE application jsonb := current_setting('test.application')::jsonb;
+BEGIN
+  application := application || '{"displayName":"Changed name","faceComparisonConsent":true}';
+  ASSERT travelbuddy_api.submit_buddy_application(application, current_setting('test.images')::jsonb)->>'status' = 'pending';
+  ASSERT travelbuddy_api.account()->'roles' = '["guide"]';
+  ASSERT travelbuddy_api.account()->>'displayName' = 'Host';
+END $$;
+RESET ROLE;
+DO $$
+DECLARE b travelbuddy_private.buddy_applications;
+BEGIN
+  SELECT * INTO b FROM travelbuddy_private.buddy_applications WHERE account_id = '135d2cf2-28e2-48cf-9f98-57d72c47df3c';
+  ASSERT b.details->'faceComparisonConsent' = 'true'::jsonb;
+  PERFORM travelbuddy_private.review_buddy_application(b.account_id, b.submitted_at, true, 'Reviewer');
+END $$;
+SET LOCAL ROLE authenticated;
+DO $$ BEGIN
+  ASSERT travelbuddy_api.buddy_application_status()->>'status' = 'approved';
+  ASSERT travelbuddy_api.account()->>'displayName' = 'Host';
+  ASSERT travelbuddy_api.account()->'roles' = '["guide"]';
+END $$;
 ROLLBACK;

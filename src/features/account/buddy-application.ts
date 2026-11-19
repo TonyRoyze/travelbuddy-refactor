@@ -47,7 +47,10 @@ export async function submitBuddyApplication(data: FormData) {
   );
   return statusSchema.parse(
     await rpc("submit_buddy_application", {
-      application: application as Record<string, string>,
+      application: {
+        ...application,
+        faceComparisonConsent: data.get("faceComparisonConsent") === "yes",
+      },
       images,
     }),
   );

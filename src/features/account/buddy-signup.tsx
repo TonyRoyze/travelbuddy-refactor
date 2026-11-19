@@ -56,12 +56,16 @@ export function BuddySignup({
   onBack,
   onSubmitted,
   reviewMessage,
+  existingBuddy,
+  previouslyApproved,
 }: {
   displayName: string;
   email: string;
   onBack: () => void;
   onSubmitted: (status: BuddyApplicationStatus) => void;
   reviewMessage?: string | null;
+  existingBuddy?: boolean;
+  previouslyApproved?: boolean;
 }) {
   const mobile = useSyncExternalStore(
     subscribeMobile,
@@ -152,7 +156,7 @@ export function BuddySignup({
         className="mb-6"
       >
         <ArrowLeft data-icon="inline-start" />
-        Account type
+        {existingBuddy ? "Back to account" : "Account type"}
       </Button>
       <div className="grid items-start gap-8 md:grid-cols-[240px_minmax(0,1fr)] lg:gap-16">
         <aside className="md:sticky md:top-24">
@@ -216,6 +220,15 @@ export function BuddySignup({
               your application is under review.
             </AlertDescription>
           </Alert>
+          {previouslyApproved && (
+            <Alert className="mb-6" role="status">
+              <AlertTitle>Your previous application was approved</AlertTitle>
+              <AlertDescription>
+                You can submit another application to go through the review
+                again.
+              </AlertDescription>
+            </Alert>
+          )}
           {reviewMessage && (
             <Alert className="mb-6">
               <AlertTitle>Changes requested</AlertTitle>
@@ -372,6 +385,19 @@ export function BuddySignup({
                   </p>
                 </div>
                 <LocalFile id="buddy-selfie" label="Selfie" selfie />
+                <Field orientation="horizontal">
+                  <input
+                    type="checkbox"
+                    id="buddy-face-consent"
+                    name="faceComparisonConsent"
+                    value="yes"
+                  />
+                  <FieldLabel htmlFor="buddy-face-consent">
+                    Allow Microsoft Azure Face to compare my selfie with the
+                    photo on my ID. A reviewer will make the final decision.
+                    This option is voluntary.
+                  </FieldLabel>
+                </Field>
               </FieldGroup>,
             )}
             {section(
@@ -506,7 +532,9 @@ export function BuddySignup({
                   <dd>Not started</dd>
                 </dl>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  You can start hosting after your application is approved.
+                  {existingBuddy
+                    ? "You can keep hosting while we review this application."
+                    : "You can start hosting after your application is approved."}
                 </p>
               </FieldGroup>,
             )}
