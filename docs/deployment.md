@@ -83,3 +83,39 @@ Use [.env.push.example](../.env.push.example) for local configuration. In Kubern
 The worker defaults to `APNS_ENVIRONMENT=production`. For development, set `APNS_ENVIRONMENT=sandbox` and use a key authorized for that environment. Only matching devices are claimed. To support both Debug and Release/TestFlight builds, run one worker per environment with its corresponding key. Multiple workers use database leases to avoid concurrently claiming the same job. Queue access is limited to `service_role`; authenticated clients can only register/revoke their own device tokens.
 
 Rebuild and distribute the native app as well as rolling out the server image. Website/container updates do not update the installed iPhone bundle or provisioning profile. See [native push setup and physical-device verification](ios-capacitor.md#message-push-notifications).
+
+## Buddy applications
+
+Apply the buddy application migration with `pnpm db:migrate` before rolling out the app. The signup sends images to the existing Supabase Data API in a single request. Allow at least 17 MiB per request on the Supabase gateway path for the maximum six 2 MiB images after base64 encoding. Test with sample documents through the deployed gateway before accepting real applications.
+
+Use a trusted database operator session to review applications. Only expose `travelbuddy_api` through PostgREST. The private tables and decision function are inaccessible to browser and service-role API requests.
+
+```sql
+SELECT account_id, submitted_at, details
+FROM travelbuddy_private.buddy_applications
+WHERE status = 'pending'
+ORDER BY submitted_at;
+
+-- Read only the evidence for the application being reviewed.
+SELECT kind, mime_type, content
+FROM travelbuddy_private.buddy_application_images
+WHERE account_id = '<account UUID>';
+```
+
+Open the evidence in a trusted image viewer. Compare the submitted details and selfie with the ID, check the applicant is 18 or older, and contact the applicant if the photo match or document is unclear. Review the SLTDA licence or the driver and vehicle credentials when applicable. This workflow uses human review. It does not call the Sri Lankan NIC registry, send OTPs or run biometric liveness checks.
+
+Use the exact `submitted_at` from the pending row when recording the decision so a stale review cannot approve a replacement submission.
+
+```sql
+SELECT travelbuddy_private.review_buddy_application(
+  '<account UUID>', '<submitted_at>', true, '<operator identifier>'
+);
+
+-- Or request changes with a message the applicant will see.
+SELECT travelbuddy_private.review_buddy_application(
+  '<account UUID>', '<submitted_at>', false, '<operator identifier>',
+  'Please submit a clearer photograph of your identity document.'
+);
+```
+
+Both decisions remove the submitted images and private application details from live tables. Use the changes request to close applications that have exceeded the operator's retention window. Review backup retention separately and remove any temporary local review copies. Approval activates hosting and copies the display name, home base, languages and introduction to the buddy profile.
