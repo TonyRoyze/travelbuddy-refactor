@@ -119,3 +119,14 @@ SELECT travelbuddy_private.review_buddy_application(
 ```
 
 Both decisions remove the submitted images and private application details from live tables. Use the changes request to close applications that have exceeded the operator's retention window. Review backup retention separately and remove any temporary local review copies. Approval activates hosting and copies the display name, home base, languages and introduction to the buddy profile.
+
+Existing buddies can open **Account → Buddy registration** and submit an application for review. Their account role and public profile remain in place during and after review.
+
+### Azure Face comparison
+
+For applicants who choose Azure Face comparison, a trusted database operator can compare the submitted ID portrait and selfie before recording the manual decision. Use an Azure Face resource approved for limited-access face verification. Keep the resource endpoint, key and database credentials on the operator machine. The command reads the two private images and prints the comparison and submission timestamp. A comparison does not change the application or determine its outcome. It does not test whether the selfie was taken live.
+
+```sh
+# Set DATABASE_URL, AZURE_FACE_ENDPOINT and AZURE_FACE_KEY in the operator environment first.
+node scripts/check-buddy-face.mjs <account-uuid>
+```
