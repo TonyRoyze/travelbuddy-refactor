@@ -19,7 +19,6 @@ import { useSession } from "@/features/auth/session";
 import { accountQuery } from "@/lib/queries";
 import { buttonVariants } from "@/components/ui/button";
 import { useCart } from "@/features/bookings/cart-provider";
-import { NativePushControls } from "@/features/messaging/native-push-controls";
 import { useMessageUpdates } from "@/features/messaging/realtime";
 import { ProviderHeartbeat } from "@/features/nearby/provider-heartbeat";
 import Avatar04 from "@/components/custom-ui/avatar-04";
@@ -234,7 +233,6 @@ export function Shell() {
       >
         <CurrencyNotice />
         <ProviderHeartbeat />
-        <NativePushControls />
         <Outlet />
       </main>
 

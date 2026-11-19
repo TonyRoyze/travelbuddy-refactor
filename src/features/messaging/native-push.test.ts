@@ -144,12 +144,12 @@ describe("iPhone message push lifecycle", () => {
     expect(mocks.rpc).not.toHaveBeenCalled();
     native.stop();
   });
-  it("allows sign-out when notifications were never enabled on this launch", async () => {
+  it("skips push cleanup on sign-out when no device token is stored", async () => {
     mocks.clear.mockRejectedValueOnce(
       new Error("APNs registration not called"),
     );
     await expect(unregisterCurrentPushDevice()).resolves.toBeUndefined();
-    expect(mocks.unregister).toHaveBeenCalledOnce();
+    expect(mocks.unregister).not.toHaveBeenCalled();
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
   it("rejects malformed notification navigation", () => {
