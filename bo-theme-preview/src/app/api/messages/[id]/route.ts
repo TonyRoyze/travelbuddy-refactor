@@ -18,7 +18,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const account = await sessionAccount(request);
     if (!account) return NextResponse.json({ error: 'Sign in to open your messages.' }, { status: 401, headers });
     const id = idSchema.parse(params.id);
-    return NextResponse.json({ conversation: await getConversation(account.id, id) }, { headers });
+    const before = request.nextUrl.searchParams.get('before');
+    if (before) { idSchema.parse(before); const current = await getConversation(account.id, id); if (!current.messages.some(message => message.id === before)) {
+      // Cursor membership is checked independently so older pages can also be loaded.
+      const { documentDatabase } = await import('@/lib/backend/database');
+      const cursor = await documentDatabase().message.findFirst({ where: { id: before, conversationId: id }, select: { id: true } });
+      if (!cursor) throw new ConversationAccessError();
+    } }
+    return NextResponse.json({ conversation: await getConversation(account.id, id, before ?? undefined) }, { headers });
   } catch (error) {
     if (error instanceof ConversationAccessError || error instanceof z.ZodError) return NextResponse.json({ error: 'That conversation is unavailable.' }, { status: 404, headers });
     return NextResponse.json({ error: 'Messages are temporarily unavailable.' }, { status: 503, headers });

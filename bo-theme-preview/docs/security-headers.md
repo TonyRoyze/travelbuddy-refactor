@@ -43,3 +43,5 @@ permission, email sign-in, and social sign-in in a browser.
 The November 13 report references `/assets/*.js` bundles, whereas this code serves
 Next.js bundles at `/_next/static/`. A clean local test does not establish that
 the scanned public deployment has been updated.
+
+Meeting-point previews allow frames only from `https://www.google.com`. The app still rejects being framed through `frame-ancestors 'none'`. Google Maps and Apple Maps links use the meeting address plus destination and country; accommodation pickups show the destination area until the provider confirms the exact address.

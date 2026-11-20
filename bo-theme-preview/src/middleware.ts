@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
     `connect-src 'self'${development ? ' ws: wss:' : ''}`,
     "object-src 'none'",
     "base-uri 'none'",
-    "frame-src 'none'",
+    "frame-src https://www.google.com",
     "frame-ancestors 'none'",
     "form-action 'self'",
   ].join('; ');

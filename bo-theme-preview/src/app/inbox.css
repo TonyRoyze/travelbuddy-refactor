@@ -114,3 +114,17 @@
 @media (max-width: 767px) {
   .reply-board { grid-template-columns: 1fr; gap: 16px; }
 }
+.message-manager, .support-tickets { margin-top: 28px; }
+.message-manager > p, .support-tickets-heading p { color: var(--muted); margin-top: 8px; }
+.message-search { max-width: 420px; margin: 24px 0; }
+.support-tickets-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+.support-ticket-list { display: grid; gap: 10px; }
+.support-ticket-list button { display: flex; align-items: center; justify-content: space-between; text-align: left; gap: 16px; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--ink); }
+.support-ticket-list strong, .support-ticket-list small { display: block; }
+.support-ticket-list small { margin-top: 6px; color: var(--muted); }
+.support-ticket-detail { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); }
+.support-ticket-detail h3 { margin: 16px 0 8px; overflow-wrap: anywhere; }
+.support-ticket-history { display: grid; gap: 12px; margin: 24px 0; }
+.support-ticket-history article { padding: 16px; background: var(--soft); border-radius: var(--radius-md); }
+.support-ticket-history time { display: block; font-size: 12px; color: var(--muted); margin: 4px 0 8px; }
+.support-ticket-history p { white-space: pre-wrap; overflow-wrap: anywhere; }
