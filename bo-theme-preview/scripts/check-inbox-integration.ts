@@ -1,0 +1,137 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { documentDatabase } from '../src/lib/backend/database';
+import { createTravelRequest, closeTravelRequest, replyToTravelRequest, RequestAccessError } from '../src/lib/backend/request-commands';
+import { listTravelRequests } from '../src/lib/backend/request-queries';
+import { getConversation, listConversations } from '../src/lib/backend/message-queries';
+import { sendMessage, startConversation } from '../src/lib/backend/message-commands';
+import { ConversationAccessError } from '../src/lib/backend/message-errors';
+import { createAuthTestUser } from './auth-test-user';
+import { NextRequest } from 'next/server';
+import { GET as requestsGET, POST as requestsPOST } from '../src/app/api/requests/route';
+import { POST as replyPOST } from '../src/app/api/requests/[id]/reply/route';
+import { PATCH as closePATCH } from '../src/app/api/requests/[id]/route';
+import { GET as conversationGET, POST as messagePOST } from '../src/app/api/messages/[id]/route';
+import { POST as testSessionPOST } from '../src/app/api/dev/test-session/route';
+import { customPackageSchema, distanceKm } from '../src/lib/inbox';
+
+const require = createRequire(import.meta.url);
+createRequire(require.resolve('next/package.json'))('@next/env').loadEnvConfig(process.cwd());
+
+async function main() {
+  const testUrl = process.env.DOCUMENT_TEST_DATABASE_URL;
+  if (!testUrl || testUrl === process.env.DOCUMENT_DATABASE_URL) throw new Error('Set DOCUMENT_TEST_DATABASE_URL to a separate migrated test database.');
+  process.env.DOCUMENT_DATABASE_URL = testUrl;
+  const db = documentDatabase(); const ids: string[] = [];
+  const authUsers: Awaited<ReturnType<typeof createAuthTestUser>>[] = [];
+  async function account(name: string, roles: string[], status = 'active', onboarding = 'completed') {
+    const record = await db.accountDocument.create({ data: { data: { displayName: name, roles, status, onboarding } } });
+    ids.push(record.id); return record.id;
+  }
+  const forbidden = (status: number) => (error: unknown) => error instanceof RequestAccessError && error.status === status;
+  try {
+    const traveler = await account('Inbox test traveller', ['traveler']);
+    const buddy = await account('Inbox test buddy', ['provider']);
+    const guide = await account('Inbox test guide', ['guide']);
+    const outsider = await account('Inbox test outsider', ['traveler']);
+    const hybrid = await account('Inbox test hybrid', ['traveler', 'guide']);
+    const suspended = await account('Inbox test suspended', ['guide'], 'suspended');
+    const pending = await account('Inbox test pending', ['traveler'], 'active', 'pending');
+    const input = { title: 'Sunrise hike in Ella', destination: 'Ella', details: 'Two travellers looking for a sunrise hike next week.', pickupLocation: 'Ella railway station', location: { latitude: 6.875, longitude: 81.047 } };
+    const offer = { title: 'Sunrise hike and breakfast', description: 'Private sunrise hike for two, pickup and breakfast included.', price: 8500, currency: 'LKR' as const, hasVehicle: true, vehicleDetails: 'Car with three passenger seats' };
+    assert.equal(distanceKm(input.location, input.location), 0);
+    assert.ok(distanceKm(input.location, { latitude: 6.927, longitude: 79.861 }) > 100);
+    assert.equal(customPackageSchema.safeParse({ ...offer, price: -5 }).success, false);
+    assert.equal(customPackageSchema.safeParse({ ...offer, price: 1.001 }).success, false);
+    assert.equal(customPackageSchema.safeParse({ ...offer, currency: 'invalid' }).success, false);
+    assert.equal(customPackageSchema.safeParse({ ...offer, vehicleDetails: '' }).success, false);
+    await assert.rejects(createTravelRequest(traveler, { ...input, location: { latitude: 91, longitude: 81 } }));
+    await assert.rejects(createTravelRequest(traveler, { ...input, location: { latitude: 6 } }));
+    await assert.rejects(createTravelRequest(buddy, input), forbidden(403));
+    await assert.rejects(createTravelRequest(pending, input), forbidden(403));
+    await assert.rejects(createTravelRequest(traveler, { ...input, details: 'short' }));
+    await assert.rejects(createTravelRequest(traveler, { ...input, travelerId: outsider }));
+    const post = await createTravelRequest(traveler, input);
+    async function session(id: string) {
+      const auth = await createAuthTestUser('Inbox integration'); authUsers.push(auth);
+      await db.accountDocument.update({ where: { id }, data: { supabaseUserId: auth.user.id } });
+      return auth.cookie;
+    }
+    const tokens = { traveler: await session(traveler), buddy: await session(buddy), outsider: await session(outsider) };
+    const origin = new URL(process.env.AUTH_APP_URL!).origin;
+    function http(path: string, method = 'GET', token?: string, body?: unknown, requestOrigin = origin) {
+      return new NextRequest(`${origin}${path}`, { method, headers: { ...(token ? { Cookie: token } : {}), Origin: requestOrigin, 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+    }
+    assert.equal((await requestsGET(http('/api/requests'))).status, 401);
+    assert.equal((await testSessionPOST(http('/api/dev/test-session', 'POST', undefined, { role: 'buddy' }))).status, 404, 'Test sign-in stays disabled outside development');
+    assert.equal((await requestsGET(http('/api/requests', 'GET', tokens.traveler))).headers.get('Cache-Control'), 'no-store');
+    assert.equal((await requestsPOST(http('/api/requests', 'POST', tokens.traveler, input, 'https://untrusted.example'))).status, 403);
+    assert.equal((await requestsPOST(http('/api/requests', 'POST', tokens.buddy, input))).status, 403);
+    assert.equal((await requestsPOST(http('/api/requests', 'POST', tokens.traveler, { ...input, details: 'short' }))).status, 400);
+    assert.equal((await requestsPOST(http('/api/requests', 'POST', tokens.traveler, { ...input, title: 'Posted through the API' }))).status, 201);
+    const nearbyPath = '/api/requests?latitude=6.875&longitude=81.047&radius=25';
+    assert.equal((await requestsGET(http(nearbyPath, 'GET', tokens.traveler))).status, 403);
+    assert.equal((await requestsGET(http('/api/requests?latitude=91&longitude=81&radius=25', 'GET', tokens.buddy))).status, 400);
+    const distant = await createTravelRequest(traveler, { ...input, title: 'Far away from Ella', location: { latitude: 6.927, longitude: 79.861 } });
+    const nearList = await (await requestsGET(http(nearbyPath, 'GET', tokens.buddy))).json();
+    assert.ok(nearList.requests.some((request: { id: string }) => request.id === post.id));
+    assert.equal(nearList.requests.some((request: { id: string }) => request.id === distant.id), false);
+    assert.equal((await db.travelRequest.findUniqueOrThrow({ where: { id: post.id } })).pickupLocation, input.pickupLocation);
+    assert.equal((await replyPOST(http(`/api/requests/${post.id}/reply`, 'POST', tokens.outsider, { body: 'Invalid role' }), { params: { id: post.id } })).status, 403);
+    assert.equal((await closePATCH(http(`/api/requests/${post.id}`, 'PATCH', tokens.outsider, { closed: true }), { params: { id: post.id } })).status, 404);
+    const anotherPost = await createTravelRequest(traveler, { ...input, title: 'An afternoon cooking class' });
+    await assert.rejects(replyToTravelRequest(outsider, post.id, 'Let me help.'), forbidden(403));
+    await assert.rejects(replyToTravelRequest(suspended, post.id, 'Let me help.'), forbidden(403));
+    const own = await createTravelRequest(hybrid, input);
+    await assert.rejects(replyToTravelRequest(hybrid, own.id, 'My own reply'), forbidden(403));
+    await assert.rejects(replyToTravelRequest(buddy, post.id, '   '));
+    const buddyThread = await replyToTravelRequest(buddy, post.id, 'I know a quiet sunrise trail.', offer);
+    const guideThread = await replyToTravelRequest(guide, post.id, 'I can guide your hike.');
+    assert.notEqual(buddyThread.id, guideThread.id);
+    const otherThread = await replyToTravelRequest(buddy, anotherPost.id, 'I can help with cooking too.');
+    assert.notEqual(buddyThread.id, otherThread.id, 'Each post gets its own thread');
+    const repeated = await replyToTravelRequest(buddy, post.id, 'We can meet at 5 am.');
+    assert.equal(repeated.id, buddyThread.id, 'Repeated replies reuse the same private thread');
+    assert.equal((await getConversation(traveler, buddyThread.id)).messages.length, 2);
+    assert.equal((await getConversation(buddy, buddyThread.id)).request?.id, post.id);
+    assert.deepEqual((await getConversation(traveler, buddyThread.id)).messages[0].package, offer);
+    assert.equal((await getConversation(traveler, buddyThread.id)).request?.pickupLocation, input.pickupLocation);
+    assert.equal((await messagePOST(http(`/api/messages/${buddyThread.id}`, 'POST', tokens.traveler, { body: 'Forged package', package: offer }), { params: { id: buddyThread.id } })).status, 403);
+    assert.equal((await messagePOST(http(`/api/messages/${buddyThread.id}`, 'POST', tokens.buddy, { body: 'Invalid price', package: { ...offer, price: 0 } }), { params: { id: buddyThread.id } })).status, 400);
+    const withoutVehicle = { title: 'Guided walk only', description: 'A private sunrise walk for two, meeting at the station.', price: 40, currency: 'USD' as const, hasVehicle: false };
+    assert.equal((await messagePOST(http(`/api/messages/${buddyThread.id}`, 'POST', tokens.buddy, { body: 'Another option', package: withoutVehicle }), { params: { id: buddyThread.id } })).status, 201);
+    assert.deepEqual((await getConversation(traveler, buddyThread.id)).messages.at(-1)?.package, withoutVehicle);
+    assert.equal((await conversationGET(http(`/api/messages/${buddyThread.id}`, 'GET', tokens.outsider), { params: { id: buddyThread.id } })).status, 404);
+    assert.equal((await replyPOST(http(`/api/requests/${post.id}/reply`, 'POST', tokens.buddy, { body: 'Private reply through the API' }), { params: { id: post.id } })).status, 201);
+    await assert.rejects(getConversation(guide, buddyThread.id), ConversationAccessError);
+    await assert.rejects(getConversation(outsider, buddyThread.id), ConversationAccessError);
+    await assert.rejects(sendMessage(guide, buddyThread.id, 'Intrusion'), ConversationAccessError);
+    await sendMessage(traveler, buddyThread.id, 'That sounds great!');
+    assert.equal((await getConversation(buddy, buddyThread.id)).messages.at(-1)?.body, 'That sounds great!');
+    const buddyView = (await listTravelRequests(buddy)).find(value => value.id === post.id)!;
+    assert.deepEqual(buddyView.conversations, [{ id: buddyThread.id }]);
+    assert.equal(JSON.stringify(buddyView).includes(guideThread.id), false);
+    assert.equal(JSON.stringify(buddyView).includes('quiet sunrise trail'), false);
+    assert.equal(JSON.stringify(buddyView).includes('8500'), false, 'Package prices are private');
+    const outsiderView = (await listTravelRequests(outsider)).find(value => value.id === post.id)!;
+    assert.deepEqual(outsiderView.conversations, []);
+    const ownerView = (await listTravelRequests(traveler, true)).find(value => value.id === post.id)!;
+    assert.equal(ownerView.conversations.length, 2);
+    assert.equal((await listConversations(guide)).some(value => value.id === buddyThread.id), false);
+    await assert.rejects(closeTravelRequest(outsider, post.id), forbidden(404));
+    await closeTravelRequest(traveler, post.id);
+    await assert.rejects(replyToTravelRequest(guide, post.id, 'A new reply'), forbidden(409));
+    assert.equal((await listTravelRequests(guide)).some(value => value.id === post.id), false);
+    assert.equal((await listTravelRequests(traveler, true)).find(value => value.id === post.id)?.closed, true);
+    await sendMessage(traveler, buddyThread.id, 'Existing chats stay open after closing.');
+    const direct = await startConversation(traveler, buddy);
+    assert.notEqual(direct.id, buddyThread.id);
+    assert.equal((await startConversation(buddy, traveler)).id, direct.id);
+    console.log('Inbox integration passed: roles, pickup coordinates, nearby filtering, package prices/vehicles, private reads/writes, board privacy, request closing, direct chats, and disabled test sign-in.');
+  } finally {
+    for (const auth of authUsers) await auth.remove();
+    await db.accountDocument.deleteMany({ where: { id: { in: ids } } });
+    await db.$disconnect();
+  }
+}
+main().catch(error => { console.error(error instanceof Error ? error.message : 'Inbox integration failed'); process.exitCode = 1; });
