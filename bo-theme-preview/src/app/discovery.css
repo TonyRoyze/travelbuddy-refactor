@@ -1,0 +1,83 @@
+/* Discovery surfaces use available card width rather than a fixed tile count. */
+.discovery-redesign { max-width: 1800px; margin-inline: auto; padding: 0 clamp(16px, 3vw, 48px) 48px; }
+.discovery-intro { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 38px 0 24px; }
+.discovery-intro h1 { max-width: 900px; margin: 8px 0 12px; font-size: clamp(28px, 3vw, 42px); line-height: 1.15; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.discovery-intro p:not(.eyebrow) { color: var(--muted); margin: 0; line-height: 1.6; }
+.discovery-saved { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 14px; text-decoration: none; }
+.discovery-redesign .results-search { width: min(100%, 1000px); margin: 0 0 24px; }
+.discovery-redesign .results-filter-bar { justify-content: flex-start; flex-wrap: wrap; overflow: visible; padding: 16px 0; gap: 10px; }
+.discovery-redesign .results-chip { min-height: 44px; border-radius: 10px; font-size: 13px; }
+.discovery-redesign .results-chip select { max-width: 180px; min-height: 24px; }
+.discovery-redesign .results-type-select { border-radius: 10px; min-height: 44px; }
+.discovery-active-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; padding: 14px 0 0; font-size: 13px; }
+.discovery-active-filters button { border: 0; background: transparent; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; padding: 8px 0; cursor: pointer; }
+.discovery-redesign .results-split { padding: 28px 0 0; grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr); gap: 28px; }
+.discovery-redesign .results-list-heading { margin-bottom: 12px; }
+.discovery-redesign .results-list-heading h2 { margin: 6px 0; font-size: 25px; letter-spacing: -.025em; }
+.discovery-result-hint, .discovery-search-status { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.discovery-search-status { margin: 0 0 20px; }
+.discovery-redesign .results-map { border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
+.discovery-redesign .results-map .provider-map { min-height: 480px; height: calc(100dvh - 125px); }
+.discovery-redesign .results-note { margin-inline: 0; }
+.discovery-empty { padding: 30px 16px; text-align: center; border: 1px dashed var(--line); border-radius: 16px; }
+.discovery-empty > .text-link { display: flex; justify-content: center; margin: 20px; }
+.discovery-redesign :is(button, a, select, summary, input):focus-visible { outline: 3px solid var(--action); outline-offset: 4px; }
+@media (min-width: 768px) and (max-width: 1100px) { .discovery-redesign .results-split { grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr); gap: 20px; } }
+@media (max-width: 767px) {
+  .discovery-intro { align-items: flex-start; flex-direction: column; padding-top: 24px; gap: 16px; }
+  .discovery-saved { font-size: 13px; padding: 10px 12px; }
+  .discovery-redesign .results-filter-bar { gap: 8px; }
+  .discovery-redesign .results-chip { flex-grow: 1; justify-content: center; }
+  .discovery-redesign .results-split { display: block; padding-top: 16px; }
+  .discovery-redesign .results-mobile-switch { position: sticky; top: var(--header-height, 72px); z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); margin-inline: -16px; }
+  .discovery-redesign .results-mobile-switch button { min-height: 44px; min-width: 110px; }
+  .discovery-redesign .results-map .provider-map { height: 65dvh; min-height: 360px; }
+}
+@media (prefers-reduced-motion: reduce) { .discovery-redesign *, .map-area-card { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+.discovery-landing .explore-search-band { padding-top: 32px; }
+.discovery-landing .home-section { padding-top: 28px; margin-top: 0; }
+.discovery-landing .explore-categories { margin-bottom: 0; }
+@media (min-width: 1024px) {
+  .discovery-landing .home-section:not(.explore-categories) .experience-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+.discovery-filter-label { padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
+
+/* Semantic benefit icons: status is conveyed by headings as well as color. */
+.benefits-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 12px 0 20px; }
+.benefit-column { min-width: 0; border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.benefit-included { --benefit-color: #187044; --benefit-tint: #edf8f1; }
+.benefit-excluded { --benefit-color: #b33339; --benefit-tint: #fff1f2; }
+.benefit-column h3 { color: var(--benefit-color); font-size: 16px; font-weight: 650; line-height: 1.4; margin: 0 0 18px; }
+.benefit-column ul { display: grid; gap: 16px; list-style: none; padding: 0; margin: 0; }
+.benefit-column li { display: flex; align-items: flex-start; gap: 12px; color: var(--ink); line-height: 1.6; font-size: 14px; overflow-wrap: anywhere; }
+.benefit-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 36px; height: 36px; background: var(--benefit-tint); color: var(--benefit-color); border-radius: 10px; }
+.benefit-column li > span:last-child { padding-top: 6px; min-width: 0; }
+.benefit-empty { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
+.benefits-compact { gap: 12px; }
+.benefits-compact .benefit-column { padding: 0; border: 0; border-radius: 0; }
+.card-detail-disclosure .benefit-column h3, .discovery-redesign .benefit-column h3 { font-size: 13px; margin: 0 0 12px; color: var(--benefit-color); }
+.benefits-compact .benefit-column li { font-size: 12px; gap: 7px; }
+.benefits-compact .benefit-icon { flex-basis: 28px; height: 28px; border-radius: 8px; }
+.benefits-compact .benefit-icon svg { width: 17px; height: 17px; }
+.benefits-compact .benefit-column li > span:last-child { padding-top: 3px; }
+:root[data-theme=dark] .benefit-included { --benefit-color: #83deb0; --benefit-tint: #153c2e; }
+:root[data-theme=dark] .benefit-excluded { --benefit-color: #ffaaaa; --benefit-tint: #48272d; }
+@media (max-width: 480px) { .benefits-grid:not(.benefits-compact) { grid-template-columns: 1fr; gap: 16px; } }
+
+.meeting-map-section { min-width: 0; }
+.meeting-map-heading { display: flex; gap: 8px; align-items: center; color: var(--ink); }
+.meeting-map-heading h3 { margin: 0; font-size: 20px; line-height: 1.4; }
+.meeting-map-section .meeting-map-address { color: var(--ink); font-size: 14px; line-height: 1.65; margin: 12px 0; overflow-wrap: anywhere; }
+.meeting-map-section .meeting-map-note { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 10px 0; }
+.meeting-map-preview { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; margin: 16px 0; background: var(--surface); }
+.meeting-map-preview iframe { display: block; width: 100%; height: 300px; border: 0; background: var(--surface); }
+.meeting-map-caption { display: block; padding: 10px 14px; font-size: 12px; line-height: 1.5; color: var(--muted); }
+.meeting-map-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.meeting-map-actions :is(a, button) { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 10px 13px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; text-decoration: none; font: inherit; font-size: 13px; cursor: pointer; }
+.meeting-map-actions :is(a, button):hover { border-color: var(--primary); }
+.meeting-map-actions :is(a, button):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.meeting-map-copy { display: grid; gap: 8px; font-size: 12px; }
+.meeting-map-copy input { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--surface); }
+.meeting-map-compact { border-top: 1px solid var(--line); padding-top: 14px; margin: 16px 0; }
+.card-detail-disclosure .meeting-map-heading h3, .discovery-redesign .meeting-map-heading h3 { font-size: 14px; margin: 0; }
+@media (max-width: 480px) { .meeting-map-preview iframe { height: 240px; } .meeting-map-actions :is(a, button) { flex-grow: 1; } }
