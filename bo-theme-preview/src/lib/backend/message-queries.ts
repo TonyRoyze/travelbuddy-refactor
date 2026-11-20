@@ -11,7 +11,6 @@ export async function listConversations(currentAccountId: string) {
   const conversations = await documentDatabase().conversation.findMany({
     where: { OR: [{ participantOneId: currentAccountId }, { participantTwoId: currentAccountId }] },
     orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-    take: 50,
     include: {
       participantOne: { select: { id: true, data: true } },
       participantTwo: { select: { id: true, data: true } },
@@ -34,14 +33,14 @@ export async function listConversations(currentAccountId: string) {
 }
 
 /** Read a bounded, newest-first window of messages after checking membership. */
-export async function getConversation(currentAccountId: string, conversationId: string) {
+export async function getConversation(currentAccountId: string, conversationId: string, before?: string) {
   const conversation = await documentDatabase().conversation.findUnique({
     where: { id: conversationId },
     include: {
       participantOne: { select: { id: true, data: true } },
       participantTwo: { select: { id: true, data: true } },
       request: { select: { id: true, title: true, destination: true, details: true, closed: true, pickupLocation: true, latitude: true, longitude: true } },
-      messages: { orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 100 },
+      messages: { orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 101, ...(before ? { cursor: { id: before }, skip: 1 } : {}) },
     },
   });
   if (!conversation || (conversation.participantOneId !== currentAccountId && conversation.participantTwoId !== currentAccountId)) {
@@ -52,6 +51,7 @@ export async function getConversation(currentAccountId: string, conversationId: 
     id: conversation.id,
     request: conversation.request,
     participant: { id: other.id, displayName: accountName(other.data) },
-    messages: conversation.messages.reverse(),
+    messages: conversation.messages.slice(0, 100).reverse(),
+    hasOlder: conversation.messages.length > 100,
   };
 }

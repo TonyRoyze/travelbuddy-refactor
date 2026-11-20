@@ -2145,3 +2145,7 @@
 }
 
 }
+
+/* Booking management */
+.booking-search { max-width: 420px; margin-bottom: var(--space-4); }
+.booking-search input { width: 100%; }

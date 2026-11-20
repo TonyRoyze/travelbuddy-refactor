@@ -28,6 +28,7 @@ async function main() {
   assert.ok(nonce && nonce !== 'attacker-controlled');
   assert.doesNotMatch(policy.split('script-src ')[1].split(';')[0], /unsafe-inline|unsafe-eval/);
   assert.match(policy, /frame-ancestors 'none'/);
+  assert.match(policy, /frame-src https:\/\/www\.google\.com(?:;|$)/);
   assert.match(first.headers.get('cache-control')!, /no-store/);
   const html = await first.text();
   const scripts = [...html.matchAll(/<script\b([^>]*)>/g)];

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, ChevronRight, LockKeyhole, MapPin, MessageCircle, Plus, Send, Package, LocateFixed } from 'lucide-react';
 import { useServerAuth } from './ServerAuthProvider';
 import { Empty, Gate, PageHeading, Sheet } from './UI';
+import { SupportTickets } from './SupportTickets';
 import { PickupLocation } from './PickupLocation';
 import { CustomPackageCard, CustomPackageForm } from './CustomPackage';
 import type { Coordinates, CustomPackage } from '@/lib/inbox';
@@ -13,7 +14,7 @@ type RequestPost = { id: string; title: string; destination: string; details: st
 type RequestContext = Pick<RequestPost, 'id' | 'title' | 'destination' | 'closed' | 'pickupLocation' | 'latitude' | 'longitude'> & { details?: string };
 type Conversation = { id: string; participant: { id: string; displayName: string }; request: RequestContext | null; latestMessage: { body: string; createdAt: string } | null };
 type ConversationDetail = Omit<Conversation, 'latestMessage'> & { messages: { id: string; senderId: string; body: string; package: CustomPackage | null; createdAt: string }[] };
-type Tab = 'requests' | 'replies';
+type Tab = 'requests' | 'replies' | 'support';
 
 async function api<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, { cache: 'no-store', ...options });
@@ -34,14 +35,14 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
   const router = useRouter(); const params = useSearchParams();
   const selectedId = params.get('conversation');
   const requestFilter = params.get('request');
-  const tab: Tab = selectedId || ['replies', 'mine', 'messages'].includes(params.get('tab') ?? '') ? 'replies' : 'requests';
+  const tab: Tab = selectedId || ['replies', 'mine', 'messages'].includes(params.get('tab') ?? '') ? 'replies' : params.get('tab') === 'support' ? 'support' : 'requests';
   const canPost = account!.roles.includes('traveler');
   const canReply = account!.roles.some(role => role === 'guide' || role === 'provider');
   const [requests, setRequests] = useState<RequestPost[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [conversation, setConversation] = useState<ConversationDetail | null>(null);
   const [loading, setLoading] = useState(true); const [error, setError] = useState('');
-  const [revision, setRevision] = useState(0);
+  const [revision, setRevision] = useState(0); const [search, setSearch] = useState(''); const [older, setOlder] = useState<ConversationDetail['messages']>([]); const [hasOlder, setHasOlder] = useState(false); const [loadingOlder, setLoadingOlder] = useState(false);
   const [composing, setComposing] = useState(params.get('compose') === '1' && canPost);
   const [title, setTitle] = useState(params.get('title')?.slice(0, 120) ?? '');
   const [destination, setDestination] = useState(params.get('destination')?.slice(0, 120) ?? '');
@@ -52,7 +53,7 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
   const [details, setDetails] = useState(''); const [replying, setReplying] = useState<RequestPost | null>(null);
   const [reply, setReply] = useState(''); const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false); const [formError, setFormError] = useState(''); const [notice, setNotice] = useState('');
-  const end = useRef<HTMLDivElement>(null);
+  const end = useRef<HTMLDivElement>(null); const olderLoaded = useRef(false);
   const visibleConversation = conversation?.id === selectedId ? conversation : null;
 
   useEffect(() => {
@@ -74,7 +75,7 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
     void load(); const timer = window.setInterval(load, 5000);
     return () => { controller.abort(); window.clearInterval(timer); };
   }, [tab, revision, nearby, canPost]);
-  useEffect(() => { setConversation(null); setMessage(''); setFormError(''); }, [selectedId]);
+  useEffect(() => { setConversation(null); setOlder([]); olderLoaded.current = false; setHasOlder(false); setMessage(''); setFormError(''); }, [selectedId]);
   useEffect(() => {
     if (!selectedId) return;
     const controller = new AbortController(); let running = false;
@@ -82,8 +83,8 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
       if (running) return;
       running = true;
       try {
-        const result = await api<{ conversation: ConversationDetail }>(`/api/messages/${encodeURIComponent(selectedId!)}`, { signal: controller.signal });
-        if (!controller.signal.aborted) { setConversation(result.conversation); setFormError(''); }
+        const result = await api<{ conversation: ConversationDetail & { hasOlder: boolean } }>(`/api/messages/${encodeURIComponent(selectedId!)}`, { signal: controller.signal });
+        if (!controller.signal.aborted) { setConversation(result.conversation); if (!olderLoaded.current) setHasOlder(result.conversation.hasOlder); setFormError(''); }
       } catch (failure) { if (!controller.signal.aborted) setFormError(errorText(failure)); }
       finally { running = false; }
     }
@@ -145,10 +146,11 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
 
   return <div className={`page-width inbox-page request-inbox ${selectedId ? 'has-conversation' : ''}`}>
     {testAccountsEnabled && <div className="test-account-banner"><span>Signed in as {account!.displayName}</span><Link href="/test-accounts" className="text-link">Switch test account</Link></div>}
-    {<PageHeading title="Inbox" action={canPost ? <button className="button button-primary" onClick={() => { setFormError(''); setComposing(true); }}><Plus size={18}/>Post a request</button> : undefined}/>}
+    {<PageHeading title="Inbox" text="Find your conversations, travel requests and customer-care tickets." action={canPost ? <button className="button button-primary" onClick={() => { setFormError(''); setComposing(true); }}><Plus size={18}/>Post a request</button> : undefined}/>}
     <nav className="request-tabs" aria-label="Inbox sections">
       <button className={tab === 'requests' ? 'active' : ''} aria-current={tab === 'requests' ? 'page' : undefined} onClick={() => switchTab('requests')}>Traveller requests</button>
-      <button className={tab === 'replies' ? 'active' : ''} aria-current={tab === 'replies' ? 'page' : undefined} onClick={() => switchTab('replies')}><LockKeyhole size={16}/>Replies</button>
+      <button className={tab === 'replies' ? 'active' : ''} aria-current={tab === 'replies' ? 'page' : undefined} onClick={() => switchTab('replies')}><LockKeyhole size={16}/>Messages</button>
+      <button className={tab === 'support' ? 'active' : ''} aria-current={tab === 'support' ? 'page' : undefined} onClick={() => switchTab('support')}>Customer care</button>
     </nav>
     {notice && <p className="request-notice" role="status">{notice}</p>}
     {error && <div className="request-error" role="alert"><p>{error}</p><button className="text-link" onClick={() => setRevision(value => value + 1)}>Try again</button></div>}
@@ -165,20 +167,12 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
       })}</div>}
       {requests.length === 50 && <p className="field-help">Showing the 50 most recent requests.</p>}
     </> : null}
-    {tab === 'replies' && !selectedId && <div className="reply-board">
-      {loading ? <p className="loading-state" role="status">Loading replies…</p> : <>
-        {(canPost ? requests : Array.from(new Map(conversations.filter(chat => chat.request).map(chat => [chat.request!.id, chat.request!])).values())).map(post => <article className="request-post reply-post" key={post.id}>
-          <details className="reply-request-details"><summary><h3>{post.title}</h3><ChevronRight size={18}/></summary><div><p className="request-destination"><MapPin size={16}/>{post.destination}</p>{post.details && <p className="request-details">{post.details}</p>}{post.pickupLocation && <p className="request-pickup"><LocateFixed size={16}/><span>Pickup / current location: <strong>{post.pickupLocation}</strong></span>{post.latitude !== null && post.longitude !== null && <a className="text-link" href={`https://www.openstreetmap.org/?mlat=${post.latitude}&mlon=${post.longitude}#map=16/${post.latitude}/${post.longitude}`} target="_blank" rel="noreferrer">View pin</a>}</p>}{canPost && !post.closed && <button className="text-link" disabled={busy} onClick={() => void closePost(post.id)}>Close request</button>}</div></details>
-          <details className="request-threads" open={requestFilter === post.id || undefined}><summary><MessageCircle size={16}/>Threads ({conversations.filter(chat => chat.request?.id === post.id).length})<ChevronRight size={16}/></summary><ThreadList conversations={conversations.filter(chat => chat.request?.id === post.id)}/></details>
-        </article>)}
-        {conversations.some(chat => !chat.request) && <article className="request-post reply-post"><h3>Private conversations</h3><ThreadList conversations={conversations.filter(chat => !chat.request)}/></article>}
-        {(!canPost || !requests.length) && !conversations.length && !error && <Empty icon={<MessageCircle size={32}/>} title="No replies yet" text={canPost ? 'Post a request to start making plans with a buddy or guide.' : 'Reply to a traveller request to start a private conversation.'}/>}
-      </>}
-    </div>}
+    {tab === 'support' && <SupportTickets/>}
+    {tab === 'replies' && !selectedId && <section className="message-manager"><h2>Message history</h2><p>Private conversations with travellers, buddies and guides.</p><label className="field message-search">Search conversations<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Name, request or latest message"/></label>{loading ? <p role="status">Loading messages…</p> : <ThreadList conversations={conversations.filter(chat => [chat.participant.displayName, chat.request?.title, chat.request?.destination, chat.latestMessage?.body].some(value => value?.toLowerCase().includes(search.trim().toLowerCase())))}/>}{canPost && requests.length > 0 && <div className="own-requests"><h2>Your travel requests</h2>{requests.map(post => <article className="request-post" key={post.id}><h3>{post.title}</h3><p className="request-destination"><MapPin size={16}/>{post.destination} · {post.closed ? 'Closed' : 'Open'}</p><p className="request-details">{post.details}</p><ThreadList conversations={conversations.filter(chat => chat.request?.id === post.id)}/>{!post.closed && <button className="text-link" disabled={busy} onClick={() => void closePost(post.id)}>Close request</button>}</article>)}</div>}</section>}
     {tab === 'replies' && selectedId && <div className="inbox-layout">
       {visibleConversation ? <section className="conversation-panel" aria-label="Private conversation">
         <div className="chat-header"><Link href="/inbox?tab=replies" className="icon-button" aria-label="Back to private replies"><ArrowLeft size={20}/></Link><h1>{visibleConversation.participant.displayName.trim().split(/\s+/)[0]}<LockKeyhole size={16} aria-label="Private conversation" role="img"/></h1></div>
-        <div className="chat-messages" aria-label="Conversation messages" role="log" aria-live="polite">{visibleConversation.request && <article className="message request-message" aria-label="Original traveller request"><details className="chat-request"><summary><MapPin size={16}/><strong>{visibleConversation.request.title}</strong><span>{visibleConversation.request.destination}{visibleConversation.request.closed && ' · Closed request'}</span></summary><p>{visibleConversation.request.details}</p>{visibleConversation.request.pickupLocation && <p>Pickup / current location: {visibleConversation.request.pickupLocation}</p>}</details></article>}{visibleConversation.messages.map(value => <article key={value.id} className={`message message-${value.senderId === account!.id ? 'customer' : 'sample'}`}><span>{value.senderId === account!.id ? 'You' : visibleConversation.participant.displayName}</span>{value.package ? <CustomPackageCard offer={value.package}/> : <p>{value.body}</p>}<time dateTime={value.createdAt}>{dateLabel(value.createdAt)} · {new Date(value.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</time></article>)}<div ref={end}/></div>
+        <div className="chat-messages" aria-label="Conversation messages" role="log" aria-live="polite">{visibleConversation.request && <article className="message request-message" aria-label="Original traveller request"><details className="chat-request"><summary><MapPin size={16}/><strong>{visibleConversation.request.title}</strong><span>{visibleConversation.request.destination}{visibleConversation.request.closed && ' · Closed request'}</span></summary><p>{visibleConversation.request.details}</p>{visibleConversation.request.pickupLocation && <p>Pickup / current location: {visibleConversation.request.pickupLocation}</p>}</details></article>}{hasOlder && <button type="button" className="button button-secondary" disabled={loadingOlder} onClick={async () => { const before = older[0]?.id ?? visibleConversation.messages[0]?.id; if (!before) return; setLoadingOlder(true); try { const result = await api<{ conversation: ConversationDetail & { hasOlder: boolean } }>(`/api/messages/${encodeURIComponent(selectedId!)}?before=${encodeURIComponent(before)}`); olderLoaded.current = true; setOlder(current => [...result.conversation.messages, ...current]); setHasOlder(result.conversation.hasOlder); } catch (failure) { setFormError(errorText(failure)); } finally { setLoadingOlder(false); } }}>{loadingOlder ? 'Loading…' : 'Load older messages'}</button>}{[...new Map([...older, ...visibleConversation.messages].map(value => [value.id, value])).values()].map(value => <article key={value.id} className={`message message-${value.senderId === account!.id ? 'customer' : 'sample'}`}><span>{value.senderId === account!.id ? 'You' : visibleConversation.participant.displayName}</span>{value.package ? <CustomPackageCard offer={value.package}/> : <p>{value.body}</p>}<time dateTime={value.createdAt}>{dateLabel(value.createdAt)} · {new Date(value.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</time></article>)}<div ref={end}/></div>
         {formError && <p className="error-message chat-error" role="alert">{formError}</p>}
         <form className="chat-composer" onSubmit={send}>{canReply && visibleConversation.request && <button type="button" className="button button-secondary custom-package-trigger" disabled={busy} onClick={() => { setOffering('conversation'); setFormError(''); }} aria-label="Send custom package"><Package size={18}/><span>Custom package</span></button>}<label className="sr-only" htmlFor="private-message">Your message</label><input id="private-message" value={message} disabled={busy} maxLength={1000} onChange={event => setMessage(event.target.value)} placeholder="Write a private message…" autoComplete="off"/><button className="button button-primary" disabled={busy || !message.trim()} aria-label="Send message"><Send size={19}/></button></form>
       </section> : <div className="conversation-placeholder"><MessageCircle size={34}/><h2>{selectedId ? formError ? 'Conversation unavailable.' : 'Opening your conversation…' : 'A local connection starts with a reply.'}</h2><p>{selectedId ? formError || 'Loading private messages.' : 'Choose a conversation to read messages and make a plan.'}</p>{formError && <button className="button button-secondary" onClick={() => setRevision(value => value + 1)}>Try again</button>}</div>}
@@ -200,5 +194,5 @@ function InboxContent({ testAccountsEnabled }: { testAccountsEnabled: boolean })
 }
 
 function ThreadList({ conversations }: { conversations: Conversation[] }) {
-  return <div className="request-thread-list">{conversations.length ? conversations.map(chat => <Link key={chat.id} href={`/inbox?conversation=${chat.id}`} className="request-thread"><span className="provider-avatar" aria-hidden="true">{chat.participant.displayName[0]}</span><span><strong>{chat.participant.displayName.trim().split(/\s+/)[0]}</strong><small>{chat.latestMessage?.body ?? 'No messages yet'}</small></span><ChevronRight size={18}/></Link>) : <p className="field-help">No replies yet. Threads will appear here when a buddy or guide responds.</p>}</div>;
+  return <div className="request-thread-list">{conversations.length ? conversations.map(chat => <Link key={chat.id} href={`/inbox?conversation=${chat.id}`} className="request-thread"><span className="provider-avatar" aria-hidden="true">{chat.participant.displayName[0]}</span><span><strong>{chat.participant.displayName}</strong><small>{chat.request ? `${chat.request.title} · ` : ''}{chat.latestMessage?.body ?? 'No messages yet'}</small>{chat.latestMessage && <small>{dateLabel(chat.latestMessage.createdAt)}</small>}</span><ChevronRight size={18}/></Link>) : <p className="field-help">No conversations found. Replies to travel requests will appear here.</p>}</div>;
 }

@@ -22,6 +22,8 @@ model AccountDocument {
   sentMessages Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageRecipient")
   travelRequests TravelRequest[]
+  supportTickets SupportTicket[]
+  supportTicketMessages SupportTicketMessage[]
 
   @@map("accounts")
 }
@@ -81,6 +83,33 @@ model Message {
   @@index([senderId, createdAt])
   @@index([recipientId, createdAt])
   @@map("messages")
+}
+
+model SupportTicket {
+  id        String @id @db.Uuid
+  ownerId   String @map("owner_id") @db.Uuid
+  subject   String @db.VarChar(120)
+  category  String @db.VarChar(30)
+  status    String @default("open") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  owner AccountDocument @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  messages SupportTicketMessage[]
+  @@index([ownerId, updatedAt(sort: Desc)], map: "support_tickets_owner_updated_idx")
+  @@map("support_tickets")
+}
+
+model SupportTicketMessage {
+  id String @id @db.Uuid
+  ticketId String @map("ticket_id") @db.Uuid
+  senderId String @map("sender_id") @db.Uuid
+  senderRole String @map("sender_role") @db.VarChar(20)
+  body String @db.VarChar(2000)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender AccountDocument @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  @@index([ticketId, createdAt, id], map: "support_ticket_messages_ticket_created_idx")
+  @@map("support_ticket_messages")
 }
 
 model ExperiencePackage {
