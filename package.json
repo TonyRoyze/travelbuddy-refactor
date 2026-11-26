@@ -23,6 +23,7 @@
     "format": "prettier --write src scripts services capacitor.config.ts vite.config.ts eslint.config.js README.md docs",
     "format:check": "prettier --check src scripts services capacitor.config.ts vite.config.ts eslint.config.js README.md docs",
     "db:test:setup": "node scripts/setup-test-db.mjs",
+    "promote:feature": "bash scripts/promote-feature.sh",
     "seed:nearby": "tsx scripts/seed-nearby-demo.ts",
     "test:nearby:http": "tsx scripts/test-nearby-http.ts",
     "test:media:http": "tsx scripts/test-media-http.ts"

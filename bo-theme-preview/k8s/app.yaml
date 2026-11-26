@@ -17,7 +17,7 @@ spec:
         - name: ghcr-pull
       containers:
         - name: app
-          image: REPLACE_WITH_PREVIEW_IMAGE
+          image: ghcr.io/shalinda/travelbuddy:latest
           imagePullPolicy: Always
           ports:
             - name: http

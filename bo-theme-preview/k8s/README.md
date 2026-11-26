@@ -12,6 +12,6 @@ Create/update the `travelbuddy-secrets` Secret using your secret manager or loca
 
 Google/Facebook/Apple client secrets belong to the Supabase Auth server configuration. The old `AUTH_SECRET` is no longer used. Keep development test accounts disabled in Kubernetes; `SUPABASE_SECRET_KEY` is not required by normal app login.
 
-Set the image in both app.yaml and migration-job.yaml to the same preview image that you build and publish. The workflow applies base resources, runs migrations, and deploys the app. Supabase infrastructure must already be running. The previous standalone Postgres manifest is retained for reference; the workflow does not deploy it. Existing database/PVC deletion requires a separate verified backup and cutover.
+The workflow applies base resources, runs migrations, and deploys the app. Supabase infrastructure must already be running. The previous standalone Postgres manifest is retained for reference; the workflow does not deploy it. Existing database/PVC deletion requires a separate verified backup and cutover.
 
 Your Mac's `localhost:8000` cannot serve the public app. Deploy Supabase to the server and configure HTTPS first, then update the secret and recreate app pods.
