@@ -8,7 +8,7 @@ A React + Vite application backed by the existing self-hosted Supabase instance.
 
 The root Vite application now carries the UTrippers design from `bo-theme-preview/`: branding, illustrated day/night hero, search, category navigation, listing cards and footer. The former standalone preview was removed on this repository; build the production app from the repository root. The live Supabase catalog, authentication, booking, provider and LKR payment flows remain in the root application. Catalog items and destinations therefore reflect production data rather than the preview’s demo inventory.
 
-Production changes are reviewed against `dev`. The quality workflow runs for pull requests and pushes to `dev` and `main`; the image workflow publishes a root-app image on pushes to either branch. Images use the exact commit SHA. Publishing does not itself roll out Kubernetes: your deployment process must select the image for the final merged `tony/main` commit. A feature-branch push does not publish or deploy production.
+Open production pull requests against `main` in `TonyRoyze/travelbuddy-refactor`. The quality workflow runs on pull requests and pushes to `main`. A push to `main` triggers the root-app image workflow, which tags the image with the full commit SHA. Select that image explicitly when rolling out to Kubernetes.
 
 Light is the default appearance. Explicit saved light, dark or system preferences are respected; the header theme button switches between light and dark.
 

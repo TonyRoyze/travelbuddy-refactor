@@ -34,7 +34,7 @@ spec:
       #   - name: ghcr-pull
       containers:
         - name: app
-          image: ghcr.io/shalinda/travelbuddy:REPLACE_WITH_COMMIT_SHA
+          image: ghcr.io/tonyroyze/travelbuddy-refactor:REPLACE_WITH_COMMIT_SHA
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

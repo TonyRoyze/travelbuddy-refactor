@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: ghcr.io/shalinda/travelbuddy:latest
+          image: REPLACE_WITH_PREVIEW_IMAGE
           imagePullPolicy: Always
           command: ["pnpm", "db:documents:deploy"]
           env:
