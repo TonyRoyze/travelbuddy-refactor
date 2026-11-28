@@ -21,6 +21,13 @@ const services = [
       OTEL_SERVICE_NAME: `${process.env.OTEL_SERVICE_NAME ?? "travelbuddy"}-payments`,
     },
   }),
+  spawn("node_modules/.bin/tsx", ["services/verification/server.ts"], {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      OTEL_SERVICE_NAME: `${process.env.OTEL_SERVICE_NAME ?? "travelbuddy"}-verification`,
+    },
+  }),
 ];
 // Missing APNs configuration disables push without stopping the web service.
 const pushWorker = spawn("node_modules/.bin/tsx", ["services/push/worker.ts"], {
@@ -33,15 +40,33 @@ const pushWorker = spawn("node_modules/.bin/tsx", ["services/push/worker.ts"], {
 pushWorker.on("error", () =>
   console.error("Could not start the iPhone push worker."),
 );
+const verificationWorker = spawn(
+  "node_modules/.bin/tsx",
+  ["services/verification/worker.ts"],
+  {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      OTEL_SERVICE_NAME: `${process.env.OTEL_SERVICE_NAME ?? "travelbuddy"}-verification-worker`,
+    },
+  },
+);
+verificationWorker.on("error", () =>
+  console.error("Could not start the verification worker."),
+);
 let stopping = false;
 pushWorker.on("exit", (code) => {
+  if (!stopping && code !== 0) stop(1);
+});
+verificationWorker.on("exit", (code) => {
   if (!stopping && code !== 0) stop(1);
 });
 
 function stop(code = 0) {
   if (stopping) return;
   stopping = true;
-  for (const child of [...services, pushWorker]) child.kill("SIGTERM");
+  for (const child of [...services, pushWorker, verificationWorker])
+    child.kill("SIGTERM");
   server.close(async () => {
     await shutdownTelemetry();
     process.exit(code);
@@ -106,6 +131,7 @@ const server = createServer(async (req, res) => {
       (await Promise.all([
         probe(5174, "/profile-media/health"),
         probe(5175, "/payments-api/health"),
+        probe(5176, "/verification-api/health"),
       ]).then((results) => results.every(Boolean)));
     res
       .writeHead(ready ? 200 : 503, { "content-type": "text/plain" })
@@ -117,7 +143,9 @@ const server = createServer(async (req, res) => {
     ? 5174
     : path.startsWith("/payments-api/")
       ? 5175
-      : undefined;
+      : path.startsWith("/verification-api/")
+        ? 5176
+        : undefined;
   if (upstreamPort) {
     const proxy = httpRequest(
       {

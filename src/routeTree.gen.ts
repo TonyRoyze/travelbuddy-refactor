@@ -30,6 +30,7 @@ import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authe
 import { Route as AuthenticatedAccountReviewsRouteImport } from './routes/_authenticated.account.reviews'
 import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated.account.security'
 import { Route as AuthenticatedAccountSettingsRouteImport } from './routes/_authenticated.account.settings'
+import { Route as AuthenticatedAdminVerificationsRouteImport } from './routes/_authenticated.admin.verifications'
 import { Route as AuthenticatedBookingIdRouteImport } from './routes/_authenticated.booking.$id'
 import { Route as AuthenticatedConfirmationIdRouteImport } from './routes/_authenticated.confirmation.$id'
 import { Route as AuthenticatedPaymentsOrderIdRouteImport } from './routes/_authenticated.payments.$orderId'
@@ -148,6 +149,12 @@ const AuthenticatedAccountSettingsRoute =
     path: '/account/settings',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAdminVerificationsRoute =
+  AuthenticatedAdminVerificationsRouteImport.update({
+    id: '/admin/verifications',
+    path: '/admin/verifications',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBookingIdRoute = AuthenticatedBookingIdRouteImport.update({
   id: '/booking/$id',
   path: '/booking/$id',
@@ -210,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/account/reviews': typeof AuthenticatedAccountReviewsRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/account/settings': typeof AuthenticatedAccountSettingsRoute
+  '/admin/verifications': typeof AuthenticatedAdminVerificationsRoute
   '/booking/$id': typeof AuthenticatedBookingIdRoute
   '/confirmation/$id': typeof AuthenticatedConfirmationIdRoute
   '/payments/$orderId': typeof AuthenticatedPaymentsOrderIdRoute
@@ -239,6 +247,7 @@ export interface FileRoutesByTo {
   '/account/reviews': typeof AuthenticatedAccountReviewsRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/account/settings': typeof AuthenticatedAccountSettingsRoute
+  '/admin/verifications': typeof AuthenticatedAdminVerificationsRoute
   '/booking/$id': typeof AuthenticatedBookingIdRoute
   '/confirmation/$id': typeof AuthenticatedConfirmationIdRoute
   '/payments/$orderId': typeof AuthenticatedPaymentsOrderIdRoute
@@ -270,6 +279,7 @@ export interface FileRoutesById {
   '/_authenticated/account/reviews': typeof AuthenticatedAccountReviewsRoute
   '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
   '/_authenticated/account/settings': typeof AuthenticatedAccountSettingsRoute
+  '/_authenticated/admin/verifications': typeof AuthenticatedAdminVerificationsRoute
   '/_authenticated/booking/$id': typeof AuthenticatedBookingIdRoute
   '/_authenticated/confirmation/$id': typeof AuthenticatedConfirmationIdRoute
   '/_authenticated/payments/$orderId': typeof AuthenticatedPaymentsOrderIdRoute
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/account/reviews'
     | '/account/security'
     | '/account/settings'
+    | '/admin/verifications'
     | '/booking/$id'
     | '/confirmation/$id'
     | '/payments/$orderId'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/account/reviews'
     | '/account/security'
     | '/account/settings'
+    | '/admin/verifications'
     | '/booking/$id'
     | '/confirmation/$id'
     | '/payments/$orderId'
@@ -360,6 +372,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/reviews'
     | '/_authenticated/account/security'
     | '/_authenticated/account/settings'
+    | '/_authenticated/admin/verifications'
     | '/_authenticated/booking/$id'
     | '/_authenticated/confirmation/$id'
     | '/_authenticated/payments/$orderId'
@@ -533,6 +546,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/verifications': {
+      id: '/_authenticated/admin/verifications'
+      path: '/admin/verifications'
+      fullPath: '/admin/verifications'
+      preLoaderRoute: typeof AuthenticatedAdminVerificationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/booking/$id': {
       id: '/_authenticated/booking/$id'
       path: '/booking/$id'
@@ -595,6 +615,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAccountReviewsRoute: typeof AuthenticatedAccountReviewsRoute
   AuthenticatedAccountSecurityRoute: typeof AuthenticatedAccountSecurityRoute
   AuthenticatedAccountSettingsRoute: typeof AuthenticatedAccountSettingsRoute
+  AuthenticatedAdminVerificationsRoute: typeof AuthenticatedAdminVerificationsRoute
   AuthenticatedBookingIdRoute: typeof AuthenticatedBookingIdRoute
   AuthenticatedConfirmationIdRoute: typeof AuthenticatedConfirmationIdRoute
   AuthenticatedPaymentsOrderIdRoute: typeof AuthenticatedPaymentsOrderIdRoute
@@ -615,6 +636,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountReviewsRoute: AuthenticatedAccountReviewsRoute,
   AuthenticatedAccountSecurityRoute: AuthenticatedAccountSecurityRoute,
   AuthenticatedAccountSettingsRoute: AuthenticatedAccountSettingsRoute,
+  AuthenticatedAdminVerificationsRoute: AuthenticatedAdminVerificationsRoute,
   AuthenticatedBookingIdRoute: AuthenticatedBookingIdRoute,
   AuthenticatedConfirmationIdRoute: AuthenticatedConfirmationIdRoute,
   AuthenticatedPaymentsOrderIdRoute: AuthenticatedPaymentsOrderIdRoute,

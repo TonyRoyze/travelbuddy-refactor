@@ -12,15 +12,16 @@ const viteCli = join(
 );
 
 function startService(name: string, entry: string, envFiles: string[]) {
-  const env = { ...process.env };
+  const fileEnv: Record<string, string> = {};
   for (const file of envFiles) {
     if (!existsSync(file)) continue;
     for (const [key, value] of Object.entries(
       parseEnv(readFileSync(file, "utf8")),
     )) {
-      if (env[key] === undefined) env[key] = value;
+      if (typeof value === "string" && value !== "") fileEnv[key] = value;
     }
   }
+  const env: NodeJS.ProcessEnv = { ...fileEnv, ...process.env };
   const missing = [
     "SUPABASE_URL",
     "SUPABASE_PUBLISHABLE_KEY",
@@ -32,11 +33,13 @@ function startService(name: string, entry: string, envFiles: string[]) {
     );
     return null;
   }
-  if (name === "profile uploads") {
+  if (name === "profile uploads" || name === "verification api") {
     // Phones reach Vite over the LAN rather than through localhost.
     const origins = new Set(
       (
-        env.MEDIA_ALLOWED_ORIGINS ??
+        (name === "verification api"
+          ? (env.VERIFICATION_ALLOWED_ORIGINS ?? env.MEDIA_ALLOWED_ORIGINS)
+          : env.MEDIA_ALLOWED_ORIGINS) ??
         "http://localhost:5173,http://127.0.0.1:5173"
       )
         .split(",")
@@ -50,7 +53,11 @@ function startService(name: string, entry: string, envFiles: string[]) {
         }
       }
     }
-    env.MEDIA_ALLOWED_ORIGINS = [...origins].join(",");
+    if (name === "verification api") {
+      env.VERIFICATION_ALLOWED_ORIGINS = [...origins].join(",");
+    } else {
+      env.MEDIA_ALLOWED_ORIGINS = [...origins].join(",");
+    }
   }
   return spawn(process.execPath, ["--import", "tsx", entry], {
     stdio: "inherit",
@@ -71,6 +78,17 @@ const children = [
     ".env.media.local",
     ".env.payments.local",
   ]),
+  startService("verification api", "services/verification/server.ts", [
+    ".env.media.local",
+    ".env.verification.local",
+  ]),
+  spawn(
+    process.execPath,
+    ["--import", "tsx", "services/verification/worker.ts"],
+    {
+      stdio: "inherit",
+    },
+  ),
 ].filter((child) => child !== null);
 let stopping = false;
 function stop() {
@@ -89,7 +107,11 @@ children.forEach((child) => {
   child.on("exit", (code) => {
     if (
       !stopping &&
-      !(code === 0 && child.spawnargs.includes("services/push/worker.ts"))
+      !(
+        code === 0 &&
+        (child.spawnargs.includes("services/push/worker.ts") ||
+          child.spawnargs.includes("services/verification/worker.ts"))
+      )
     ) {
       process.exitCode = code ?? 1;
       stop();

@@ -29,6 +29,8 @@ import {
   submitBuddyApplication,
   type BuddyApplicationStatus,
 } from "./buddy-application";
+import { prepareApplicationImage } from "./image-compress";
+import { previewNic } from "./nic-preview";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -50,21 +52,27 @@ function mobileSnapshot() {
 const selectClass =
   "h-11 w-full rounded-md border border-input bg-background px-3 text-base focus-visible:outline-2 focus-visible:outline-ring";
 
+const preparedImages = new WeakMap<HTMLInputElement, File>();
+
 export function BuddySignup({
   displayName,
   email,
   onBack,
   onSubmitted,
+  previousStatus,
   reviewMessage,
   existingBuddy,
+  backToAccount = existingBuddy,
   previouslyApproved,
 }: {
   displayName: string;
   email: string;
   onBack: () => void;
   onSubmitted: (status: BuddyApplicationStatus) => void;
+  previousStatus?: BuddyApplicationStatus["status"] | null;
   reviewMessage?: string | null;
   existingBuddy?: boolean;
+  backToAccount?: boolean;
   previouslyApproved?: boolean;
 }) {
   const mobile = useSyncExternalStore(
@@ -78,6 +86,11 @@ export function BuddySignup({
   );
   const [phone, setPhone] = useState("");
   const [documentType, setDocumentType] = useState("nic");
+  const [birthDate, setBirthDate] = useState("");
+  const [nicNumber, setNicNumber] = useState("");
+  const nic = previewNic(nicNumber);
+  const [consent, setConsent] = useState(false);
+  const [thirdPartyVehicle, setThirdPartyVehicle] = useState(false);
   const [service, setService] = useState("local");
   const [home, setHome] = useState("");
   const [languages, setLanguages] = useState("");
@@ -156,7 +169,7 @@ export function BuddySignup({
         className="mb-6"
       >
         <ArrowLeft data-icon="inline-start" />
-        {existingBuddy ? "Back to account" : "Account type"}
+        {backToAccount ? "Back to account" : "Account type"}
       </Button>
       <div className="grid items-start gap-8 md:grid-cols-[240px_minmax(0,1fr)] lg:gap-16">
         <aside className="md:sticky md:top-24">
@@ -215,9 +228,12 @@ export function BuddySignup({
             <ShieldCheck />
             <AlertTitle>Private application</AlertTitle>
             <AlertDescription>
-              TravelBuddy uses your documents and selfie to review your identity
-              and eligibility to host. Reviewers can access these images while
-              your application is under review.
+              TravelBuddy runs automated checks on your documents to verify your
+              identity and eligibility to host. Face comparison is optional.
+              Reviewers can access your photos during review. We delete the raw
+              photos as soon as a final decision is made. If automated checks
+              ask for changes, we keep the photos so you can request human
+              review.
             </AlertDescription>
           </Alert>
           {previouslyApproved && (
@@ -229,7 +245,19 @@ export function BuddySignup({
               </AlertDescription>
             </Alert>
           )}
-          {reviewMessage && (
+          {previousStatus === "rejected" && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertTitle>Previous application was rejected</AlertTitle>
+              <AlertDescription>
+                {reviewMessage && <p>{reviewMessage}</p>}
+                <p>
+                  You can update your details or documents and reapply below.
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
+          {(previousStatus === "changes_requested" ||
+            (reviewMessage && previousStatus !== "rejected")) && (
             <Alert className="mb-6">
               <AlertTitle>Changes requested</AlertTitle>
               <AlertDescription>{reviewMessage}</AlertDescription>
@@ -247,6 +275,12 @@ export function BuddySignup({
               }
               if (!validate()) return;
               const data = new FormData(event.currentTarget);
+              for (const input of event.currentTarget.querySelectorAll<HTMLInputElement>(
+                'input[type="file"]',
+              )) {
+                const prepared = preparedImages.get(input);
+                if (prepared) data.set(input.name, prepared);
+              }
               setSubmitting(true);
               setSubmitError(undefined);
               try {
@@ -348,6 +382,8 @@ export function BuddySignup({
                     id="buddy-birth-date"
                     name="birthDate"
                     type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
                     required
                     max={new Date().toISOString().slice(0, 10)}
                   />
@@ -355,6 +391,36 @@ export function BuddySignup({
                     Buddies must be 18 or older.
                   </p>
                 </Field>
+                {documentType === "nic" && (
+                  <Field>
+                    <FieldLabel htmlFor="buddy-nic-number">
+                      NIC number (optional)
+                    </FieldLabel>
+                    <Input
+                      id="buddy-nic-number"
+                      name="nicNumber"
+                      value={nicNumber}
+                      onChange={(event) => setNicNumber(event.target.value)}
+                      autoCapitalize="characters"
+                      spellCheck={false}
+                      maxLength={24}
+                      aria-describedby="buddy-nic-hint"
+                    />
+                    <p
+                      id="buddy-nic-hint"
+                      className="text-xs text-muted-foreground"
+                      aria-live="polite"
+                    >
+                      {!nicNumber.trim()
+                        ? "Recommended. Enter the number to check the date of birth on your NIC."
+                        : !nic
+                          ? "Check the NIC number. Use 12 digits or 9 digits followed by V or X."
+                          : birthDate && nic.birthDate !== birthDate
+                            ? `The NIC shows ${nic.birthDate}. Check it against the date of birth you entered.`
+                            : `The NIC shows ${nic.birthDate}${birthDate ? " and matches your date of birth" : ""}.`}
+                    </p>
+                  </Field>
+                )}
                 <LocalFile
                   key={documentType + "front"}
                   id="buddy-id-front"
@@ -391,13 +457,22 @@ export function BuddySignup({
                     id="buddy-face-consent"
                     name="faceComparisonConsent"
                     value="yes"
+                    checked={consent}
+                    disabled={submitting}
+                    onChange={(event) => setConsent(event.target.checked)}
                   />
                   <FieldLabel htmlFor="buddy-face-consent">
                     Allow Microsoft Azure Face to compare my selfie with the
-                    photo on my ID. A reviewer will make the final decision.
-                    This option is voluntary.
+                    photo on my ID. This option is voluntary.
                   </FieldLabel>
                 </Field>
+                {consent && (
+                  <p className="text-xs text-muted-foreground">
+                    When Azure Face is configured, your selfie is compared
+                    against your ID photo and queued for final administrator
+                    confirmation.
+                  </p>
+                )}
               </FieldGroup>,
             )}
             {section(
@@ -484,14 +559,43 @@ export function BuddySignup({
                   <FieldSet>
                     <FieldLegend>Transport documents</FieldLegend>
                     <LocalFile
-                      id="buddy-driving-licence"
-                      label="Driving licence"
+                      id="buddy-driving-licence-front"
+                      label="Driving licence front"
+                    />
+                    <LocalFile
+                      id="buddy-driving-licence-back"
+                      label="Driving licence back"
                     />
                     <LocalFile
                       id="buddy-vehicle"
                       label="Vehicle registration"
                     />
                     <LocalFile id="buddy-insurance" label="Vehicle insurance" />
+                    <LocalFile
+                      id="buddy-revenue-licence"
+                      label="Vehicle revenue licence"
+                    />
+                    <Field orientation="horizontal">
+                      <input
+                        id="buddy-third-party-vehicle"
+                        name="thirdPartyVehicle"
+                        type="checkbox"
+                        value="yes"
+                        checked={thirdPartyVehicle}
+                        onChange={(event) =>
+                          setThirdPartyVehicle(event.target.checked)
+                        }
+                      />
+                      <FieldLabel htmlFor="buddy-third-party-vehicle">
+                        Vehicle is registered to someone else or a company
+                      </FieldLabel>
+                    </Field>
+                    {thirdPartyVehicle && (
+                      <LocalFile
+                        id="buddy-owner-authorization"
+                        label="Signed owner authorization letter"
+                      />
+                    )}
                     <p className="text-sm text-muted-foreground">
                       Vehicle permissions and insurance must cover the service
                       offered.
@@ -503,7 +607,7 @@ export function BuddySignup({
             {section(
               4,
               "Review your buddy application",
-              "Check your details before sending your application for manual review.",
+              "Check your details before sending your application for review.",
               <FieldGroup>
                 <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-4 rounded-xl bg-muted p-5 text-sm">
                   <dt className="text-muted-foreground">Display name</dt>
@@ -528,8 +632,6 @@ export function BuddySignup({
                         ? "Experiences with transport"
                         : "Local experiences"}
                   </dd>
-                  <dt className="text-muted-foreground">Verification</dt>
-                  <dd>Not started</dd>
                 </dl>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   {existingBuddy
@@ -552,7 +654,7 @@ export function BuddySignup({
                 </Button>
               ) : (
                 <span className="text-xs text-muted-foreground">
-                  Manual review
+                  Private application
                 </span>
               )}
               <Button type="submit" disabled={submitting}>
@@ -580,7 +682,11 @@ function LocalFile({
   label: string;
   selfie?: boolean;
 }) {
-  const [file, setFile] = useState<File>();
+  const [prepared, setPrepared] =
+    useState<Awaited<ReturnType<typeof prepareApplicationImage>>>();
+  const [processing, setProcessing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const file = prepared?.file;
   const [error, setError] = useState("");
   const [url, setUrl] = useState("");
   useEffect(() => {
@@ -595,9 +701,10 @@ function LocalFile({
       <div className="flex flex-col gap-3 rounded-lg border border-dashed border-input p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FileImage className="size-4" />
-          <span>JPG, PNG or WebP · up to 2 MB</span>
+          <span>JPG, PNG or WebP · at least 640 pixels wide</span>
         </div>
         <Input
+          ref={inputRef}
           id={id}
           name={id.slice("buddy-".length)}
           type="file"
@@ -606,22 +713,39 @@ function LocalFile({
           capture={selfie ? "user" : undefined}
           aria-invalid={!!error}
           aria-describedby={`${id}-help`}
-          onChange={(e) => {
-            const next = e.target.files?.[0];
-            if (
-              next &&
-              (!["image/jpeg", "image/png", "image/webp"].includes(next.type) ||
-                next.size > 2 * 1024 * 1024)
-            ) {
-              setError("Choose a JPG, PNG or WebP image of 2 MB or smaller.");
-              e.target.value = "";
-              setFile(undefined);
-              setUrl("");
-              return;
-            }
-            setError("");
-            setFile(next);
+          onChange={async (event) => {
+            const input = event.currentTarget;
+            const next = input.files?.[0];
+            preparedImages.delete(input);
+            setPrepared(undefined);
             setUrl("");
+            setError("");
+            input.setCustomValidity(
+              next ? "Wait for the photo to finish processing." : "",
+            );
+            setProcessing(!!next);
+            if (!next) return;
+
+            try {
+              const result = await prepareApplicationImage(next);
+              if (inputRef.current !== input || input.files?.[0] !== next)
+                return;
+              preparedImages.set(input, result.file);
+              setPrepared(result);
+              input.setCustomValidity("");
+            } catch (error) {
+              if (inputRef.current !== input || input.files?.[0] !== next)
+                return;
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : "Choose another photo.";
+              input.setCustomValidity(message);
+              setError(message);
+            } finally {
+              if (inputRef.current === input && input.files?.[0] === next)
+                setProcessing(false);
+            }
           }}
         />
         {file && (
@@ -634,7 +758,7 @@ function LocalFile({
             <p className="min-w-0 flex-1 break-all text-sm">
               {file.name}
               <span className="block text-xs text-muted-foreground">
-                Ready to submit
+                {Math.ceil(file.size / 1024)} KB · Ready to submit
               </span>
             </p>
             <Button
@@ -642,10 +766,13 @@ function LocalFile({
               variant="ghost"
               size="sm"
               onClick={() => {
-                setFile(undefined);
-                setUrl("");
-                const input = document.getElementById(id) as HTMLInputElement;
+                const input = inputRef.current;
+                if (!input) return;
+                preparedImages.delete(input);
                 input.value = "";
+                input.setCustomValidity("");
+                setPrepared(undefined);
+                setUrl("");
               }}
             >
               Remove
@@ -655,12 +782,17 @@ function LocalFile({
       </div>
       <p
         id={`${id}-help`}
+        aria-live="polite"
         className={cn(
           "text-xs text-muted-foreground",
           error && "text-destructive",
         )}
       >
-        {error || "Shared with the reviewer when you submit."}
+        {error ||
+          (processing
+            ? "Preparing your photo…"
+            : prepared?.blurWarning ||
+              "Shared with the reviewer when you submit.")}
       </p>
     </Field>
   );

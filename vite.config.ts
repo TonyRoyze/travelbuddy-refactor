@@ -16,6 +16,7 @@ export default defineConfig({
     proxy: {
       "/profile-media": "http://127.0.0.1:5174",
       "/payments-api": "http://127.0.0.1:5175",
+      "/verification-api": "http://127.0.0.1:5176",
     },
   },
   build: { outDir: "dist" },

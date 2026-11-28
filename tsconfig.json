@@ -23,6 +23,7 @@
     "services/profile-media",
     "services/payments",
     "services/push",
+    "services/verification",
     "scripts/dev.ts"
   ]
 }

@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Moon,
   Sun,
+  ShieldCheck,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "@/features/auth/session";
@@ -81,6 +82,17 @@ export function Shell() {
       ? { ...item, to: "/account/dashboard" as const, label: "Dashboard" }
       : item,
   );
+  const admin = account?.roles.includes("admin");
+  const navItems = admin
+    ? [
+        ...navigation,
+        {
+          to: "/admin/verifications" as const,
+          label: "Verify",
+          icon: ShieldCheck,
+        },
+      ]
+    : navigation;
   const auth = [
     "/login",
     "/register",
@@ -125,7 +137,7 @@ export function Shell() {
               className="hidden items-center gap-1 md:flex"
               aria-label="Main navigation"
             >
-              {navigation.map((item) => {
+              {navItems.map((item) => {
                 const isSelected = active(item.to);
                 return (
                   <Link
@@ -134,7 +146,7 @@ export function Shell() {
                     search={{}}
                     aria-current={isSelected ? "page" : undefined}
                     className={cn(
-                      "relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors hover:text-foreground hover:bg-muted/60",
+                      "relative flex h-10 items-center rounded-lg px-2 text-sm lg:px-3.5 font-medium transition-colors hover:text-foreground hover:bg-muted/60",
                       isSelected
                         ? "text-primary font-semibold"
                         : "text-muted-foreground",
@@ -268,10 +280,13 @@ export function Shell() {
       {!focused && !inputFocused && (
         <nav
           aria-label="Mobile navigation"
-          className="mobile-dock fixed inset-x-0 bottom-0 z-40 grid h-[calc(4.5rem+env(safe-area-inset-bottom))] grid-cols-5 items-center border-t border-border/70 px-2 pt-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:hidden"
+          className={cn(
+            "mobile-dock fixed inset-x-0 bottom-0 z-40 grid h-[calc(4.5rem+env(safe-area-inset-bottom))] items-center border-t border-border/70 px-2 pt-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:hidden",
+            admin ? "grid-cols-6" : "grid-cols-5",
+          )}
         >
           {[
-            ...navigation,
+            ...navItems,
             { to: "/account" as const, label: "Profile", icon: UserRound },
           ].map(({ icon: Icon, ...item }) => {
             const isSelected = active(item.to);

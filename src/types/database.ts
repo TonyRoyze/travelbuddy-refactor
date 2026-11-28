@@ -23,6 +23,35 @@ export type Database = {
       account: { Args: never; Returns: Json }
       buddy_application_status: { Args: never; Returns: Json }
       submit_buddy_application: { Args: { application: Json; images: Json }; Returns: Json }
+      request_buddy_manual_review: { Args: never; Returns: Json }
+      admin_list_buddy_applications: { Args: { status_filter?: string | null }; Returns: Json }
+      admin_get_buddy_application: { Args: { applicant_id: string }; Returns: Json }
+      admin_buddy_application_image: { Args: { applicant_id: string; image_kind: string; submission?: string | null }; Returns: Json }
+      admin_review_buddy_application: {
+        Args: {
+          applicant_id: string
+          submission: string
+          decision: string
+          message?: string | null
+          credentials?: Json | null
+        }
+        Returns: Json
+      }
+      admin_requeue_buddy_verification: { Args: { applicant_id: string; submission?: string | null }; Returns: Json }
+      claim_buddy_verification_job: { Args: never; Returns: Json }
+      check_buddy_credential_duplicates: { Args: { p_account_id: string; p_nic_hmac?: string | null; p_plate?: string | null }; Returns: Json }
+      complete_buddy_verification_job: { Args: { p_job_id: string; p_lease_id: string; p_outcome: Json }; Returns: Json }
+      fail_buddy_verification_job: {
+        Args: {
+          p_job_id: string
+          p_lease_id: string
+          p_error: string
+          p_max_attempts?: number
+        }
+        Returns: Json
+      }
+      get_buddy_application_image: { Args: { p_account_id: string; p_kind: string; p_submission?: string | null }; Returns: Json }
+      sweep_buddy_verification_maintenance: { Args: never; Returns: Json }
       apply_payment_notification: {
         Args: {
           amount: number

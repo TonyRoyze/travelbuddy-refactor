@@ -126,6 +126,50 @@ spec:
                   name: travelbuddy-runtime
                   key: PAYHERE_APP_SECRET
                   optional: true
+            - name: VERIFICATION_HOST
+              value: 127.0.0.1
+            - name: VERIFICATION_PORT
+              value: "5176"
+            - name: VERIFICATION_ALLOWED_ORIGINS
+              value: https://REPLACE_WITH_APP_HOSTNAME
+            - name: VERIFICATION_MODE
+              value: auto
+            - name: VERIFICATION_HMAC_PEPPER
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: VERIFICATION_HMAC_PEPPER
+                  optional: true
+            - name: AZURE_FACE_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: AZURE_FACE_ENDPOINT
+                  optional: true
+            - name: AZURE_FACE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: AZURE_FACE_KEY
+                  optional: true
+            - name: VISION_AI_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: VISION_AI_PROVIDER
+                  optional: true
+            - name: VISION_AI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: VISION_AI_API_KEY
+                  optional: true
+            - name: VISION_AI_MODEL
+              valueFrom:
+                secretKeyRef:
+                  name: travelbuddy-runtime
+                  key: VISION_AI_MODEL
+                  optional: true
           readinessProbe:
             httpGet:
               path: /readyz

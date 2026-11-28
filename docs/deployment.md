@@ -84,43 +84,47 @@ The worker defaults to `APNS_ENVIRONMENT=production`. For development, set `APNS
 
 Rebuild and distribute the native app as well as rolling out the server image. Website/container updates do not update the installed iPhone bundle or provisioning profile. See [native push setup and physical-device verification](ios-capacitor.md#message-push-notifications).
 
-## Buddy applications
+## Buddy applications & automated verification
 
-Apply the buddy application migration with `pnpm db:migrate` before rolling out the app. The signup sends images to the existing Supabase Data API in a single request. Allow at least 17 MiB per request on the Supabase gateway path for the maximum six 2 MiB images after base64 encoding. Test with sample documents through the deployed gateway before accepting real applications.
+Apply the buddy application and verification automation migrations (`20261119090000_buddy_applications.sql`, `20261120120000_existing_buddy_face_review.sql`, and `20261128090000_buddy_verification_automation.sql`) with `pnpm db:migrate` before rolling out the app. The signup compresses large uploads client-side and sends images to the existing Supabase Data API in a single request. Allow at least 26 MiB per request on the Supabase gateway path for the maximum nine 2 MiB images after base64 encoding and JSON overhead. Test with sample documents through the deployed gateway before accepting real applications.
 
-Use a trusted database operator session to review applications. Only expose `travelbuddy_api` through PostgREST. The private tables and decision function are inaccessible to browser and service-role API requests.
+### Automated verification service (`services/verification/`)
+
+The container and `pnpm dev` run `services/verification/server.ts` (port `5176`, proxied at `/verification-api/`) alongside `services/verification/worker.ts`.
+
+- Copy [.env.verification.example](../.env.verification.example) to `.env.verification.local` for local configuration, or populate optional keys in the `travelbuddy-runtime` Kubernetes Secret (`VERIFICATION_HMAC_PEPPER`, `AZURE_FACE_ENDPOINT`, `AZURE_FACE_KEY`, `VISION_AI_PROVIDER`, `VISION_AI_API_KEY`, `VISION_AI_MODEL`).
+- Apply the updated [k8s/deployment.yaml](../k8s/deployment.yaml) manifest (not just `kubectl set image`) so the pod receives the `VERIFICATION_*` environment variables and optional `travelbuddy-runtime` `secretKeyRef` mappings.
+- When Azure Face or Vision AI keys are unset, the worker safely escalates submissions to Amber (`manual_review`) rather than rejecting applicants.
+- `VERIFICATION_MODE` supports `shadow` (runs all checks and logs results while routing every submission to `manual_review`), `assisted` (auto-routes Red `changes_requested` and holds Green/Amber for review), and `auto` (default; auto-approves clean Green passes, routes Amber to `manual_review`, and requests changes on Red).
+
+### Administrator role & manual review console
+
+Only `travelbuddy_api` should be exposed through PostgREST. Administrator queue/decision RPCs verify `travelbuddy_private.is_admin()` (`roles ? 'admin'`), and self-registration/profile edits never grant `admin`. Grant or revoke the `admin` role from a trusted operator machine with `DATABASE_URL`:
+
+```sh
+DATABASE_URL=<postgres-admin-url> node scripts/grant-admin.mjs --email <user-email>
+# Or by TravelBuddy account UUID / revoke:
+DATABASE_URL=<postgres-admin-url> node scripts/grant-admin.mjs --account-id <account-uuid> [--revoke]
+```
+
+Signed-in administrators see a **Verify** link in navigation and **Buddy verifications** on their Account page (`/admin/verifications`), where they can inspect automated rule outcomes, side-by-side face/document evidence, and DMT VehicleInfo lookup details, then **Approve**, **Request changes**, **Reject**, or **Re-run automation**:
+
+- **Approve / Request changes / Reject (manual):** Immediately deletes raw images from `buddy_application_images` and strips private application details.
+- **Reapplying after rejection or requested changes:** Both new applicants, completed travelers, and existing buddies whose applications were `rejected` or `changes_requested` can update their details/documents and reapply cleanly.
+- **Appeals & retention sweep:** Automated Red (`changes_requested`) outcomes retain raw images temporarily (up to 14 days) so applicants can tap **Request human review**; `sweep_buddy_verification_maintenance()` purges expired images and pauses transport eligibility when driving licence, insurance, or revenue licence expires.
+
+Direct SQL fallback (when needed from a trusted operator session):
 
 ```sql
 SELECT account_id, submitted_at, details
 FROM travelbuddy_private.buddy_applications
-WHERE status = 'pending'
+WHERE status IN ('pending', 'manual_review')
 ORDER BY submitted_at;
 
--- Read only the evidence for the application being reviewed.
-SELECT kind, mime_type, content
-FROM travelbuddy_private.buddy_application_images
-WHERE account_id = '<account UUID>';
-```
-
-Open the evidence in a trusted image viewer. Compare the submitted details and selfie with the ID, check the applicant is 18 or older, and contact the applicant if the photo match or document is unclear. Review the SLTDA licence or the driver and vehicle credentials when applicable. This workflow uses human review. It does not call the Sri Lankan NIC registry, send OTPs or run biometric liveness checks.
-
-Use the exact `submitted_at` from the pending row when recording the decision so a stale review cannot approve a replacement submission.
-
-```sql
 SELECT travelbuddy_private.review_buddy_application(
   '<account UUID>', '<submitted_at>', true, '<operator identifier>'
 );
-
--- Or request changes with a message the applicant will see.
-SELECT travelbuddy_private.review_buddy_application(
-  '<account UUID>', '<submitted_at>', false, '<operator identifier>',
-  'Please submit a clearer photograph of your identity document.'
-);
 ```
-
-Both decisions remove the submitted images and private application details from live tables. Use the changes request to close applications that have exceeded the operator's retention window. Review backup retention separately and remove any temporary local review copies. Approval activates hosting and copies the display name, home base, languages and introduction to the buddy profile.
-
-Existing buddies can open **Account → Buddy registration** and submit an application for review. Their account role and public profile remain in place during and after review.
 
 ### Azure Face comparison
 

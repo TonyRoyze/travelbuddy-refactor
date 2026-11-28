@@ -96,7 +96,8 @@ export function AccountOverview({ account: a }: { account: Account }) {
       description: "Your sign-in and password options",
     },
   ];
-  const links = buddy
+  const admin = a.roles.includes("admin");
+  const accountLinks = buddy
     ? [
         {
           to: "/account/dashboard" as const,
@@ -132,6 +133,17 @@ export function AccountOverview({ account: a }: { account: Account }) {
         },
       ]
     : travellerLinks;
+  const links = admin
+    ? [
+        {
+          to: "/admin/verifications" as const,
+          icon: ShieldCheck,
+          label: "Buddy verifications",
+          description: "Review identity and credential applications",
+        },
+        ...accountLinks,
+      ]
+    : accountLinks;
 
   return (
     <section className="account-workspace mx-auto flex max-w-6xl flex-col gap-8">
@@ -162,7 +174,10 @@ export function AccountOverview({ account: a }: { account: Account }) {
               </Badge>
             </div>
             <div className="flex min-w-0 flex-col gap-1">
-              <CardTitle>{a.displayName}</CardTitle>
+              <CardTitle className="flex flex-wrap items-center gap-2">
+                {a.displayName}
+                {admin && <Badge>Admin</Badge>}
+              </CardTitle>
               <CardDescription className="break-all">{a.email}</CardDescription>
               {a.profileDetails.homeBase && (
                 <p className="text-sm text-muted-foreground">
